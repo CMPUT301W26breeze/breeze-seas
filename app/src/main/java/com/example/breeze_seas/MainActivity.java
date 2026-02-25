@@ -8,6 +8,14 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+
+/* testing Firestore connection //delete as a comment if you want to use database
+import com.google.firebase.firestore.FirebaseFirestore;
+import java.util.HashMap;
+import java.util.Map;
+import com.google.firebase.auth.FirebaseAuth;
+ */
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
