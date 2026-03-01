@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_explore"
+        android:icon="@drawable/ic_explore"
+        android:title="Explore"/>
+
+    <item
+        android:id="@+id/nav_scan"
+        android:icon="@drawable/ic_scan"
+        android:title="Scan"/>
+
+    <item
+        android:id="@+id/nav_tickets"
+        android:icon="@drawable/ic_ticket"
+        android:title="Tickets"/>
+
+    <item
+        android:id="@+id/nav_organize"
+        android:icon="@drawable/ic_organize"
+        android:title="Organize"/>
+
+    <item
+        android:id="@+id/nav_profile"
+        android:icon="@drawable/ic_profile"
+        android:title="Profile"/>
+
+</menu>
