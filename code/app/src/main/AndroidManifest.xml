@@ -33,6 +33,10 @@
             android:name=".ViewQrCodeActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".FilterActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>
