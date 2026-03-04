@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Arrays;
@@ -37,7 +38,7 @@ public class ActiveTicketsFragment extends Fragment {
         ActiveTicketsAdapter adapter = new ActiveTicketsAdapter(ticket -> {
 
             if (ticket.getStatus() == TicketUIModel.Status.BACKUP) {
-                new BackupPoolBottomSheet().show(getParentFragmentManager(), "BackupPoolBottomSheet");
+                showBackupPoolDialog();
                 return;
             }
 
@@ -53,5 +54,24 @@ public class ActiveTicketsFragment extends Fragment {
         );
 
         adapter.submitList(demo);
+    }
+
+    /**
+     * Shows a centered informational dialog explaining the backup pool state.
+     *
+     * <p>This replaces the previous bottom sheet approach to avoid excessive empty space.
+     *
+     * Source:
+     * Google Material Design, "Dialogs", accessed 2026-03-04:
+     * https://m3.material.io/components/dialogs/overview
+     */
+    private void showBackupPoolDialog() {
+        if (!isAdded()) return;
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("You're on the Waitlist")
+                .setMessage("The first draw is complete. You are currently in the backup pool. If any tickets are declined, we will run another draw and notify you.")
+                .setPositiveButton("Okay", (dialog, which) -> dialog.dismiss())
+                .show();
     }
 }
