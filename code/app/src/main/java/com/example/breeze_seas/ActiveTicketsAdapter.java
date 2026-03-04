@@ -26,7 +26,8 @@ import java.util.List;
  * - Add stable IDs when using real Firestore document IDs.
  */
 public class ActiveTicketsAdapter extends RecyclerView.Adapter<ActiveTicketsAdapter.TicketViewHolder> {
-
+    // The following adapter implementation was generated with assistance from ChatGPT,
+    // "How to implement a RecyclerView Adapter in Android using java", 2026-03-03.
     public interface OnTicketClickListener {
         void onTicketClick(TicketUIModel ticket);
     }
@@ -59,10 +60,8 @@ public class ActiveTicketsAdapter extends RecyclerView.Adapter<ActiveTicketsAdap
         holder.title.setText(ticket.getTitle());
         holder.date.setText(ticket.getDateLabel());
 
-        // Default: no red dot unless action is required
         holder.actionDot.setVisibility(View.GONE);
 
-        // Style values
         final int white = ContextCompat.getColor(holder.itemView.getContext(), android.R.color.white);
         final int black = ContextCompat.getColor(holder.itemView.getContext(), android.R.color.black);
 
@@ -72,7 +71,6 @@ public class ActiveTicketsAdapter extends RecyclerView.Adapter<ActiveTicketsAdap
                 holder.chip.setText("Pending");
                 holder.icon.setImageResource(R.drawable.ic_clock);
 
-                // White chip with subtle border
                 holder.chip.setChipBackgroundColor(ContextCompat.getColorStateList(holder.itemView.getContext(), android.R.color.white));
                 holder.chip.setTextColor(black);
                 holder.chip.setChipStrokeWidth(1f);
@@ -83,7 +81,6 @@ public class ActiveTicketsAdapter extends RecyclerView.Adapter<ActiveTicketsAdap
                 holder.chip.setText("Not selected");
                 holder.icon.setImageResource(R.drawable.ic_info);
 
-                // White chip with subtle border
                 holder.chip.setChipBackgroundColor(ContextCompat.getColorStateList(holder.itemView.getContext(), android.R.color.white));
                 holder.chip.setTextColor(black);
                 holder.chip.setChipStrokeWidth(1f);
@@ -94,7 +91,6 @@ public class ActiveTicketsAdapter extends RecyclerView.Adapter<ActiveTicketsAdap
                 holder.chip.setText("Action Required");
                 holder.icon.setImageResource(R.drawable.ic_star);
 
-                // Black filled chip + red dot
                 holder.chip.setChipBackgroundColor(ContextCompat.getColorStateList(holder.itemView.getContext(), android.R.color.black));
                 holder.chip.setTextColor(white);
                 holder.chip.setChipStrokeWidth(0f);
@@ -121,7 +117,7 @@ public class ActiveTicketsAdapter extends RecyclerView.Adapter<ActiveTicketsAdap
 
         TicketViewHolder(@NonNull View itemView) {
             super(itemView);
-            icon = itemView.findViewById(R.id.ticket_status_icon);
+            icon = itemView.findViewById(R.id.ticket_thumbnail);
             title = itemView.findViewById(R.id.ticket_event_title);
             date = itemView.findViewById(R.id.ticket_event_date);
             chip = itemView.findViewById(R.id.ticket_status_chip);

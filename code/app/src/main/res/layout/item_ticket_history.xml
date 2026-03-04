@@ -2,91 +2,116 @@
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/ticket_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
-    android:layout_marginVertical="8dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="6dp"
-    app:cardBackgroundColor="@android:color/white"
+    android:layout_marginVertical="10dp"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="10dp"
     app:strokeWidth="0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="14dp">
+        android:minHeight="84dp"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp">
 
         <ImageView
-            android:id="@+id/ticket_status_icon"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:contentDescription="Status icon"
-            android:scaleType="centerInside"
+            android:id="@+id/ticket_thumbnail"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_launcher_foreground"
+            android:contentDescription="Event thumbnail"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
         <TextView
             android:id="@+id/ticket_event_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="14dp"
+            android:layout_marginEnd="10dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:text="Beginner Swimming Lesson"
+            android:textColor="#111111"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toEndOf="@id/ticket_status_icon"
-            app:layout_constraintEnd_toStartOf="@id/status_container" />
+            app:layout_constraintStart_toEndOf="@id/ticket_thumbnail"
+            app:layout_constraintTop_toTopOf="@id/ticket_thumbnail"
+            app:layout_constraintEnd_toStartOf="@id/status_container"/>
 
         <TextView
             android:id="@+id/ticket_event_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_marginTop="4dp"
+            android:layout_marginStart="14dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginEnd="10dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:text="Aug 15, 2026 • 6:00 PM"
+            android:textColor="#7A7A7A"
             android:textSize="13sp"
-            android:textColor="#6B7280"
+            app:layout_constraintStart_toEndOf="@id/ticket_thumbnail"
             app:layout_constraintTop_toBottomOf="@id/ticket_event_title"
-            app:layout_constraintStart_toEndOf="@id/ticket_status_icon"
-            app:layout_constraintEnd_toStartOf="@id/status_container" />
+            app:layout_constraintEnd_toStartOf="@id/status_container"/>
 
-        <!-- Chip + optional red dot overlay (for Action Required) -->
         <FrameLayout
             android:id="@+id/status_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintBottom_toBottomOf="parent">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/ticket_status_chip"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="34dp"
                 android:text="Pending"
-                android:textSize="12sp"
-                android:textColor="#000000"
-                app:chipCornerRadius="16dp"
-                app:chipMinHeight="28dp"
+                android:textSize="13sp"
+                android:textColor="#2B2B2B"
+                app:chipMinHeight="34dp"
+                app:chipCornerRadius="18dp"
+                app:chipBackgroundColor="#EDEDED"
                 app:chipStrokeWidth="1dp"
-                app:chipStrokeColor="@color/grey_border"
-                app:chipBackgroundColor="@android:color/white" />
+                app:chipStrokeColor="#7D7D7D"
+                app:chipStartPadding="14dp"
+                app:chipEndPadding="14dp"
+                app:textStartPadding="0dp"
+                app:textEndPadding="0dp" />
 
             <View
                 android:id="@+id/action_dot"
                 android:layout_width="8dp"
                 android:layout_height="8dp"
                 android:layout_gravity="end|top"
-                android:layout_marginTop="2dp"
-                android:layout_marginEnd="2dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginEnd="6dp"
                 android:background="@drawable/red_dot"
-                android:visibility="gone" />
+                android:visibility="gone"/>
         </FrameLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 </com.google.android.material.card.MaterialCardView>
+
+    <!--
+    Ticket history card layout for the Tickets screen.
+
+    Design inspiration based on Material Design 3 card and list item guidelines.
+    Source: Material Design 3 – Card Component Overview
+    https://m3.material.io/components/cards/overview
+
+    Additional styling choices were adapted to match the project’s Figma UI mockups
+    Accessed: 2026-03-03
+    -->
