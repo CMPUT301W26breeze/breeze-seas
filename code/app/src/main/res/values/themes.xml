@@ -4,16 +4,30 @@
   Purpose:
   - Uses Material 3 DayNight theme.
   - Applies Inter font family globally for a clean, minimal typographic style.
+  - Forces neutral (white) surfaces/backgrounds to avoid Material 3 surface tinting.
+
+  Notes:
+  - Material 3 can apply tonal elevation (subtle color tint) to surfaces such as cards,
+    tab containers, and navigation elements. The overrides below keep the UI visually white.
 
   Outstanding:
-  - Confirm colorSurface/background values match design (avoid tinted nav surfaces).
+  - If any UI still appears tinted, inspect the specific component style (e.g., TabLayout,
+    BottomNavigationView, CardView) and apply an explicit background where needed.
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.Breezeseas" parent="Theme.Material3.DayNight.NoActionBar">
+
         <!-- Font -->
         <item name="android:fontFamily">@font/inter</item>
         <item name="fontFamily">@font/inter</item>
+
+        <!-- Neutral surfaces/backgrounds (remove pink/purple tint) -->
+        <item name="android:colorBackground">#FFFFFF</item>
+        <item name="colorSurface">#FFFFFF</item>
+        <item name="colorSurfaceVariant">#FFFFFF</item>
+        <item name="colorSurfaceContainer">#FFFFFF</item>
+        <item name="colorSurfaceContainerHigh">#FFFFFF</item>
 
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
