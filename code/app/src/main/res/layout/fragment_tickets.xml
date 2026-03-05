@@ -20,6 +20,9 @@
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tickets_tab_layout"
         android:layout_width="0dp"
+        android:background="@color/white"
+        android:backgroundTint="@color/white"
+        app:tabBackground="@color/white"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         app:layout_constraintTop_toBottomOf="@id/tickets_title"
