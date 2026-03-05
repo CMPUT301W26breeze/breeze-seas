@@ -20,7 +20,8 @@ import com.google.android.material.tabs.TabLayoutMediator;
  * - Add loading/empty/error states to each tab after data is connected.
  */
 public class TicketsFragment extends Fragment {
-
+    // The tab switching implementation in this fragment was developed with Gemini,
+    // "How to implement TabLayout with ViewPager2 in Android using Java", 2026-03-03.
     public TicketsFragment() {
         super(R.layout.fragment_tickets);
     }
