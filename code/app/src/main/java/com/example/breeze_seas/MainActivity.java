@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
             setCurrentFragment(exploreFragment);
             bottomNav.setSelectedItemId(R.id.nav_explore);
         }
+        
 
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
@@ -64,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
      * The back stack is deep.
      ** @param fragment The destination fragment to display.
      */
-    private void setCurrentFragment(Fragment fragment) {
+    public void setCurrentFragment(Fragment fragment) {
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, fragment)
