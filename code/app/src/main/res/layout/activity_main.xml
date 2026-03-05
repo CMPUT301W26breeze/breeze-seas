@@ -33,3 +33,12 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!--
+
+    Bottom navigation layout implemented using Google's Material 3 design guidelines.
+    Source: Material Design 3 – Navigation Bar Overview
+    https://m3.material.io/components/navigation-bar/overview
+    Accessed: 2026-03-03
+
+    -->

@@ -1,0 +1,215 @@
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbarFilter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:title="Filter Events"
+            app:navigationIcon="@android:drawable/ic_media_previous" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Status -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Status"
+                android:textStyle="bold"
+                android:textSize="16sp" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:singleSelection="true"
+                app:selectionRequired="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipAll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="All"
+                    app:checkedIconVisible="false"
+                    style="@style/Widget.Material3.Chip.Filter" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipUpcoming"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Upcoming"
+                    app:checkedIconVisible="false"
+                    style="@style/Widget.Material3.Chip.Filter" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipRegOpen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Registration Open"
+                    app:checkedIconVisible="false"
+                    style="@style/Widget.Material3.Chip.Filter" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipPast"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Past"
+                    app:checkedIconVisible="false"
+                    style="@style/Widget.Material3.Chip.Filter" />
+            </com.google.android.material.chip.ChipGroup>
+
+            <!-- Date Range -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Registration Period"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="From">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etFrom"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:focusable="false"
+                        android:clickable="true"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="  to  "
+                    android:layout_marginTop="20dp" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="To">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etTo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:focusable="false"
+                        android:clickable="true"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+            <!-- Toggles -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Requirements"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/swLimitedCap"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Only events with limited waiting list capacity" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/swGeoRequired"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Geolocation required" />
+
+            <!-- Sort -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sort by"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp" />
+
+            <RadioGroup
+                android:id="@+id/rgSort"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/rbNewest"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Newest first" />
+
+                <RadioButton
+                    android:id="@+id/rbName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Name (A → Z)" />
+
+                <RadioButton
+                    android:id="@+id/rbClosingSoon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Registration closes soon" />
+            </RadioGroup>
+
+            <!-- Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="18dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnReset"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:text="Reset"
+                    style="@style/Widget.Material3.Button.OutlinedButton" />
+
+                <Space
+                    android:layout_width="12dp"
+                    android:layout_height="1dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnApply"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:text="Apply" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

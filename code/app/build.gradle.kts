@@ -1,20 +1,15 @@
 plugins {
     alias(libs.plugins.android.application)
-    id("com.google.gms.google-services")
 }
 
 android {
     namespace = "com.example.breeze_seas"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.breeze_seas"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -48,4 +43,12 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-auth")
     implementation("androidx.viewpager2:viewpager2:1.1.0")
+
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+}
+
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
 }

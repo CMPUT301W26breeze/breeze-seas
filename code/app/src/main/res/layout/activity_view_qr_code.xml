@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:gravity="center_horizontal">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Scan the QR code"
+        android:textStyle="bold"
+        android:textSize="18sp"/>
+
+    <TextView
+        android:id="@+id/tvEventName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="(Event Name)"
+        android:layout_marginTop="6dp"/>
+
+    <ImageView
+        android:id="@+id/ivQr"
+        android:layout_width="280dp"
+        android:layout_height="280dp"
+        android:layout_marginTop="18dp"
+        android:contentDescription="QR code"/>
+</LinearLayout>
