@@ -1,0 +1,73 @@
+package com.example.breeze_seas;
+
+/*
+* Primary model for all the users of the app.
+ */
+public class User {
+
+    private String userName;
+    private String email;
+    private String deviceId;
+    private String phoneNumber;
+    private boolean isAdmin;
+
+    public User() {
+        this.userName = null;
+        this.email = null;
+        this.deviceId = null;
+        this.phoneNumber = null;
+        this.isAdmin = false;
+    }
+
+    public User(String userName, String email, String deviceId, String phoneNumber,
+                boolean isAdmin) {
+        this.userName = userName;
+        this.email = email;
+        this.deviceId = deviceId;
+        this.phoneNumber = phoneNumber;
+        this.isAdmin = isAdmin;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        if (!email.contains("@")) {
+            throw new IllegalArgumentException("An email has to contain and @ symbol");
+        }
+        this.email = email;
+    }
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
+    }
+}
