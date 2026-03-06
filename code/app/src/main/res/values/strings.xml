@@ -2,4 +2,15 @@
     <string name="app_name">breeze-seas</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="name">Name</string>
+    <string name="email">Email</string>
+    <string name="save">Save</string>
+    <string name="opt_out">Enable Notifications</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="notifications">Notifications</string>
+    <string name="selected">Selected</string>
+    <string name="waiting_list">Waiting List</string>
+    <string name="cancelled">Cancelled</string>
+    <string name="notification_text">Type your notification here</string>
+    <string name="send">Send</string>
 </resources>
