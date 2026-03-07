@@ -59,17 +59,19 @@ public class ActiveTicketsAdapter extends RecyclerView.Adapter<ActiveTicketsAdap
 
         holder.title.setText(ticket.getTitle());
         holder.date.setText(ticket.getDateLabel());
-
         holder.actionDot.setVisibility(View.GONE);
 
         final int white = ContextCompat.getColor(holder.itemView.getContext(), android.R.color.white);
         final int black = ContextCompat.getColor(holder.itemView.getContext(), android.R.color.black);
+        final int secondary = ContextCompat.getColor(holder.itemView.getContext(), R.color.text_secondary);
 
         switch (ticket.getStatus()) {
 
             case PENDING:
                 holder.chip.setText("Pending");
                 holder.icon.setImageResource(R.drawable.ic_clock);
+                holder.supporting.setText("Your entry is still in the running. We will notify you after registration closes and the draw is complete.");
+                holder.footer.setText("Awaiting for lottery to begin");
 
                 holder.chip.setChipBackgroundColor(ContextCompat.getColorStateList(holder.itemView.getContext(), android.R.color.white));
                 holder.chip.setTextColor(black);
@@ -78,8 +80,10 @@ public class ActiveTicketsAdapter extends RecyclerView.Adapter<ActiveTicketsAdap
                 break;
 
             case BACKUP:
-                holder.chip.setText("Not selected");
+                holder.chip.setText("Backup pool");
                 holder.icon.setImageResource(R.drawable.ic_info);
+                holder.supporting.setText("The first draw has finished. Your entry stays active in case any confirmed spots are released.");
+                holder.footer.setText("Tap to view backup pool details");
 
                 holder.chip.setChipBackgroundColor(ContextCompat.getColorStateList(holder.itemView.getContext(), android.R.color.white));
                 holder.chip.setTextColor(black);
@@ -90,6 +94,8 @@ public class ActiveTicketsAdapter extends RecyclerView.Adapter<ActiveTicketsAdap
             case ACTION_REQUIRED:
                 holder.chip.setText("Action Required");
                 holder.icon.setImageResource(R.drawable.ic_star);
+                holder.supporting.setText("You were selected and your spot is waiting. Accept now to move this event into your attending tickets.");
+                holder.footer.setText("Tap to accept or decline");
 
                 holder.chip.setChipBackgroundColor(ContextCompat.getColorStateList(holder.itemView.getContext(), android.R.color.black));
                 holder.chip.setTextColor(white);
@@ -97,6 +103,8 @@ public class ActiveTicketsAdapter extends RecyclerView.Adapter<ActiveTicketsAdap
                 holder.actionDot.setVisibility(View.VISIBLE);
                 break;
         }
+
+        holder.footer.setTextColor(secondary);
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) listener.onTicketClick(ticket);
@@ -112,6 +120,8 @@ public class ActiveTicketsAdapter extends RecyclerView.Adapter<ActiveTicketsAdap
         ImageView icon;
         TextView title;
         TextView date;
+        TextView supporting;
+        TextView footer;
         Chip chip;
         View actionDot;
 
@@ -120,6 +130,8 @@ public class ActiveTicketsAdapter extends RecyclerView.Adapter<ActiveTicketsAdap
             icon = itemView.findViewById(R.id.ticket_thumbnail);
             title = itemView.findViewById(R.id.ticket_event_title);
             date = itemView.findViewById(R.id.ticket_event_date);
+            supporting = itemView.findViewById(R.id.ticket_supporting_copy);
+            footer = itemView.findViewById(R.id.ticket_footer_hint);
             chip = itemView.findViewById(R.id.ticket_status_chip);
             actionDot = itemView.findViewById(R.id.action_dot);
         }

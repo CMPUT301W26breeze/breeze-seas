@@ -5,4 +5,7 @@
     <color name="nav_selected">#000000</color>
     <color name="nav_unselected">#9E9E9E</color>
     <color name="grey_border">#E5E7EB</color>
+    <color name="text_primary">#111827</color>
+    <color name="text_secondary">#6B7280</color>
+    <color name="surface_subtle">#F5F5F7</color>
 </resources>

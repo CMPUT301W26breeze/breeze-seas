@@ -6,103 +6,130 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
-    android:layout_marginVertical="10dp"
+    android:layout_marginVertical="8dp"
     android:clickable="true"
     android:focusable="true"
     app:cardBackgroundColor="@color/white"
-    app:cardCornerRadius="18dp"
-    app:cardElevation="10dp"
-    app:strokeWidth="0dp">
+    app:cardCornerRadius="22dp"
+    app:cardElevation="7dp"
+    app:strokeColor="@color/grey_border"
+    app:strokeWidth="1dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="84dp"
-        android:paddingStart="14dp"
-        android:paddingEnd="14dp"
-        android:paddingTop="14dp"
-        android:paddingBottom="14dp">
+        android:minHeight="184dp"
+        android:orientation="vertical"
+        android:padding="18dp">
 
-        <ImageView
-            android:id="@+id/ticket_thumbnail"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_launcher_foreground"
-            android:contentDescription="Event thumbnail"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:gravity="top|center_vertical"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:id="@+id/ticket_icon_surface"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:background="@drawable/bg_soft_surface">
+
+                <ImageView
+                    android:id="@+id/ticket_thumbnail"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="Event status"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_clock" />
+            </FrameLayout>
+
+            <Space
+                android:layout_width="12dp"
+                android:layout_height="1dp" />
+
+            <FrameLayout
+                android:id="@+id/status_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/ticket_status_chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Pending"
+                    android:textColor="@color/text_primary"
+                    android:textSize="12sp"
+                    app:chipBackgroundColor="@android:color/white"
+                    app:chipCornerRadius="16dp"
+                    app:chipMinHeight="32dp"
+                    app:chipStrokeColor="@color/grey_border"
+                    app:chipStrokeWidth="1dp"
+                    app:chipStartPadding="12dp"
+                    app:chipEndPadding="12dp"
+                    app:textEndPadding="0dp"
+                    app:textStartPadding="0dp" />
+
+                <View
+                    android:id="@+id/action_dot"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:layout_gravity="end|top"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:background="@drawable/red_dot"
+                    android:visibility="gone" />
+            </FrameLayout>
+        </LinearLayout>
 
         <TextView
             android:id="@+id/ticket_event_title"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="14dp"
-            android:layout_marginEnd="10dp"
+            android:layout_marginTop="16dp"
             android:ellipsize="end"
-            android:maxLines="1"
+            android:fontFamily="@font/inter_semibold"
+            android:maxLines="2"
             android:text="Beginner Swimming Lesson"
-            android:textColor="#111111"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@id/ticket_thumbnail"
-            app:layout_constraintTop_toTopOf="@id/ticket_thumbnail"
-            app:layout_constraintEnd_toStartOf="@id/status_container"/>
+            android:textColor="@color/text_primary"
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/ticket_event_date"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="14dp"
             android:layout_marginTop="6dp"
-            android:layout_marginEnd="10dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:text="Aug 15, 2026 • 6:00 PM"
-            android:textColor="#7A7A7A"
-            android:textSize="13sp"
-            app:layout_constraintStart_toEndOf="@id/ticket_thumbnail"
-            app:layout_constraintTop_toBottomOf="@id/ticket_event_title"
-            app:layout_constraintEnd_toStartOf="@id/status_container"/>
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp" />
 
-        <FrameLayout
-            android:id="@+id/status_container"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/ticket_supporting_copy"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            android:layout_marginTop="12dp"
+            android:fontFamily="@font/inter_regular"
+            android:lineSpacingExtra="2dp"
+            android:text="Your entry is still in the running. We will notify you after the draw is complete."
+            android:textColor="@color/text_primary"
+            android:textSize="13sp" />
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/ticket_status_chip"
-                android:layout_width="wrap_content"
-                android:layout_height="34dp"
-                android:text="Pending"
-                android:textSize="13sp"
-                android:textColor="#2B2B2B"
-                app:chipMinHeight="34dp"
-                app:chipCornerRadius="18dp"
-                app:chipBackgroundColor="#EDEDED"
-                app:chipStrokeWidth="1dp"
-                app:chipStrokeColor="#7D7D7D"
-                app:chipStartPadding="14dp"
-                app:chipEndPadding="14dp"
-                app:textStartPadding="0dp"
-                app:textEndPadding="0dp" />
+        <TextView
+            android:id="@+id/ticket_footer_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:fontFamily="@font/inter_medium"
+            android:text="Awaiting for lottery to begin"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp" />
 
-            <View
-                android:id="@+id/action_dot"
-                android:layout_width="8dp"
-                android:layout_height="8dp"
-                android:layout_gravity="end|top"
-                android:layout_marginTop="6dp"
-                android:layout_marginEnd="6dp"
-                android:background="@drawable/red_dot"
-                android:visibility="gone"/>
-        </FrameLayout>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
 
     <!--

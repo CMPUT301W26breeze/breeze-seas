@@ -6,6 +6,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -34,6 +35,7 @@ public class ActiveTicketsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         RecyclerView recyclerView = view.findViewById(R.id.active_tickets_recycler);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         ActiveTicketsAdapter adapter = new ActiveTicketsAdapter(ticket -> {
 
@@ -53,9 +55,9 @@ public class ActiveTicketsFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         List<TicketUIModel> demo = Arrays.asList(
-                new TicketUIModel("e1", "Beginner Swimming Lessons", "Closes in 2 days", TicketUIModel.Status.PENDING),
-                new TicketUIModel("e2", "Piano Lessons", "Lottery drawn • Backup pool", TicketUIModel.Status.BACKUP),
-                new TicketUIModel("e3", "Interpretive Dance Basics", "Invite expires soon", TicketUIModel.Status.ACTION_REQUIRED)
+                new TicketUIModel("e1", "Piano Lessons for Beginners", "Registration closes tomorrow", TicketUIModel.Status.PENDING),
+                new TicketUIModel("e2", "Tech Conference 2026", "Lottery drawn • Backup pool", TicketUIModel.Status.BACKUP),
+                new TicketUIModel("e3", "Community Dance Night", "Invitation expires at 6:00 PM", TicketUIModel.Status.ACTION_REQUIRED)
         );
 
         adapter.submitList(demo);
