@@ -12,7 +12,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.tabs.TabLayout
-            android:id="@+id/waiting_tabs_list"
+            android:id="@+id/user_tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:tabMode="fixed"
