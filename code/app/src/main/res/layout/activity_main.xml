@@ -3,11 +3,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main"
-    android:layout_width="match_parent"
     android:background="@android:color/white"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Where fragments will be swapped -->
     <FrameLayout
         android:id="@+id/fragment_container"
         android:background="@android:color/white"
@@ -20,17 +19,26 @@
 
     <!-- Bottom navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:background="@android:color/white"
-        android:backgroundTint="@android:color/white"
         android:id="@+id/bottom_navigation"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:menu="@menu/bottom_nav_menu"
-        app:itemIconTint="@color/nav_item_color"
-        app:itemTextColor="@color/nav_item_color"
+        android:layout_height="84dp"
+        android:minHeight="84dp"
+        android:background="@drawable/bg_bottom_nav"
+        android:elevation="18dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:itemHorizontalTranslationEnabled="false"
+        app:itemIconSize="24dp"
+        app:itemIconTint="@color/nav_item_color"
+        app:itemPaddingTop="8dp"
+        app:itemPaddingBottom="6dp"
+        app:itemRippleColor="@android:color/transparent"
+        app:itemTextAppearanceActive="@style/TextAppearance.Breezeseas.BottomNavigation"
+        app:itemTextAppearanceInactive="@style/TextAppearance.Breezeseas.BottomNavigation"
+        app:itemTextColor="@color/nav_item_color"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/bottom_nav_menu"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -42,3 +50,5 @@
     Accessed: 2026-03-03
 
     -->
+
+

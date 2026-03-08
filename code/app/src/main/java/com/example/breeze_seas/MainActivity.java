@@ -8,6 +8,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 /*** MainActivity is the container for the app's main navigation.
@@ -23,9 +24,9 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 public class MainActivity extends AppCompatActivity {
 
     private final ExploreFragment exploreFragment = new ExploreFragment();
-    private final ScanFragment scanFragment = new ScanFragment();
     private final TicketsFragment ticketsFragment = new TicketsFragment();
     private final OrganizeFragment organizeFragment = new OrganizeFragment();
+    private final NotificationFragment notificationFragment = new NotificationFragment();
     private final ProfileFragment profileFragment = new ProfileFragment();
 
     @Override
@@ -47,14 +48,14 @@ public class MainActivity extends AppCompatActivity {
             setCurrentFragment(exploreFragment);
             bottomNav.setSelectedItemId(R.id.nav_explore);
         }
-        
+
 
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_explore) setCurrentFragment(exploreFragment);
-            else if (id == R.id.nav_scan) setCurrentFragment(scanFragment);
             else if (id == R.id.nav_tickets) setCurrentFragment(ticketsFragment);
             else if (id == R.id.nav_organize) setCurrentFragment(organizeFragment);
+            else if (id == R.id.nav_notification) setCurrentFragment(notificationFragment);
             else if (id == R.id.nav_profile) setCurrentFragment(profileFragment);
             return true;
         });
@@ -66,9 +67,24 @@ public class MainActivity extends AppCompatActivity {
      ** @param fragment The destination fragment to display.
      */
     public void setCurrentFragment(Fragment fragment) {
+        getSupportFragmentManager().popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, fragment)
+                .commit();
+    }
+
+    public void openSecondaryFragment(Fragment fragment) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .setCustomAnimations(
+                        android.R.anim.fade_in,
+                        android.R.anim.fade_out,
+                        android.R.anim.fade_in,
+                        android.R.anim.fade_out
+                )
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(fragment.getClass().getSimpleName())
                 .commit();
     }
 }
