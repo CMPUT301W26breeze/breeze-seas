@@ -52,5 +52,5 @@
             android:padding="8dp"
             android:src="@android:drawable/ic_menu_delete"
             app:tint="?attr/colorError" />
-</LinearLayout>
+    </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
