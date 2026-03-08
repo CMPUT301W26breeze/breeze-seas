@@ -7,7 +7,7 @@
     android:paddingVertical="12dp">
 
     <TextView
-        android:id="@+id/ad_tv_log_timestamp"
+        android:id="@+id/abl_tv_log_timestamp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="10:04 AM"
@@ -15,7 +15,7 @@
         android:textColor="?attr/colorOnSurfaceVariant" />
 
     <TextView
-        android:id="@+id/ad_tv_log_message"
+        android:id="@+id/abl_tv_log_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"

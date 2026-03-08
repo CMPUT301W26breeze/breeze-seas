@@ -1,15 +1,20 @@
 package com.example.breeze_seas;
 
+import com.google.firebase.Timestamp;
+
 /*
 * Primary model for all the users of the app.
  */
 public class User {
 
+    private String deviceId;
     private String userName;
     private String email;
-    private String deviceId;
     private String phoneNumber;
     private boolean isAdmin;
+    private boolean notificationEnabled;
+    private Timestamp createdAt;
+    private Timestamp updatedAt;
 
     public User() {
         this.userName = null;
@@ -17,6 +22,31 @@ public class User {
         this.deviceId = null;
         this.phoneNumber = null;
         this.isAdmin = false;
+        this.notificationEnabled = true;
+        this.createdAt = null;
+        this.updatedAt = null;
+    }
+
+    public User(String deviceId, String userName, String email) {
+        this.deviceId = deviceId;
+        this.userName = userName;
+        this.email = email;
+        this.phoneNumber = null;
+        this.isAdmin = false;
+        this.notificationEnabled = true;
+        this.createdAt = null;
+        this.updatedAt = null;
+    }
+
+    public User(String deviceId, String userName, String email, String phoneNumber) {
+        this.deviceId = deviceId;
+        this.userName = userName;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.isAdmin = false;
+        this.notificationEnabled = true;
+        this.createdAt = null;
+        this.updatedAt = null;
     }
 
     public User(String userName, String email, String deviceId, String phoneNumber,
@@ -69,5 +99,29 @@ public class User {
 
     public void setAdmin(boolean admin) {
         isAdmin = admin;
+    }
+
+    public boolean notificationEnabled() {
+        return notificationEnabled;
+    }
+
+    public void setNotificationEnabled(boolean notificationEnabled) {
+        this.notificationEnabled = notificationEnabled;
+    }
+
+    public Timestamp getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Timestamp updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
     }
 }

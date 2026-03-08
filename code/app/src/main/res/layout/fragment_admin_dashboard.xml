@@ -7,21 +7,21 @@
     android:background="?attr/colorSurface">
 
     <com.google.android.material.appbar.AppBarLayout
-    android:id="@+id/appBarLayout"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintEnd_toEndOf="parent">
-
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/topAppBar"
+        android:id="@+id/ad_appBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        app:title="Admin Dashboard"
-        app:navigationIcon="@android:drawable/ic_menu_revert"
-        app:navigationContentDescription="Go back" />
-</com.google.android.material.appbar.AppBarLayout>
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/ad_topAppBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="Admin Dashboard"
+            app:navigationIcon="@android:drawable/ic_menu_revert"
+            app:navigationContentDescription="Go back" />
+    </com.google.android.material.appbar.AppBarLayout>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/ad_btn_view_events"
@@ -32,7 +32,7 @@
         android:layout_marginTop="48dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/ad_appBarLayout" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/ad_btn_view_profiles"

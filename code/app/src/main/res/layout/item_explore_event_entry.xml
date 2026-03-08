@@ -56,8 +56,8 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/exploreEventEntryTitle" />
 
-                <ImageView
-                    android:id="@+id/imageView"
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/exploreEventEntryPerson"
                     android:layout_width="21dp"
                     android:layout_height="21dp"
                     android:src="@drawable/ic_person"
