@@ -23,30 +23,6 @@ public class User {
         this.phoneNumber = null;
         this.isAdmin = false;
         this.notificationEnabled = true;
-        this.createdAt = null;
-        this.updatedAt = null;
-    }
-
-    public User(String deviceId, String userName, String email) {
-        this.deviceId = deviceId;
-        this.userName = userName;
-        this.email = email;
-        this.phoneNumber = null;
-        this.isAdmin = false;
-        this.notificationEnabled = true;
-        this.createdAt = null;
-        this.updatedAt = null;
-    }
-
-    public User(String deviceId, String userName, String email, String phoneNumber) {
-        this.deviceId = deviceId;
-        this.userName = userName;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.isAdmin = false;
-        this.notificationEnabled = true;
-        this.createdAt = null;
-        this.updatedAt = null;
     }
 
     public User(String userName, String email, String deviceId, String phoneNumber,
