@@ -21,7 +21,7 @@ public class UserDB {
         this.usersRef = db.collection("User");
     }
 
-    /* Adds the newly created user to the database.*/
+    /* Updates an existing user or creates a new one in the database*/
     public void saveUser(User user) {
         Map<String, Object> userData = new HashMap<>();
         userData.put("Name",user.getUserName());
@@ -29,7 +29,8 @@ public class UserDB {
         userData.put("Phone Number", user.getPhoneNumber());
         userData.put("DeviceId",user.getDeviceId());
         userData.put("IsAdmin", user.isAdmin());
-        userData.put("Timestamp", FieldValue.serverTimestamp());
+        userData.put("Notification Enabled", user.notificationEnabled());
+        userData.put("createdAt", FieldValue.serverTimestamp());
         usersRef.document(user.getDeviceId()).set(userData)
                 .addOnSuccessListener(aVoid ->
                         Log.d("DB_UPDATE", "Update successful"))

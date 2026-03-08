@@ -10,6 +10,7 @@ public class User {
     private String deviceId;
     private String phoneNumber;
     private boolean isAdmin;
+    private boolean notificationEnabled;
 
     public User() {
         this.userName = null;
@@ -17,6 +18,7 @@ public class User {
         this.deviceId = null;
         this.phoneNumber = null;
         this.isAdmin = false;
+        this.notificationEnabled = true;
     }
 
     public User(String userName, String email, String deviceId, String phoneNumber,
@@ -69,5 +71,13 @@ public class User {
 
     public void setAdmin(boolean admin) {
         isAdmin = admin;
+    }
+
+    public boolean notificationEnabled() {
+        return notificationEnabled;
+    }
+
+    public void setNotificationEnabled(boolean notificationEnabled) {
+        this.notificationEnabled = notificationEnabled;
     }
 }
