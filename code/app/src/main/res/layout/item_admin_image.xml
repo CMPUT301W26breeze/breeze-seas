@@ -5,11 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="160dp"
     android:padding="4dp"> <com.google.android.material.imageview.ShapeableImageView
-    android:id="@+id/ad_iv_gallery_image"
+    android:id="@+id/abi_iv_gallery_image"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:scaleType="centerCrop"
-    android:background="?attr/colorSurfaceVariant" app:srcCompat="@android:drawable/ic_menu_gallery" app:tint="?attr/colorOnSurfaceVariant"
+    android:background="?attr/colorSurfaceVariant"
+    app:srcCompat="@android:drawable/ic_menu_gallery"
+    app:tint="?attr/colorOnSurfaceVariant"
     app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Medium" />
 
 </LinearLayout>
