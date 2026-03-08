@@ -27,5 +27,6 @@
         <item name="fontFamily">@font/inter_medium</item>
         <item name="android:textSize">13sp</item>
         <item name="android:includeFontPadding">false</item>
+    </style>
      
 </resources>
