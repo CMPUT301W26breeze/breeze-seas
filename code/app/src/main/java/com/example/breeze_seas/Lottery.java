@@ -11,7 +11,7 @@ public class Lottery {
 
     private FirebaseFirestore db; //the database
     private String event; //to uniquely identify the event
-    private int size=2; //how many entrants the event can take
+    private int size=3; //how many entrants the event can take
     private ArrayList<User> entrantList; //need to fill this with eligible users (i.e still waiting)
     public Lottery(String event){
         this.event=event;
@@ -39,12 +39,16 @@ public class Lottery {
                 this.entrantList=new ArrayList<User>();
                 int invited=0;
                 for(DocumentSnapshot doc: op.getResult()){
-                    if(!"Waiting".equals(doc.get("Status"))) { //eligible users only
-                        invited+=1;
-                        continue;
+                    String status = doc.getString("status");
+
+                    if("Waiting".equals(status)) {
+                        User entrant = doc.toObject(User.class);
+                        if (entrant != null) this.entrantList.add(entrant);
                     }
-                    User entrant=doc.toObject(User.class);
-                    if (entrant!=null) this.entrantList.add(entrant);
+                    else if ("Pending".equals(status) || "Accepted".equals(status)) {
+                        // Only these two statuses occupy a spot in the event
+                        invited += 1;
+                    }
                 }
 
                 if (entrantList.isEmpty()) return; //no eligible user
@@ -59,7 +63,7 @@ public class Lottery {
                 for(int i=0;i<toFill;i++){
                     User winner= entrantList.get(i);
                     //pushing in batches
-                    batch.update(list.document(winner.getDeviceId()),"Status", "Pending");
+                    batch.update(list.document(winner.getDeviceId()),"status", "Pending");
                     batchCount++;
                     if (batchCount >= 450) {
                         batch.commit();

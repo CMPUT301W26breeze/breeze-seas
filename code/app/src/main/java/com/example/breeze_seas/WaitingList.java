@@ -1,8 +1,6 @@
 package com.example.breeze_seas;
 
 
-import android.view.View;
-
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -17,13 +15,17 @@ import java.util.Map;
 public class WaitingList {
     private String event;
     private ArrayList<User> entrantList;
-    private int size;
+    private int capacity;
     private FirebaseFirestore db;
     public WaitingList(String event){
         this.event=event;
-        this.size=0;
+        this.capacity=-1;
         this.db=DBConnector.getDb();
         this.entrantList=new ArrayList<User>();
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
     }
 
     public ArrayList<User> getEntrantList() {
@@ -36,16 +38,16 @@ public class WaitingList {
         DocumentReference entrantRef=db.collection("Events").document(event).
                     collection("WaitingList").document(entrant.getDeviceId());
         Map<String,Object> data=new HashMap<>();
-        data.put("Name",entrant.getUserName());
-        data.put("Email",entrant.getEmail());
-        data.put("DeviceId",entrant.getDeviceId());
-        data.put("Status","Waiting");
-        data.put("Timestamp",FieldValue.serverTimestamp());
+        data.put("userName",entrant.getUserName());
+        data.put("email",entrant.getEmail());
+        data.put("deviceId",entrant.getDeviceId());
+        data.put("status","Waiting");
+        data.put("timestamp",FieldValue.serverTimestamp());
         entrantRef.set(data);
 
     }
 
-    public void getWaitingList(android.widget.BaseAdapter adapter,Runnable onFinish){
+    public void fetchWaitingList(android.widget.BaseAdapter adapter, Runnable onFinish){
         CollectionReference list=db.collection("Events").document(event)
                 .collection("WaitingList");
         list.orderBy("timestamp", Query.Direction.ASCENDING).get()

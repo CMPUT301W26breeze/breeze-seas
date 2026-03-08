@@ -13,8 +13,6 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.tabs.TabItem;
-import com.google.android.material.tabs.TabLayout;
 
 
 public class WaitingListFragment extends Fragment {
@@ -39,18 +37,26 @@ public class WaitingListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         waitingProgress.setVisibility(View.VISIBLE);
-        waitingList.getWaitingList(adapter,()->{waitingProgress.setVisibility(View.GONE);});
+        waitingList.fetchWaitingList(adapter,()->{waitingProgress.setVisibility(View.GONE);});
         MaterialButton runLottery=view.findViewById(R.id.btn_run_lottery);
         runLottery.setOnClickListener(v->{
             Lottery lottery=new Lottery(event);
             waitingProgress.setVisibility(View.VISIBLE);
             lottery.runLottery(() -> {
                 // Refresh data once lottery is committed
-                waitingList.getWaitingList(adapter, () -> {
+                waitingList.fetchWaitingList(adapter, () -> {
                     waitingProgress.setVisibility(View.GONE);
                     runLottery.setEnabled(true);
                 });
             });
+        });
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        waitingProgress.setVisibility(View.VISIBLE);
+        waitingList.fetchWaitingList(adapter, () -> {
+            waitingProgress.setVisibility(View.GONE);
         });
     }
 

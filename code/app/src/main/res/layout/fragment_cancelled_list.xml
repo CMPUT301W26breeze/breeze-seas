@@ -8,46 +8,7 @@
     android:background="?attr/colorSurface"
     tools:context=".CancelledListFragment">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorSurface"
-        app:elevation="0dp">
 
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/cancelled_tabs_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:tabMode="fixed"
-            app:tabGravity="fill"
-            style="@style/Widget.Material3.TabLayout"
-            app:tabIndicatorAnimationMode="elastic">
-
-            <com.google.android.material.tabs.TabItem
-                android:id="@+id/waiting_tab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Waiting" />
-
-            <com.google.android.material.tabs.TabItem
-                android:id="@+id/pending_tab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Pending" />
-
-            <com.google.android.material.tabs.TabItem
-                android:id="@+id/accepted_tab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Accepted" />
-
-            <com.google.android.material.tabs.TabItem
-                android:id="@+id/cancelled_tab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cancelled" />
-        </com.google.android.material.tabs.TabLayout>
-    </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -88,5 +49,13 @@
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/cancelled_list_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:indeterminate="true"
+        android:visibility="gone" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
