@@ -48,7 +48,7 @@ public class User {
         this.createdAt = null;
         this.updatedAt = null;
     }
-
+    
     public User(String userName, String email, String deviceId, String phoneNumber,
                 boolean isAdmin) {
         this.userName = userName;
@@ -56,6 +56,8 @@ public class User {
         this.deviceId = deviceId;
         this.phoneNumber = phoneNumber;
         this.isAdmin = isAdmin;
+        this.createdAt = null;
+        this.updatedAt = null;
     }
 
     public String getUserName() {
