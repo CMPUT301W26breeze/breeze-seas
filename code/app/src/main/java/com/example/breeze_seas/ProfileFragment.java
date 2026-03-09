@@ -55,7 +55,10 @@ public class ProfileFragment extends Fragment {
         return view;
     }
 
-    private void setupListeners() {
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
         // Toggle name field when edit icon is clicked
         editNameBtn.setOnClickListener(v -> {
             boolean isEnabled = nameLayout.isEnabled();
@@ -84,6 +87,7 @@ public class ProfileFragment extends Fragment {
         optOutSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             // Handle opt-out preference
         });
+        
     }
 }
 
