@@ -72,10 +72,16 @@ public class ProfileFragment extends Fragment {
             nameLayout.setEnabled(!isEnabled);
         });
 
-        // Toggle name field when edit icon is clicked
+        // Toggle email field when edit icon is clicked
         editEmailBtn.setOnClickListener(v -> {
             boolean isEnabled = emailLayout.isEnabled();
             emailLayout.setEnabled(!isEnabled);
+        });
+
+        // Toggle phone number field when edit icon is clicked
+        editPhoneBtn.setOnClickListener(v -> {
+            boolean isEnabled = phoneLayout.isEnabled();
+            phoneLayout.setEnabled(!isEnabled);
         });
 
         // Save button
