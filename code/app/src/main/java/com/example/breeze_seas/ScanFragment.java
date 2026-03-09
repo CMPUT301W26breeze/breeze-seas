@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment;
 public class ScanFragment extends Fragment {
 
     public ScanFragment() {
-        super(R.layout.fragment_scan);
+        super(R.layout.fragment_qr_scanner);
     }
 
 }
