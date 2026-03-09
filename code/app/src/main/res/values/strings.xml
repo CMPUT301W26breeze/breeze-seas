@@ -13,4 +13,6 @@
     <string name="cancelled">Cancelled</string>
     <string name="notification_text">Type your notification here</string>
     <string name="send">Send</string>
+    <string name="edits_name">Edits name</string>
+    <string name="edits_email">Edits email</string>
 </resources>

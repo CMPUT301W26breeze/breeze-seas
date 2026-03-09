@@ -13,11 +13,10 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 /*** TicketsFragment is the top-level "Tickets" destination displayed in Bottom Navigation.
  ** <p>Role in Architecture:* - Contains three subscreens:
- * Active, Attendee, and Past Events.*
- * <p>Current state:* - Sets up the tab/pager shell and loads placeholder fragments.
- ** <p> Outstanding/Future Work:* - Replace placeholder tab content with RecyclerViews generated from the Firestore ticket state.
- * - Implement card click flows (pending information, backup pool information, invitation acceptance/decline).
- * - Add loading/empty/error states to each tab after data is connected.
+ * Active, Attending, and Past Events.*
+ * <p>Current state:* - Sets up the tab/pager shell for repository-backed ticket fragments.
+ ** <p> Outstanding/Future Work:* - Keep Firestore integration behind the ticket repository once
+ * the event/ticket schema is implemented by the backend work.
  */
 public class TicketsFragment extends Fragment {
     // The tab switching implementation in this fragment was developed with Gemini,

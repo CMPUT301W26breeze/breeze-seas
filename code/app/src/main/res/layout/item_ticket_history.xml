@@ -125,7 +125,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
             android:fontFamily="@font/inter_medium"
-            android:text="Awaiting for lottery to begin"
+            android:text="Tap to review draw timing"
             android:textColor="@color/text_secondary"
             android:textSize="12sp" />
 

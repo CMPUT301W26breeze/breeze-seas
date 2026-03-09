@@ -12,19 +12,21 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * ActiveTicketsFragment displays the entrant's active ticket states.
  *
  * <p>Current state:
- * - Renders demo data in a RecyclerView to validate card UI.
+ * - Renders temporary repository data in a RecyclerView to validate card UI.
  *
  * <p>Outstanding:
- * - Replace demo data with Firestore queries and implement dialog flows.
+ * - Replace repository seed data with Firestore loading after the ticket schema exists.
  */
 public class ActiveTicketsFragment extends Fragment {
+
+    private final TicketsRepository repository = TicketsRepository.getInstance();
+    private final TicketsRepository.Listener ticketsListener = this::renderTickets;
+
+    private ActiveTicketsAdapter adapter;
 
     public ActiveTicketsFragment() {
         super(R.layout.fragment_active_tickets);
@@ -37,7 +39,7 @@ public class ActiveTicketsFragment extends Fragment {
         RecyclerView recyclerView = view.findViewById(R.id.active_tickets_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        ActiveTicketsAdapter adapter = new ActiveTicketsAdapter(ticket -> {
+        adapter = new ActiveTicketsAdapter(ticket -> {
 
             if (ticket.getStatus() == TicketUIModel.Status.BACKUP) {
                 showBackupPoolDialog();
@@ -53,14 +55,23 @@ public class ActiveTicketsFragment extends Fragment {
         });
 
         recyclerView.setAdapter(adapter);
+        repository.addListener(ticketsListener);
+        renderTickets();
+    }
 
-        List<TicketUIModel> demo = Arrays.asList(
-                new TicketUIModel("e1", "Piano Lessons for Beginners", "Registration closes tomorrow", TicketUIModel.Status.PENDING),
-                new TicketUIModel("e2", "Tech Conference 2026", "Lottery drawn • Backup pool", TicketUIModel.Status.BACKUP),
-                new TicketUIModel("e3", "Community Dance Night", "Invitation expires at 6:00 PM", TicketUIModel.Status.ACTION_REQUIRED)
-        );
+    @Override
+    public void onDestroyView() {
+        repository.removeListener(ticketsListener);
+        adapter = null;
+        super.onDestroyView();
+    }
 
-        adapter.submitList(demo);
+    private void renderTickets() {
+        if (adapter == null) {
+            return;
+        }
+
+        adapter.submitList(repository.getActiveTickets());
     }
 
     /**
@@ -86,11 +97,11 @@ public class ActiveTicketsFragment extends Fragment {
      * Shows a centered dialog for the "Action Required" state where the entrant can accept or decline.
      *
      * <p>Current behavior:
-     * - Accept: shows confirmation snackbar.
-     * - Decline: asks for confirmation, then shows snackbar.
+     * - Accept: moves the item through the temporary repository and shows confirmation.
+     * - Decline: removes the invite from the temporary repository after confirmation.
      *
      * <p>Outstanding:
-     * - Wire accept/decline to Firestore and move the ticket between tabs using real data lists.
+     * - Replace repository updates with DBConnector-backed writes once the schema is finalized.
      *
      * Source:
      * Google Material Design, "Dialogs", accessed 2026-03-04:
@@ -111,7 +122,8 @@ public class ActiveTicketsFragment extends Fragment {
                 .setMessage(message)
                 .setPositiveButton("Accept Invitation", (dialog, which) -> {
                     dialog.dismiss();
-                    Snackbar.make(rootView, "You're going!", Snackbar.LENGTH_SHORT).show();
+                    repository.acceptInvitation(ticket);
+                    Snackbar.make(rootView, "Invitation accepted. Ticket moved to Attending.", Snackbar.LENGTH_SHORT).show();
                 })
                 .setNegativeButton("Decline", (dialog, which) -> {
                     dialog.dismiss();
@@ -131,6 +143,7 @@ public class ActiveTicketsFragment extends Fragment {
                 .setMessage("If you decline, your spot will be offered to someone in the backup pool.")
                 .setPositiveButton("Yes, decline", (d, w) -> {
                     d.dismiss();
+                    repository.declineInvitation(ticket);
                     Snackbar.make(rootView, "Invitation declined", Snackbar.LENGTH_SHORT).show();
                 })
                 .setNegativeButton("Cancel", (d, w) -> d.dismiss())
