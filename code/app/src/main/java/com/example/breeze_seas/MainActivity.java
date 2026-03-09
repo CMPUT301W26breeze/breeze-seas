@@ -1,6 +1,8 @@
 package com.example.breeze_seas;
 
 import android.os.Bundle;
+import android.provider.Settings;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,6 +44,35 @@ public class MainActivity extends AppCompatActivity {
         });
 
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
+
+
+
+        // Get android ID
+        String androidID = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+
+        // Initialize UserDB
+        UserDB userDBInstance = new UserDB();
+        final User[] currentUser = {null};
+        userDBInstance.getUser(androidID, new UserDB.OnUserLoadedListener() {
+            @Override
+            public void onUserLoaded(User user) {
+                if (user != null) {
+                    currentUser[0] = user;
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+            }
+        });
+
+        // Switch to welcome fragment
+        if (currentUser[0] == null) {
+            bottomNav.setVisibility(View.GONE);
+            setCurrentFragment(new WelcomeScreenFragment());
+        }
+
+
 
         // Default tab
         if (savedInstanceState == null) {
