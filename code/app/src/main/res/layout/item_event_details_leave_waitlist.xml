@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/event_details_leave_waitlist_button"
+        android:id="@+id/eventDetailsLeaveWaitingListButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Leave Waiting List"

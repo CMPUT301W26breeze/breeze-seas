@@ -1,14 +1,19 @@
 package com.example.breeze_seas;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 /**
  * SignUpFragment is a {@link Fragment} subclass.
@@ -41,14 +46,14 @@ public class SignUpFragment extends Fragment {
         this.androidID = getArguments().getString("androidID");
 
         // Bind views
-        EditText firstNameInput = view.findViewById(R.id.signup_firstname_input);
-        EditText lastNameInput = view.findViewById(R.id.signup_lastname_input);
-        EditText userNameInput = view.findViewById(R.id.signup_username_input);
-        EditText emailInput = view.findViewById(R.id.signup_email_input);
-        EditText phoneNumberInput = view.findViewById(R.id.signup_phone_number_input);
+        EditText firstNameInput = view.findViewById(R.id.signupFirstnameInput);
+        EditText lastNameInput = view.findViewById(R.id.signupLastnameInput);
+        EditText userNameInput = view.findViewById(R.id.signupUsernameInput);
+        EditText emailInput = view.findViewById(R.id.signupEmailInput);
+        EditText phoneNumberInput = view.findViewById(R.id.signupPhoneNumberInput);
 
         // Bind button
-        Button confirmButton = view.findViewById(R.id.signup_confirm_button);
+        Button confirmButton = view.findViewById(R.id.signupConfirmButton);
         confirmButton.setOnClickListener(onClick -> {
             // Grab and update strings
             this.firstName = firstNameInput.getText().toString();

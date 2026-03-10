@@ -6,57 +6,57 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/event_details_wrapper"
+        android:id="@+id/eventDetailsWrapper"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/event_details_fragment_container"
+        app:layout_constraintBottom_toTopOf="@id/eventDetailsFragmentContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_weight="7">
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/event_details_event_title"
+            android:id="@+id/eventDetailsEventTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
             android:text="&lt;Event Name&gt;"
             android:textSize="24sp"
-            app:layout_constraintBottom_toTopOf="@id/event_details_event_photo"
+            app:layout_constraintBottom_toTopOf="@id/eventDetailsEventPhoto"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_weight="2" />
 
         <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/event_details_event_photo"
+            android:id="@+id/eventDetailsEventPhoto"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="30dp"
             android:layout_marginEnd="30dp"
             android:background="@color/black"
-            app:layout_constraintBottom_toBottomOf="@id/event_details_event_info_wrapper"
+            app:layout_constraintBottom_toBottomOf="@id/eventDetailsEventMiscWrapper"
             app:layout_constraintDimensionRatio="1.0"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/event_details_event_title"
-            app:shapeAppearanceOverlay="@style/RoundedCorners"
+            app:layout_constraintTop_toBottomOf="@id/eventDetailsEventTitle"
+            app:shapeAppearanceOverlay="@style/roundedCorners"
             app:layout_constraintVertical_weight="5"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/event_details_event_info_wrapper"
+            android:id="@+id/eventDetailsEventMiscWrapper"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/event_details_event_description"
-            app:layout_constraintTop_toBottomOf="@id/event_details_event_photo"
+            app:layout_constraintBottom_toTopOf="@id/eventDetailsEventDescription"
+            app:layout_constraintTop_toBottomOf="@id/eventDetailsEventPhoto"
             app:layout_constraintVertical_weight="3"
             android:layout_marginTop="5dp">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/event_details_view_QRCode_button"
+                android:id="@+id/eventDetailsViewQRCodeButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -64,25 +64,25 @@
                 android:text="View QR Code"
                 android:textStyle="bold"
                 app:cornerRadius="10dp"
-                app:layout_constraintBottom_toTopOf="@+id/event_details_event_capacity"
+                app:layout_constraintBottom_toTopOf="@+id/eventDetailsEventCapacity"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.1"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/event_details_event_capacity"
+                android:id="@+id/eventDetailsEventCapacity"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Capacity:\n50"
-                app:layout_constraintBottom_toTopOf="@+id/event_details_event_waiting_list_count"
+                app:layout_constraintBottom_toTopOf="@+id/eventDetailsEventWaitingListCount"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.1"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/event_details_view_QRCode_button" />
+                app:layout_constraintTop_toBottomOf="@+id/eventDetailsViewQRCodeButton" />
 
             <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/event_details_event_waiting_list_count"
+                android:id="@+id/eventDetailsEventWaitingListCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Currently in Waiting List:\n131"
@@ -90,22 +90,22 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.14"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/event_details_event_capacity" />
+                app:layout_constraintTop_toBottomOf="@+id/eventDetailsEventCapacity" />
 
             <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/event_details_even_start_date"
+                android:id="@+id/eventDetailsEventStartDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:text="Starts:\nMarch 7th, 2026"
-                app:layout_constraintBottom_toTopOf="@+id/event_details_event_end_date"
+                app:layout_constraintBottom_toTopOf="@+id/eventDetailsEventEndDate"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.9"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/event_details_event_end_date"
+                android:id="@+id/eventDetailsEventEndDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -114,13 +114,13 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.87"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/event_details_even_start_date" />
+                app:layout_constraintTop_toBottomOf="@+id/eventDetailsEventStartDate" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/event_details_event_description"
+            android:id="@+id/eventDetailsEventDescription"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="30dp"
@@ -134,21 +134,21 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/event_details_event_info_wrapper"
+            app:layout_constraintTop_toBottomOf="@+id/eventDetailsEventMiscWrapper"
             app:layout_constraintVertical_weight="3"/>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/event_details_fragment_container"
+        android:id="@+id/eventDetailsFragmentContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintVertical_weight="1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/event_details_wrapper"
+        app:layout_constraintTop_toBottomOf="@id/eventDetailsWrapper"
         tools:layout="@layout/item_event_details_join_waitlist"/>
 
 
