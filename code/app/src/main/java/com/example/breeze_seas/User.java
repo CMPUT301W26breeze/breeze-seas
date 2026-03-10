@@ -26,7 +26,7 @@ public class User {
         this.userName = null;
         this.email = null;
         this.phoneNumber = null;
-        this.isAdmin = isAdmin();
+        this.isAdmin = isAdmin;
         this.notificationEnabled = true;
         this.createdAt = null;
         this.updatedAt = null;
