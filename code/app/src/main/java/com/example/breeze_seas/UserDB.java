@@ -42,7 +42,9 @@ public class UserDB {
         Map<String, Object> userData = new HashMap<>();
 
         userData.put("deviceId",deviceId);
-        userData.put("name",user.getUserName());
+        userData.put("firstName",user.getFirstName());
+        userData.put("lastName", user.getLastName());
+        userData.put("userName",user.getUserName());
         userData.put("Email",user.getEmail());
         userData.put("phoneNumber",user.getPhoneNumber());
         userData.put("IsAdmin", user.isAdmin());
