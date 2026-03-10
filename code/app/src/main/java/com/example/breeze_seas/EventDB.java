@@ -1,37 +1,20 @@
 package com.example.breeze_seas;
 
+import androidx.annotation.NonNull;
+
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class EventDB {
+
     private static EventDB instance;
-    private final List<Event> events;
+    private final FirebaseFirestore db;
 
     private EventDB() {
-        events = new ArrayList<>();
-
-        // seed data
-        events.add(new Event(
-                "seed-1",
-                "CMPUT 301 Meetup",
-                "Discuss milestone planning.",
-                null,
-                1772688000000L,
-                1773292800000L,
-                null,
-                false
-        ));
-
-        events.add(new Event(
-                "seed-2",
-                "Hack Night",
-                "Late-night coding event.",
-                null,
-                1772947200000L,
-                1773120000000L,
-                50,
-                true
-        ));
+        db = FirebaseFirestore.getInstance();
     }
 
     public static EventDB getInstance() {
@@ -41,20 +24,51 @@ public class EventDB {
         return instance;
     }
 
-    public List<Event> getAllEvents() {
-        return new ArrayList<>(events);
+    public interface LoadEventsCallback {
+        void onSuccess(List<Event> events);
+        void onFailure(Exception e);
     }
 
-    public void addEvent(Event event) {
-        events.add(0, event);
+    public interface AddEventCallback {
+        void onSuccess(String eventId);
+        void onFailure(Exception e);
     }
 
-    public Event getEventById(String id) {
-        for (Event event : events) {
-            if (event.getId().equals(id)) {
-                return event;
-            }
-        }
-        return null;
+    public void addEvent(@NonNull Event event, @NonNull AddEventCallback callback) {
+        db.collection("events")
+                .add(event.toMap())
+                .addOnSuccessListener(documentReference ->
+                        callback.onSuccess(documentReference.getId()))
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    public void getAllEvents(@NonNull LoadEventsCallback callback) {
+        db.collection("events")
+                .orderBy("regFromMillis")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Event> events = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        Event event = Event.fromDocument(doc);
+                        if (event != null) {
+                            events.add(event);
+                        }
+                    }
+                    callback.onSuccess(events);
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    public void getEventById(@NonNull String id, @NonNull LoadSingleEventCallback callback) {
+        db.collection("events")
+                .document(id)
+                .get()
+                .addOnSuccessListener(doc -> callback.onSuccess(Event.fromDocument(doc)))
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    public interface LoadSingleEventCallback {
+        void onSuccess(Event event);
+        void onFailure(Exception e);
     }
 }

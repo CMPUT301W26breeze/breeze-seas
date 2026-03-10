@@ -1,6 +1,5 @@
 package com.example.breeze_seas;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,13 +17,16 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class OrganizeFragment extends Fragment {
 
-    private final List<EventRow> events = new ArrayList<>();
-    private EventRowAdapter adapter;
+    private final List<Event> events = new ArrayList<>();
+    private EventAdapter adapter;
 
     public OrganizeFragment() {
         super(R.layout.fragment_organize);
@@ -36,17 +38,14 @@ public class OrganizeFragment extends Fragment {
 
         RecyclerView rv = view.findViewById(R.id.rvMyEvents);
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
-        adapter = new EventRowAdapter(events);
+        adapter = new EventAdapter(events);
         rv.setAdapter(adapter);
 
-        events.clear();
-        events.add(new EventRow("CMPUT 301 Meetup", "Mar 5, 2026", "Mar 12, 2026", null));
-        events.add(new EventRow("Hack Night", "Mar 8, 2026", "Mar 10, 2026", 50));
-        adapter.notifyDataSetChanged();
+        loadEvents();
 
         FloatingActionButton fab = view.findViewById(R.id.fabCreateEvent);
         fab.setOnClickListener(v ->
-                startActivity(new Intent(requireContext(), CreateEventActivity.class))
+                ((MainActivity) requireActivity()).openSecondaryFragment(new CreateEventFragment())
         );
 
         TextInputLayout til = view.findViewById(R.id.tilSearch);
@@ -55,43 +54,57 @@ public class OrganizeFragment extends Fragment {
         );
 
         view.findViewById(R.id.btnScanQr).setOnClickListener(v -> {
-            BottomNavigationView bottomNav = findBottomNav(requireActivity().getWindow().getDecorView());
+            BottomNavigationView bottomNav = requireActivity().findViewById(R.id.bottom_navigation);
+
             if (bottomNav == null) {
-                Toast.makeText(requireContext(), "Bottom nav not found", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Bottom navigation not found", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            int scanItemId = findMenuItemIdByTitle(bottomNav.getMenu(), "Scan"); // change keyword if needed
-            if (scanItemId == 0) {
-                Toast.makeText(requireContext(), "Scan tab not found (check menu title)", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            Toast.makeText(requireContext(), "Scan QR screen not wired yet", Toast.LENGTH_SHORT).show();
 
-            bottomNav.setSelectedItemId(scanItemId);
+            // bottomNav.setSelectedItemId(R.id.nav_scan);
         });
 
         view.findViewById(R.id.btnFilter).setOnClickListener(v ->
-                startActivity(new Intent(requireContext(), FilterActivity.class))
+                ((MainActivity) requireActivity()).openSecondaryFragment(new FilterFragment())
         );
     }
 
-    static class EventRow {
-        String name, from, to;
-        Integer cap;
-        EventRow(String name, String from, String to, Integer cap) {
-            this.name = name;
-            this.from = from;
-            this.to = to;
-            this.cap = cap;
-        }
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadEvents();
     }
 
-    static class EventRowAdapter extends RecyclerView.Adapter<EventRowAdapter.VH> {
-        private final List<EventRow> data;
-        EventRowAdapter(List<EventRow> data) { this.data = data; }
+    private void loadEvents() {
+        EventDB.getInstance().getAllEvents(new EventDB.LoadEventsCallback() {
+            @Override
+            public void onSuccess(List<Event> loadedEvents) {
+                events.clear();
+                events.addAll(loadedEvents);
+                if (adapter != null) {
+                    adapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(requireContext(), "Failed to load events", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    static class EventAdapter extends RecyclerView.Adapter<EventAdapter.VH> {
+        private final List<Event> data;
+
+        EventAdapter(List<Event> data) {
+            this.data = data;
+        }
 
         static class VH extends RecyclerView.ViewHolder {
             TextView tvName, tvDates, tvCap;
+
             VH(@NonNull View itemView) {
                 super(itemView);
                 tvName = itemView.findViewById(R.id.tvEventName);
@@ -110,41 +123,24 @@ public class OrganizeFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull VH holder, int position) {
-            EventRow e = data.get(position);
-            holder.tvName.setText(e.name);
-            holder.tvDates.setText("Reg: " + e.from + " → " + e.to);
-            holder.tvCap.setText(e.cap == null
+            Event e = data.get(position);
+
+            holder.tvName.setText(e.getName());
+
+            SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.US);
+            String from = sdf.format(new Date(e.getRegFromMillis()));
+            String to = sdf.format(new Date(e.getRegToMillis()));
+            holder.tvDates.setText("Reg: " + from + " → " + to);
+
+            Integer cap = e.getWaitingListCap();
+            holder.tvCap.setText(cap == null
                     ? "Waiting list cap: Unlimited"
-                    : "Waiting list cap: " + e.cap);
+                    : "Waiting list cap: " + cap);
         }
 
         @Override
-        public int getItemCount() { return data.size(); }
-    }
-
-    private BottomNavigationView findBottomNav(View root) {
-        if (root instanceof BottomNavigationView) {
-            return (BottomNavigationView) root;
+        public int getItemCount() {
+            return data.size();
         }
-        if (root instanceof ViewGroup) {
-            ViewGroup vg = (ViewGroup) root;
-            for (int i = 0; i < vg.getChildCount(); i++) {
-                BottomNavigationView found = findBottomNav(vg.getChildAt(i));
-                if (found != null) return found;
-            }
-        }
-        return null;
-    }
-
-    private int findMenuItemIdByTitle(android.view.Menu menu, String titleKeyword) {
-        if (menu == null) return 0;
-        for (int i = 0; i < menu.size(); i++) {
-            android.view.MenuItem item = menu.getItem(i);
-            CharSequence t = item.getTitle();
-            if (t != null && t.toString().toLowerCase().contains(titleKeyword.toLowerCase())) {
-                return item.getItemId();
-            }
-        }
-        return 0;
     }
 }

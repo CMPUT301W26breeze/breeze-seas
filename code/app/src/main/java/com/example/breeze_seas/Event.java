@@ -1,5 +1,10 @@
 package com.example.breeze_seas;
 
+import com.google.firebase.firestore.DocumentSnapshot;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class Event {
     private final String id;
     private final String name;
@@ -28,35 +33,48 @@ public class Event {
         this.geoRequired = geoRequired;
     }
 
-    public String getId() {
-        return id;
+    public String getId() { return id; }
+    public String getName() { return name; }
+    public String getDetails() { return details; }
+    public String getPosterUriString() { return posterUriString; }
+    public long getRegFromMillis() { return regFromMillis; }
+    public long getRegToMillis() { return regToMillis; }
+    public Integer getWaitingListCap() { return waitingListCap; }
+    public boolean isGeoRequired() { return geoRequired; }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("name", name);
+        map.put("details", details);
+        map.put("posterUriString", posterUriString);
+        map.put("regFromMillis", regFromMillis);
+        map.put("regToMillis", regToMillis);
+        map.put("waitingListCap", waitingListCap);
+        map.put("geoRequired", geoRequired);
+        return map;
     }
 
-    public String getName() {
-        return name;
-    }
+    public static Event fromDocument(DocumentSnapshot doc) {
+        if (doc == null || !doc.exists()) return null;
 
-    public String getDetails() {
-        return details;
-    }
+        String name = doc.getString("name");
+        String details = doc.getString("details");
+        String posterUriString = doc.getString("posterUriString");
 
-    public String getPosterUriString() {
-        return posterUriString;
-    }
+        Long regFrom = doc.getLong("regFromMillis");
+        Long regTo = doc.getLong("regToMillis");
+        Long capLong = doc.getLong("waitingListCap");
+        Boolean geo = doc.getBoolean("geoRequired");
 
-    public long getRegFromMillis() {
-        return regFromMillis;
-    }
-
-    public long getRegToMillis() {
-        return regToMillis;
-    }
-
-    public Integer getWaitingListCap() {
-        return waitingListCap;
-    }
-
-    public boolean isGeoRequired() {
-        return geoRequired;
+        return new Event(
+                doc.getId(),
+                name == null ? "" : name,
+                details == null ? "" : details,
+                posterUriString,
+                regFrom == null ? 0L : regFrom,
+                regTo == null ? 0L : regTo,
+                capLong == null ? null : capLong.intValue(),
+                geo != null && geo
+        );
     }
 }

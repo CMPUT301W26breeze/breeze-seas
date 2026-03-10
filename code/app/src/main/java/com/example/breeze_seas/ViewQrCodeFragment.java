@@ -25,14 +25,27 @@ public class ViewQrCodeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         String eventId = getArguments() == null ? null : getArguments().getString("eventId");
-        Event event = eventId == null ? null : EventDB.getInstance().getEventById(eventId);
-
+        
         TextView tvEventName = view.findViewById(R.id.tvEventName);
         ImageView ivQr = view.findViewById(R.id.ivQr);
 
-        if (event != null) {
-            tvEventName.setText(event.getName());
-            ivQr.setImageBitmap(makeQr("event:" + event.getId()));
+        if (eventId != null) {
+            EventDB.getInstance().getEventById(eventId, new EventDB.LoadSingleEventCallback() {
+                @Override
+                public void onSuccess(Event event) {
+                    if (isAdded() && event != null) {
+                        tvEventName.setText(event.getName());
+                        ivQr.setImageBitmap(makeQr("event:" + event.getId()));
+                    }
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    if (isAdded()) {
+                        tvEventName.setText("Error loading event");
+                    }
+                }
+            });
         } else {
             tvEventName.setText("Unknown Event");
         }
