@@ -17,8 +17,9 @@ import java.util.Map;
  */
 public class UserDB {
 
-    private FirebaseFirestore db;
-    private CollectionReference userRef;
+    private static UserDB instance;
+    private final FirebaseFirestore db;
+    private final CollectionReference userRef;
 
     /**
      * Initializes a new UserDB instance.
