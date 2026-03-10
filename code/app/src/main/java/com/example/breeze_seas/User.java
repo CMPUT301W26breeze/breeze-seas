@@ -8,6 +8,8 @@ import com.google.firebase.Timestamp;
 public class User {
 
     private String deviceId;
+    private String firstName;
+    private String lastName;
     private String userName;
     private String email;
     private String phoneNumber;
@@ -17,9 +19,12 @@ public class User {
     private Timestamp updatedAt;
 
     public User() {
+
+        this.deviceId = null;
+        this.firstName = null;
+        this.lastName = null;
         this.userName = null;
         this.email = null;
-        this.deviceId = null;
         this.phoneNumber = null;
         this.isAdmin = false;
         this.notificationEnabled = true;
@@ -27,37 +32,48 @@ public class User {
         this.updatedAt = null;
     }
 
-    public User(String deviceId, String userName, String email) {
+    public User(String deviceId, String firstName, String lastName,
+                String userName, String email, boolean isAdmin) {
         this.deviceId = deviceId;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.userName = userName;
         this.email = email;
         this.phoneNumber = null;
-        this.isAdmin = false;
+        this.isAdmin = isAdmin;
         this.notificationEnabled = true;
         this.createdAt = null;
         this.updatedAt = null;
     }
 
-    public User(String deviceId, String userName, String email, String phoneNumber) {
+    public User(String deviceId, String firstName, String lastName,
+                String userName, String email, String phoneNumber, boolean isAdmin) {
         this.deviceId = deviceId;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.userName = userName;
         this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.isAdmin = false;
-        this.notificationEnabled = true;
-        this.createdAt = null;
-        this.updatedAt = null;
-    }
-    
-    public User(String userName, String email, String deviceId, String phoneNumber,
-                boolean isAdmin) {
-        this.userName = userName;
-        this.email = email;
-        this.deviceId = deviceId;
         this.phoneNumber = phoneNumber;
         this.isAdmin = isAdmin;
+        this.notificationEnabled = true;
         this.createdAt = null;
         this.updatedAt = null;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getUserName() {
