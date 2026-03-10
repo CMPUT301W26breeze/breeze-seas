@@ -16,8 +16,6 @@ import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import java.lang.reflect.Method;
-
 /*** MainActivity is the container for the app's main navigation.
  *
  * <p>Role in Architecture:* - Serves as a single-activity shell that switches top-level Fragments using a
