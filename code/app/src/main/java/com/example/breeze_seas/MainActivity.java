@@ -15,6 +15,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.lang.reflect.Method;
+
 /*** MainActivity is the container for the app's main navigation.
  *
  * <p>Role in Architecture:* - Serves as a single-activity shell that switches top-level Fragments using a
@@ -95,7 +98,12 @@ public class MainActivity extends AppCompatActivity {
             else if (id == R.id.nav_tickets) setCurrentFragment(ticketsFragment);
             else if (id == R.id.nav_organize) setCurrentFragment(organizeFragment);
             else if (id == R.id.nav_notification) setCurrentFragment(notificationFragment);
-            else if (id == R.id.nav_profile) setCurrentFragment(profileFragment);
+            else if (id == R.id.nav_profile) {
+                Bundle profileArgs = new Bundle();
+                profileArgs.putString("deviceId", this.androidID);
+                profileFragment.setArguments(profileArgs);
+                setCurrentFragment(profileFragment);
+            }
             return true;
         });
 
