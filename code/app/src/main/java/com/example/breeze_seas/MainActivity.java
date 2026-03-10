@@ -52,18 +52,27 @@ public class MainActivity extends AppCompatActivity {
         // Get android ID
         this.androidID = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
-        // Initialize UserDB
-        UserDB userDBInstance = new UserDB();
-
-        // Fetch user state and THEN initialize UI
-        userDBInstance.getUser(androidID, new UserDB.OnUserLoadedListener() {
+        FirebaseSession.ensureAuthenticated(new FirebaseSession.OnReadyListener() {
             @Override
-            public void onUserLoaded(User user) {
-                initializeUI(savedInstanceState, user);
+            public void onReady() {
+                UserDB userDBInstance = new UserDB();
+                userDBInstance.getUser(androidID, new UserDB.OnUserLoadedListener() {
+                    @Override
+                    public void onUserLoaded(User user) {
+                        initializeUI(savedInstanceState, user);
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Log.e(TAG, "Failed to load user for startup. Falling back to guest flow.", e);
+                        initializeUI(savedInstanceState, null);
+                    }
+                });
             }
+
             @Override
             public void onError(Exception e) {
-                Log.e(TAG, "Failed to load user for startup. Falling back to guest flow.", e);
+                Log.e(TAG, "Firebase auth bootstrap failed. Falling back to guest flow.", e);
                 initializeUI(savedInstanceState, null);
             }
         });

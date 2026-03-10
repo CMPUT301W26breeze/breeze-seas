@@ -2,7 +2,9 @@ package com.example.breeze_seas;
 
 import android.util.Log;
 
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
@@ -37,26 +39,30 @@ public class UserDB {
      *
      * @param user The {@link User} object containing the profile data to be stored.
      */
-    public void createUser(User user) {
+    public Task<Void> createUser(User user) {
 
         String deviceId = user.getDeviceId();
         Map<String, Object> userData = new HashMap<>();
+        String fullName = buildFullName(user);
 
-        userData.put("deviceId",deviceId);
-        userData.put("firstName",user.getFirstName());
+        userData.put("deviceId", deviceId);
+        userData.put("firstName", user.getFirstName());
         userData.put("lastName", user.getLastName());
-        userData.put("userName",user.getUserName());
-        userData.put("Email",user.getEmail());
-        userData.put("phoneNumber",user.getPhoneNumber());
-        userData.put("IsAdmin", user.isAdmin());
+        userData.put("userName", user.getUserName());
+        userData.put("name", fullName);
+        userData.put("email", user.getEmail());
+        userData.put("phoneNumber", user.getPhoneNumber());
+        userData.put("isAdmin", user.isAdmin());
         userData.put("notificationEnabled", user.notificationEnabled());
         userData.put("createdAt", FieldValue.serverTimestamp());
+        userData.put("updatedAt", FieldValue.serverTimestamp());
 
-        userRef.document(deviceId).set(userData, SetOptions.merge())
-                .addOnSuccessListener(aVoid ->
-                        Log.d("DB_UPDATE", "Update successful"))
+        Task<Void> writeTask = userRef.document(deviceId).set(userData, SetOptions.merge());
+        writeTask.addOnSuccessListener(aVoid ->
+                        Log.d("DB_UPDATE", "User create/update successful"))
                 .addOnFailureListener(e ->
-                        Log.e("DB_UPDATE", "Update failed", e));
+                        Log.e("DB_UPDATE", "User create/update failed", e));
+        return writeTask;
     }
 
     /**
@@ -110,16 +116,75 @@ public class UserDB {
         userRef.document(deviceId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        // This converts the Firestore document directly into your User object
-                        User user = documentSnapshot.toObject(User.class);
-                        listener.onUserLoaded(user);
+                        listener.onUserLoaded(parseUser(documentSnapshot));
                     } else {
-                        listener.onUserLoaded(null); // Document doesn't exist
+                        userRef.whereEqualTo("deviceId", deviceId)
+                                .limit(1)
+                                .get()
+                                .addOnSuccessListener(querySnapshot -> {
+                                    if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                                        listener.onUserLoaded(parseUser(querySnapshot.getDocuments().get(0)));
+                                    } else {
+                                        listener.onUserLoaded(null);
+                                    }
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("DB_ERROR", "Error fetching user by deviceId", e);
+                                    listener.onError(e);
+                                });
                     }
                 })
                 .addOnFailureListener(e -> {
                     Log.e("DB_ERROR", "Error fetching user", e);
                     listener.onError(e);
                 });
+    }
+
+    private String buildFullName(User user) {
+        String firstName = user.getFirstName() == null ? "" : user.getFirstName().trim();
+        String lastName = user.getLastName() == null ? "" : user.getLastName().trim();
+        String fullName = (firstName + " " + lastName).trim();
+
+        if (!fullName.isEmpty()) {
+            return fullName;
+        }
+
+        return user.getUserName();
+    }
+
+    private User parseUser(DocumentSnapshot documentSnapshot) {
+        User user = new User();
+
+        String deviceId = documentSnapshot.getString("deviceId");
+        if (deviceId == null || deviceId.trim().isEmpty()) {
+            deviceId = documentSnapshot.getId();
+        }
+
+        String firstName = documentSnapshot.getString("firstName");
+        String lastName = documentSnapshot.getString("lastName");
+        String userName = documentSnapshot.getString("userName");
+        String fullName = documentSnapshot.getString("name");
+        String email = documentSnapshot.getString("email");
+        String phoneNumber = documentSnapshot.getString("phoneNumber");
+        Boolean isAdmin = documentSnapshot.getBoolean("isAdmin");
+        Boolean notificationEnabled = documentSnapshot.getBoolean("notificationEnabled");
+
+        if ((userName == null || userName.trim().isEmpty()) && fullName != null) {
+            userName = fullName;
+        }
+
+        user.setDeviceId(deviceId);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setUserName(userName);
+        if (email != null && email.contains("@")) {
+            user.setEmail(email);
+        }
+        user.setPhoneNumber(phoneNumber);
+        user.setAdmin(Boolean.TRUE.equals(isAdmin));
+        user.setNotificationEnabled(notificationEnabled == null || notificationEnabled);
+        user.setCreatedAt(documentSnapshot.getTimestamp("createdAt"));
+        user.setUpdatedAt(documentSnapshot.getTimestamp("updatedAt"));
+        return user;
     }
 }

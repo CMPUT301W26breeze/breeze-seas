@@ -13,7 +13,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.FirebaseNetworkException;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 
 /**
  * SignUpFragment is a {@link Fragment} subclass.
@@ -68,17 +70,44 @@ public class SignUpFragment extends Fragment {
                 User user = new User(this.androidID, this.firstName, this.lastName, this.userName,
                         this.email, this.phoneNumber, false);
 
-                // Add User to DB
-                UserDB userDBInstance = new UserDB();
-                userDBInstance.createUser(user);
+                confirmButton.setEnabled(false);
+                FirebaseSession.ensureAuthenticated(new FirebaseSession.OnReadyListener() {
+                    @Override
+                    public void onReady() {
+                        UserDB userDBInstance = new UserDB();
+                        userDBInstance.createUser(user)
+                                .addOnSuccessListener(unused -> {
+                                    if (!isAdded()) {
+                                        return;
+                                    }
 
-                // Switch to ExploreFragment
-                // TODO: Cleaner implementation?
-                ((MainActivity) requireActivity()).showBottomNav(true);
-                getActivity().getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.fragment_container, new ExploreFragment())
-                        .commit();
+                                    // Switch to ExploreFragment only after the user write succeeds.
+                                    ((MainActivity) requireActivity()).showBottomNav(true);
+                                    requireActivity().getSupportFragmentManager()
+                                            .beginTransaction()
+                                            .replace(R.id.fragment_container, new ExploreFragment())
+                                            .commit();
+                                })
+                                .addOnFailureListener(e -> {
+                                    if (!isAdded()) {
+                                        return;
+                                    }
+
+                                    confirmButton.setEnabled(true);
+                                    dialogMsg(buildSignUpErrorMessage(e));
+                                });
+                    }
+
+                    @Override
+                    public void onError(@NonNull Exception e) {
+                        if (!isAdded()) {
+                            return;
+                        }
+
+                        confirmButton.setEnabled(true);
+                        dialogMsg(buildSignUpErrorMessage(e));
+                    }
+                });
             }
         });
 
@@ -182,5 +211,33 @@ public class SignUpFragment extends Fragment {
         // Show the dialog
         final AlertDialog alertDialog = builder.create();
         alertDialog.show();
+    }
+
+    private String buildSignUpErrorMessage(Exception e) {
+        String baseMessage = "Failed to create your account.";
+
+        if (e instanceof FirebaseFirestoreException) {
+            FirebaseFirestoreException firestoreException = (FirebaseFirestoreException) e;
+            if (firestoreException.getCode() == FirebaseFirestoreException.Code.PERMISSION_DENIED) {
+                return baseMessage + "\n\nFirestore denied the write. Check your Firestore rules.";
+            }
+            if (firestoreException.getCode() == FirebaseFirestoreException.Code.UNAVAILABLE) {
+                return baseMessage + "\n\nFirestore is unavailable right now. Check your connection and try again.";
+            }
+        }
+
+        if (e instanceof FirebaseAuthException) {
+            return baseMessage + "\n\nFirebase authentication failed: " + e.getMessage();
+        }
+
+        if (e instanceof FirebaseNetworkException) {
+            return baseMessage + "\n\nNetwork error: " + e.getMessage();
+        }
+
+        if (e != null && e.getMessage() != null && !e.getMessage().trim().isEmpty()) {
+            return baseMessage + "\n\nDetails: " + e.getMessage();
+        }
+
+        return baseMessage + "\n\nCheck Firebase setup and Firestore rules.";
     }
 }
