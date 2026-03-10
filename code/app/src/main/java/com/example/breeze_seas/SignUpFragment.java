@@ -9,6 +9,7 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.firebase.FirebaseNetworkException;
 import com.google.firebase.auth.FirebaseAuthException;
@@ -21,6 +22,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
  */
 public class SignUpFragment extends Fragment {
 
+    private SessionViewModel viewModel;
     private String androidID;
     private String firstName;
     private String lastName;
@@ -35,6 +37,9 @@ public class SignUpFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Setup viewModel
+        viewModel = new ViewModelProvider(requireActivity()).get(SessionViewModel.class);
     }
 
     @Override
@@ -42,7 +47,7 @@ public class SignUpFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Grab android ID
-        this.androidID = getArguments().getString("androidID");
+        this.androidID = viewModel.getAndroidID().getValue();
 
         // Bind views
         EditText firstNameInput = view.findViewById(R.id.signup_firstname_input);
@@ -71,12 +76,16 @@ public class SignUpFragment extends Fragment {
                 FirebaseSession.ensureAuthenticated(new FirebaseSession.OnReadyListener() {
                     @Override
                     public void onReady() {
-                        UserDB userDBInstance = new UserDB();
+                        // Grab userDBInstance from viewModel
+                        UserDB userDBInstance = viewModel.getUserDBInstance().getValue();
                         userDBInstance.createUser(user)
                                 .addOnSuccessListener(unused -> {
                                     if (!isAdded()) {
                                         return;
                                     }
+
+                                    // Add user to view model
+                                    viewModel.setUser(user);
 
                                     // Switch to ExploreFragment only after the user write succeeds.
                                     ((MainActivity) requireActivity()).showBottomNav(true);

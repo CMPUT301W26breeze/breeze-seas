@@ -13,6 +13,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 /*** MainActivity is the container for the app's main navigation.
@@ -34,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private final OrganizeFragment organizeFragment = new OrganizeFragment();
     private final NotificationFragment notificationFragment = new NotificationFragment();
     private final ProfileFragment profileFragment = new ProfileFragment();
-    private String androidID;
+    private SessionViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,14 +49,24 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Initialize viewModel (to share data between fragments)
+        viewModel = new ViewModelProvider(this).get(SessionViewModel.class);
 
         // Get android ID
-        this.androidID = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        String androidID = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        viewModel.setAndroidID(androidID);
+
+        // Hide Bar early (Before the firebase transaction)
+        showBottomNav(false);
 
         FirebaseSession.ensureAuthenticated(new FirebaseSession.OnReadyListener() {
             @Override
             public void onReady() {
+
+                // Create UserDB
                 UserDB userDBInstance = new UserDB();
+                viewModel.setUserDBInstance(userDBInstance);
+
                 userDBInstance.getUser(androidID, new UserDB.OnUserLoadedListener() {
                     @Override
                     public void onUserLoaded(User user) {
@@ -106,15 +117,17 @@ public class MainActivity extends AppCompatActivity {
 
             // Compose fragment and attach androidID info
             Bundle args = new Bundle();
-            args.putString("androidID", this.androidID);
             WelcomeScreenFragment welcomeScreenFragment = new WelcomeScreenFragment();
-            welcomeScreenFragment.setArguments(args);
             setCurrentFragment(welcomeScreenFragment);
         }
         // Default tab
-        // TODO: Transfer user data to exploreFragment
         else {
+            // Show bar
             showBottomNav(true);
+
+            // Set current user
+            viewModel.setUser(user);
+
             if (savedInstanceState == null
                     || getSupportFragmentManager().findFragmentById(R.id.fragment_container) == null) {
                 setCurrentFragment(exploreFragment);

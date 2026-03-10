@@ -35,7 +35,6 @@ public class WelcomeScreenFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 SignUpFragment signUpFragment = new SignUpFragment();
-                signUpFragment.setArguments(getArguments());  // forward arguments to Sign Up Page
 
                 // Switch to sign up page
                 getActivity().getSupportFragmentManager()
