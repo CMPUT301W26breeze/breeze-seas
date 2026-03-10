@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/materialTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:text="Sign Up"
+        android:textSize="40dp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!--First Name-->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/signupFirstnameText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="20dp"
+        android:text="First Name"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/signupFirstnameInput"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/materialTextView" />
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/signupFirstnameInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:background="@color/grey_border"
+        android:text=""
+        android:hint="Your first name"
+        app:layout_constraintBottom_toTopOf="@+id/signupLastnameText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/signupFirstnameText" />
+
+    <!--Last Name-->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/signupLastnameText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:text="Last Name"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/signupLastnameInput"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/signupFirstnameInput" />
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/signupLastnameInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:background="@color/grey_border"
+        android:text=""
+        android:hint="Your last name"
+        app:layout_constraintBottom_toTopOf="@+id/signupUsernameText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/signupLastnameText" />
+
+    <!--User Name-->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/signupUsernameText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:text="User Name"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/signupUsernameInput"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/signupLastnameInput" />
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/signupUsernameInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:background="@color/grey_border"
+        android:text=""
+        android:hint="Your user name"
+        app:layout_constraintBottom_toTopOf="@+id/signupEmailText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/signupUsernameText" />
+
+    <!--Email-->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/signupEmailText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:text="Email"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/signupEmailInput"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/signupUsernameInput" />
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/signupEmailInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:background="@color/grey_border"
+        android:text=""
+        android:hint="Your email address"
+        app:layout_constraintBottom_toTopOf="@+id/signupPhoneNumberText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/signupEmailText" />
+
+    <!--Phone Number-->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/signupPhoneNumberText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:text="Phone Number (Optional)"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/signupPhoneNumberInput"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/signupEmailInput" />
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/signupPhoneNumberInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:background="@color/grey_border"
+        android:text=""
+        android:hint="Your phone number"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/signupPhoneNumberText" />
+
+    <!--Confirm Button-->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/signupConfirmButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:backgroundTint="@color/black"
+        android:paddingStart="30dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="30dp"
+        android:paddingBottom="10dp"
+        android:text="Confirm"
+        app:cornerRadius="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

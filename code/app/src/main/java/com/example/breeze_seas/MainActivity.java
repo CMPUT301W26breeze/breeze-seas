@@ -1,6 +1,9 @@
 package com.example.breeze_seas;
 
 import android.os.Bundle;
+import android.provider.Settings;
+import android.view.View;
+import android.view.ViewTreeObserver;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private final OrganizeFragment organizeFragment = new OrganizeFragment();
     private final NotificationFragment notificationFragment = new NotificationFragment();
     private final ProfileFragment profileFragment = new ProfileFragment();
+    private String androidID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,15 +45,36 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+
+        // Get android ID
+        this.androidID = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+
+        // Initialize UserDB
+        UserDB userDBInstance = new UserDB();
+
+        // Fetch user state and THEN initialize UI
+        userDBInstance.getUser(androidID, new UserDB.OnUserLoadedListener() {
+            @Override
+            public void onUserLoaded(User user) {
+                initializeUI(savedInstanceState, user);
+            }
+            @Override
+            public void onError(Exception e) {
+            }
+        });
+
+    }
+
+    /**
+     * Determines which fragments should be loaded on start. This method is called by
+     * the callback function after the firebase query.
+     *
+     * @param savedInstanceState Values pertaining to the current activity
+     * @param user User class object, may be null if user does not exist for current device.
+     */
+    private void initializeUI(Bundle savedInstanceState, User user) {
+        // Bind and setup bottom navigation bar
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
-
-        // Default tab
-        if (savedInstanceState == null) {
-            setCurrentFragment(exploreFragment);
-            bottomNav.setSelectedItemId(R.id.nav_explore);
-        }
-
-
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_explore) setCurrentFragment(exploreFragment);
@@ -59,7 +84,45 @@ public class MainActivity extends AppCompatActivity {
             else if (id == R.id.nav_profile) setCurrentFragment(profileFragment);
             return true;
         });
+
+        //  user not found / login == false
+        if (user == null) {
+            // Hide bar
+            showBottomNav(false);
+
+            // Compose fragment and attach androidID info
+            Bundle args = new Bundle();
+            args.putString("androidID", this.androidID);
+            WelcomeScreenFragment welcomeScreenFragment = new WelcomeScreenFragment();
+            welcomeScreenFragment.setArguments(args);
+            setCurrentFragment(welcomeScreenFragment);
+        }
+        // Default tab
+        // TODO: Transfer user data to exploreFragment
+        else if (savedInstanceState == null) {
+            setCurrentFragment(exploreFragment);
+            bottomNav.setSelectedItemId(R.id.nav_explore);
+        }
+
     }
+
+    /**
+     * Helper wrapper function for controlling visibility of the navigation bar.
+     * Allows external control of the navigation bar. For example, being called from other fragments.
+     * @param show Boolean value, true to display the bottomNavigation
+     */
+    public void showBottomNav(boolean show) {
+        // TODO: Cleaner implementation? Check SignUpFragment.java
+        // Bind
+        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
+        if (show) {
+            bottomNav.setVisibility(View.VISIBLE);
+        } else {
+            bottomNav.setVisibility(View.GONE);
+        }
+    }
+
+
     /*** Replaces the existing fragment in the main fragment container.
      *
      * <p>Note: This use {@code replace()} without adding to the back stack since bottom* Navigation is designed to change top-level destinations rather than generate a
