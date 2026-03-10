@@ -1,4 +1,5 @@
 package com.example.breeze_seas;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,12 +13,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.materialswitch.MaterialSwitch;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import java.util.HashMap;
+import java.util.Map;
 
 /*** ProfileFragment is a top-level destination accessed via Bottom Navigation.
  *
@@ -60,15 +63,22 @@ public class ProfileFragment extends Fragment {
         deleteBtn = view.findViewById(R.id.delete_profile_button);
         optOutSwitch = view.findViewById(R.id.opt_out_switch);
 
-        String deviceId = getArguments().getString("deviceId");
-        fetchUserData(deviceId);
-
         return view;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // Initialize the view model, get the deviceId, and fetch user data
+        SessionViewModel viewModel;
+        viewModel = new ViewModelProvider(requireActivity()).get(SessionViewModel.class);
+        viewModel.getAndroidID().observe(getViewLifecycleOwner(), deviceId -> {
+            if (deviceId != null) {
+                Log.d("BreezeSeas", "Observed ID: " + deviceId);
+                fetchUserData(deviceId);
+            }
+        });
 
         // Toggle first name field when edit icon is clicked
         editFirstNameBtn.setOnClickListener(v -> {
@@ -80,7 +90,7 @@ public class ProfileFragment extends Fragment {
         // Toggle last name field when edit icon is clicked
         editLastNameBtn.setOnClickListener(v -> {
             toggleEditField(lastNameLayout);
-            String lastNameInput = getInput(firstNameLayout);
+            String lastNameInput = getInput(lastNameLayout);
             currentUser.setLastName(lastNameInput);
         });
 
@@ -107,7 +117,9 @@ public class ProfileFragment extends Fragment {
 
         // Save button
         saveBtn.setOnClickListener(v -> {
-
+            String deviceId = currentUser.getDeviceId();
+            Map<String,Object> updates = mapUpdates();
+            userDBInstance.updateUser(deviceId, updates);
             Toast.makeText(getContext(), "Profile Saved!", Toast.LENGTH_SHORT).show();
         });
 
@@ -169,6 +181,18 @@ public class ProfileFragment extends Fragment {
             public void onError(Exception e) {
             }
         });
+    }
+
+    private Map<String,Object> mapUpdates() {
+
+        Map<String,Object> updates = new HashMap<String,Object>();
+        updates.put("firstName", currentUser.getFirstName());
+        updates.put("lastName", currentUser.getLastName());
+        updates.put("userName", currentUser.getUserName());
+        updates.put("email", currentUser.getEmail());
+        updates.put("phoneNumber", currentUser.getPhoneNumber());
+
+        return updates;
     }
 
 }
