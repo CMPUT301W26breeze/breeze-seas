@@ -41,6 +41,7 @@
         android:layout_marginEnd="20dp"
         android:background="@color/grey_border"
         android:text=""
+        android:hint="Your first name"
         app:layout_constraintBottom_toTopOf="@+id/signupLastnameText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -69,6 +70,7 @@
         android:layout_marginEnd="20dp"
         android:background="@color/grey_border"
         android:text=""
+        android:hint="Your last name"
         app:layout_constraintBottom_toTopOf="@+id/signupUsernameText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -97,6 +99,7 @@
         android:layout_marginEnd="20dp"
         android:background="@color/grey_border"
         android:text=""
+        android:hint="Your user name"
         app:layout_constraintBottom_toTopOf="@+id/signupEmailText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -125,6 +128,7 @@
         android:layout_marginEnd="20dp"
         android:background="@color/grey_border"
         android:text=""
+        android:hint="Your email address"
         app:layout_constraintBottom_toTopOf="@+id/signupPhoneNumberText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -138,7 +142,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
-        android:text="Phone Number"
+        android:text="Phone Number (Optional)"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/signupPhoneNumberInput"
         app:layout_constraintEnd_toEndOf="parent"
@@ -153,65 +157,10 @@
         android:layout_marginEnd="20dp"
         android:background="@color/grey_border"
         android:text=""
-        app:layout_constraintBottom_toTopOf="@+id/signupGenderText"
+        android:hint="Your phone number"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/signupPhoneNumberText" />
-
-    <!--Gender-->
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/signupGenderText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:text="Gender"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/signupGenderInput"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signupPhoneNumberInput" />
-
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/signupGenderInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:background="@color/grey_border"
-        android:text="male, female, undeclared"
-        app:layout_constraintBottom_toTopOf="@+id/signupDateOfBirthText"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signupGenderText" />
-
-    <!--Date of Birth-->
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/signupDateOfBirthText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:text="Date of Birth"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/signupDateOfBirthInput"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signupGenderInput" />
-
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/signupDateOfBirthInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:background="@color/grey_border"
-        android:text="YYYY/MM/DD"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signupDateOfBirthText" />
 
     <!--Confirm Button-->
     <com.google.android.material.button.MaterialButton
