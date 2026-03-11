@@ -17,7 +17,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <com.google.android.material.card.MaterialCardView
+    <LinearLayout
         android:id="@+id/bottom_navigation"
         android:layout_width="0dp"
         android:layout_height="@dimen/bottom_nav_height"
@@ -25,14 +25,12 @@
         android:layout_marginStart="@dimen/bottom_nav_horizontal_margin"
         android:layout_marginEnd="@dimen/bottom_nav_horizontal_margin"
         android:layout_marginBottom="@dimen/bottom_nav_bottom_margin"
-        app:cardBackgroundColor="@color/white"
-        app:cardCornerRadius="@dimen/bottom_nav_corner_radius"
-        app:cardElevation="12dp"
+        android:background="@drawable/bg_tickets_tab_shell"
+        android:elevation="8dp"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:strokeColor="@color/grey_border"
-        app:strokeWidth="1dp">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -247,6 +245,6 @@
                 </LinearLayout>
             </FrameLayout>
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
