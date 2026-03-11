@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="bottom_nav_height">72dp</dimen>
+    <dimen name="bottom_nav_horizontal_margin">14dp</dimen>
+    <dimen name="bottom_nav_bottom_margin">12dp</dimen>
+    <dimen name="bottom_nav_corner_radius">26dp</dimen>
+    <dimen name="bottom_nav_icon_size">20dp</dimen>
+    <dimen name="bottom_nav_label_text_size">10sp</dimen>
+    <dimen name="bottom_nav_padding_horizontal">8dp</dimen>
+    <dimen name="bottom_nav_item_min_width">56dp</dimen>
+    <dimen name="bottom_nav_item_min_height">48dp</dimen>
+    <dimen name="bottom_nav_item_corner_radius">18dp</dimen>
+    <dimen name="bottom_nav_item_padding_horizontal">10dp</dimen>
+    <dimen name="bottom_nav_item_padding_vertical">7dp</dimen>
+    <dimen name="bottom_nav_content_clearance">12dp</dimen>
+</resources>
