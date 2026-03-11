@@ -23,7 +23,7 @@ public class AdminDashboardFragment extends Fragment {
         MaterialToolbar toolbar = view.findViewById(R.id.ad_topAppBar);
         toolbar.setNavigationOnClickListener(v -> {
             requireActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new AdminProfileFragment())
+                    .replace(R.id.fragment_container, new ProfileFragment())
                     .commit();
         });
 

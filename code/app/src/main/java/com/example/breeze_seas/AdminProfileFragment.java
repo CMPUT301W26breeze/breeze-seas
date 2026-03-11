@@ -17,7 +17,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
-
+// may no longer be needed
 public class AdminProfileFragment extends Fragment {
 
     private static final String ADMIN_PASSWORD = "flyingfish";
