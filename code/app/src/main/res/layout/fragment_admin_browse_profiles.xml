@@ -5,22 +5,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface"> <com.google.android.material.appbar.AppBarLayout
-    android:id="@+id/abp_appBarLayout"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintEnd_toEndOf="parent">
+    android:background="?attr/colorSurface">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/abp_topAppBar"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/abp_app_bar_layout"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        app:title="Browse Profiles"
-        app:navigationIcon="@android:drawable/ic_menu_revert"
-        app:navigationContentDescription="Go back" />
-</com.google.android.material.appbar.AppBarLayout>
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/abp_top_app_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:title="Browse Profiles"
+            app:navigationIcon="@android:drawable/ic_menu_revert"
+            app:navigationContentDescription="Go back" />
+    </com.google.android.material.appbar.AppBarLayout>
 
     <com.google.android.material.search.SearchBar
         android:id="@+id/abp_search_bar"
@@ -29,7 +31,7 @@
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="16dp"
         android:hint="Search for users"
-        app:layout_constraintTop_toBottomOf="@+id/abp_appBarLayout"
+        app:layout_constraintTop_toBottomOf="@+id/abp_app_bar_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
