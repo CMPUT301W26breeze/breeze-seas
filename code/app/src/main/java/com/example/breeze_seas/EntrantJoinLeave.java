@@ -29,7 +29,7 @@ public class EntrantJoinLeave {
 
     public void addEntrant(String deviceId, String eventId) {
         DocumentReference eventRef = db.collection("events").document(eventId);
-        CollectionReference waitingListColl = eventRef.collection("WaitingList");
+        CollectionReference waitingListColl = eventRef.collection("participants");
 
         waitingListColl.count().get(AggregateSource.SERVER).addOnSuccessListener(snapshot -> {
             long currentCount = snapshot.getCount();
@@ -46,8 +46,9 @@ public class EntrantJoinLeave {
                     data.put("deviceId", deviceId);
                     // not final implementation, default for halfway checkpoint
                     data.put("location", new GeoPoint(0.0, 0.0));
-                    data.put("status", "Waiting");
-                    data.put("timestamp", FieldValue.serverTimestamp());
+                    data.put("status", "waiting");
+                    data.put("joinedAt", FieldValue.serverTimestamp());
+                    data.put("invitedAt",null);
 
                     waitingListColl.document(deviceId).set(data)
                             .addOnSuccessListener(aVoid -> Log.d("DB", "Successfully added to WaitingList"))
@@ -61,7 +62,7 @@ public class EntrantJoinLeave {
 
     public void removeEntrant(String deviceId, String eventId) {
         DocumentReference entrantRef = db.collection("events").document(eventId)
-                .collection("WaitingList").document(deviceId);
+                .collection("participants").document(deviceId);
 
         entrantRef.delete()
                 .addOnSuccessListener(aVoid -> {
