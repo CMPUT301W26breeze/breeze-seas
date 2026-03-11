@@ -35,7 +35,7 @@ public class PendingListFragment extends Fragment {
         listView=view.findViewById(R.id.pending_frag_list_view);
         waitingProgress = view.findViewById(R.id.pending_list_spinner);
         invitedList=new InvitationList(event);
-        adapter=new OrganizerListAdapter(getContext(), R.layout.item_organizer_list,invitedList.getInitialList());
+        adapter=new OrganizerListAdapter(getContext(), R.layout.item_organizer_list,invitedList.getInvitedList());
         listView.setAdapter(adapter);
         return view;
     }
