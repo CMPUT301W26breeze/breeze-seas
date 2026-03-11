@@ -21,6 +21,8 @@ public class WaitingListFragment extends Fragment {
     private ListView listView;
     private ProgressBar waitingProgress;
     private String event="test_event_1";
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -49,6 +51,18 @@ public class WaitingListFragment extends Fragment {
                     runLottery.setEnabled(true);
                 });
             });
+        });
+        listView.setOnItemClickListener((parent,view1,position,id)->{
+            User selected=(User) parent.getItemAtPosition(position);
+            new androidx.appcompat.app.AlertDialog.Builder(requireContext()).setTitle("Remove from waiting list")
+                    .setMessage("Are you sure you want to remove this user?").setPositiveButton("No", (dialog, which) -> dialog.dismiss())
+                    .setNegativeButton("Yes", (dialog, which) -> {
+                        waitingProgress.setVisibility(View.VISIBLE);
+                        waitingList.removeEntrant(adapter,selected,()->{
+                            waitingProgress.setVisibility(View.GONE);
+                        });
+                    })
+                    .show();
         });
     }
     @Override

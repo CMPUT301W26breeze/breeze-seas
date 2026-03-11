@@ -67,13 +67,16 @@ public class WaitingList {
 
     }
 
-    public void removeEntrant(android.widget.BaseAdapter adapter, User entrant,String event){
+    public void removeEntrant(android.widget.BaseAdapter adapter, User entrant, Runnable onFinish){
         String id=entrant.getDeviceId();
         DocumentReference deleteEntrant=db.collection("Events")
                 .document(event).collection("WaitingList").document(id);
         deleteEntrant.delete();
         entrantList.remove(entrant);
         if(adapter!=null) adapter.notifyDataSetChanged();
+        if(onFinish!=null){
+            onFinish.run();
+        }
     }
 
 }
