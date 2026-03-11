@@ -1,16 +1,21 @@
 package com.example.breeze_seas;
 
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Lottery {
     private final FirebaseFirestore db;
     private String eventId;
     private int capacity;
+    
 
     public Lottery(String eventId, int capacity){
         this.eventId=eventId;
@@ -19,55 +24,66 @@ public class Lottery {
     }
 
 
-    public void runLottery(int capacity,Runnable onFinish){
+    public void runLottery(int capacity, Runnable onFinish) {
         if (capacity <= 0) {
             if (onFinish != null) onFinish.run();
             return;
         }
-        CollectionReference listRef=db.collection("events")
-                .document(eventId).collection("participants");
-        listRef.get().addOnCompleteListener(task->{
 
-            if(task.isSuccessful() && task.getResult()!=null){
+        // Reference event document to update drawRound
+        DocumentReference eventRef = db.collection("events").document(eventId);
+        // Reference to the sub-collection of entrants
+        CollectionReference listRef = eventRef.collection("participants");
+
+        listRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
                 ArrayList<String> eligibleIds = new ArrayList<>();
                 int alreadyFilledSlots = 0;
-                for(DocumentSnapshot doc:task.getResult()){
+                for (DocumentSnapshot doc : task.getResult()) {
                     String status = doc.getString("status");
-                    if("waiting".equals(status)){
+                    if ("waiting".equals(status)) {
                         eligibleIds.add(doc.getId());
-                    }else if ("pending".equals(status) || "accepted".equals(status)) {
-                        //these people already have a spot reserved
+                    } else if ("pending".equals(status) || "accepted".equals(status)) {
+                        // These people already have a spot reserved
                         alreadyFilledSlots++;
                     }
                 }
 
-                int slots=capacity-alreadyFilledSlots;
-                int toFill=Math.min(slots,eligibleIds.size());
+                int slots=capacity - alreadyFilledSlots;
+                int toFill=Math.min(slots, eligibleIds.size());
+
                 if (toFill <= 0) {
                     if (onFinish != null) onFinish.run();
                     return;
                 }
+
+                // Randomize the eligible users
                 java.util.Collections.shuffle(eligibleIds);
 
                 WriteBatch batch = db.batch();
                 int count = 0;
-                for (int i = 0; i <toFill; i++) {
+
+                for (int i = 0; i < toFill; i++) {
                     String winnerId = eligibleIds.get(i);
-                    batch.update(listRef.document(winnerId), "status", "pending");
+                    Map<String, Object> updates = new HashMap<>();
+                    updates.put("status", "pending");
+                    updates.put("invitedAt", FieldValue.serverTimestamp());
+                    batch.update(listRef.document(winnerId), updates);
                     count++;
+
                     if (count == 450) {
                         batch.commit();
-                        batch= db.batch();
+                        batch = db.batch();
                         count = 0;
                     }
                 }
-                if (count > 0) {
-                    batch.commit().addOnCompleteListener(task1 -> {
-                        if (onFinish != null) onFinish.run();
-                    });
-                } else {
+
+                batch.update(eventRef, "drawRound", FieldValue.increment(1));
+                batch.commit().addOnCompleteListener(task1 -> {
                     if (onFinish != null) onFinish.run();
-                }
+                });
+            } else {
+                if (onFinish != null) onFinish.run();
             }
         });
     }

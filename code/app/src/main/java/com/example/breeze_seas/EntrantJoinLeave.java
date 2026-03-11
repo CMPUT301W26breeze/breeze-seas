@@ -27,7 +27,7 @@ public class EntrantJoinLeave {
         this.db=DBConnector.getDb();
     }
 
-    public void addEntrant(String deviceId, String eventId) {
+    public void addEntrant(String deviceId, String eventId,Runnable onSuccess) {
         DocumentReference eventRef = db.collection("events").document(eventId);
         CollectionReference waitingListColl = eventRef.collection("participants");
 
@@ -60,7 +60,7 @@ public class EntrantJoinLeave {
         });
     }
 
-    public void removeEntrant(String deviceId, String eventId) {
+    public void removeEntrant(String deviceId, String eventId,Runnable onSuccess) {
         DocumentReference entrantRef = db.collection("events").document(eventId)
                 .collection("participants").document(deviceId);
 
