@@ -10,7 +10,7 @@
     <item
         android:id="@+id/nav_tickets"
         android:icon="@drawable/ic_ticket"
-        android:title="Ticket"/>
+        android:title="Tickets"/>
 
     <item
         android:id="@+id/nav_organize"
@@ -20,7 +20,7 @@
     <item
         android:id="@+id/nav_notification"
         android:icon="@drawable/ic_notification"
-        android:title="Notification"/>
+        android:title="Alerts"/>
 
     <item
         android:id="@+id/nav_profile"

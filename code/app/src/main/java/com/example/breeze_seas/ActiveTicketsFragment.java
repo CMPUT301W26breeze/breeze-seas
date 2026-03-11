@@ -16,10 +16,10 @@ import com.google.android.material.snackbar.Snackbar;
  * ActiveTicketsFragment displays the entrant's active ticket states.
  *
  * <p>Current state:
- * - Loads active tickets through {@link TicketDB}.
+ * - Loads waiting, backup, and invited tickets through {@link TicketDB}.
  *
  * <p>Outstanding:
- * - Add live invitation/back-up states once those Firestore statuses are finalized.
+ * - Replace temporary success/failure messaging with the final UX once the wider notification flow is done.
  */
 public class ActiveTicketsFragment extends Fragment {
 
@@ -98,11 +98,11 @@ public class ActiveTicketsFragment extends Fragment {
      * Shows a centered dialog for the "Action Required" state where the entrant can accept or decline.
      *
      * <p>Current behavior:
-     * - Accept: moves the item through demo data and shows confirmation in tests.
-     * - Decline: removes the invite from the same demo-only path in tests.
+     * - Accept: updates the participant status to {@code accepted}.
+     * - Decline: updates the participant status to {@code declined}.
      *
      * <p>Outstanding:
-     * - Wire live accept/decline updates when invited status integration is implemented.
+     * - Surface write failures with the final UX once the wider app error-handling pattern is settled.
      *
      * Source:
      * Google Material Design, "Dialogs", accessed 2026-03-04:
