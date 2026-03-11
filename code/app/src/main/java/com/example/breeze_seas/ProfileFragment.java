@@ -1,5 +1,6 @@
 package com.example.breeze_seas;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +32,10 @@ public class ProfileFragment extends Fragment {
     private MaterialButton saveBtn, deleteBtn;
     private MaterialSwitch optOutSwitch;
 
+    // Stores tap count for profile pic
+    private int secretTapCount = 0;
+    private final UserDB userDB = new UserDB();
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -61,6 +66,19 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // Click on profile picture 5 times to show admin password dialogue
+        View profileImage = view.findViewById(R.id.profile_image);
+
+        profileImage.setOnClickListener(v -> {
+            secretTapCount++;
+
+            if (secretTapCount >= 5) {
+                secretTapCount = 0;
+
+                verifyAdminStatus();
+            }
+        });
 
         // Toggle first name field when edit icon is clicked
         editFirstNameBtn.setOnClickListener(v -> {
@@ -112,6 +130,37 @@ public class ProfileFragment extends Fragment {
             layout.getEditText().requestFocus();
             layout.getEditText().setSelection(layout.getEditText().getText().length());
         }
+    }
+
+    private void verifyAdminStatus() {
+        String currentDeviceId = Settings.Secure.getString(
+                requireContext().getContentResolver(),
+                Settings.Secure.ANDROID_ID
+        );
+
+        userDB.getUser(currentDeviceId, new UserDB.OnUserLoadedListener() {
+            @Override
+            public void onUserLoaded(User user) {
+                if (user != null && user.isAdmin()) {
+                    Toast.makeText(getContext(), "Successfully verified!", Toast.LENGTH_SHORT).show();
+                    navigateToAdminProfile();
+                } else {
+                    new AdminAuthDialogFragment().show(getParentFragmentManager(), "AdminAuth");
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(getContext(), "Error verifying account status", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void navigateToAdminProfile() {
+        requireActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, new AdminProfileFragment())
+                .addToBackStack(null)
+                .commit();
     }
 }
 

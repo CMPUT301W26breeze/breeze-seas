@@ -66,7 +66,7 @@ public class AdminAuthDialogFragment extends DialogFragment {
 
         // Route to dashboard
         requireActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new AdminDashboardFragment())
+                .replace(R.id.fragment_container, new AdminProfileFragment())
                 .addToBackStack(null)
                 .commit();
     }
