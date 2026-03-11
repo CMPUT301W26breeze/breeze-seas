@@ -39,10 +39,10 @@ public class TicketsFragmentTest {
 
     @Test
     public void ticketsScreen_loadsWithTabsVisible() {
-        onView(withText("History")).check(matches(isDisplayed()));
+        onView(withText("Your Tickets")).check(matches(isDisplayed()));
         onView(withText("Active")).check(matches(isDisplayed()));
         onView(withText("Attending")).check(matches(isDisplayed()));
-        onView(withText("Past Events")).check(matches(isDisplayed()));
+        onView(withText("Past")).check(matches(isDisplayed()));
     }
 
     @Test
@@ -53,7 +53,7 @@ public class TicketsFragmentTest {
 
     @Test
     public void selectingPastTab_doesNotCrash() {
-        onView(withText("Past Events")).perform(click());
-        onView(withText("Past Events")).check(matches(isDisplayed()));
+        onView(withText("Past")).perform(click());
+        onView(withText("Past")).check(matches(isDisplayed()));
     }
 }

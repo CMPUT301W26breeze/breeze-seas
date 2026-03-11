@@ -4,36 +4,90 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:background="@color/surface_subtle"
+    android:paddingHorizontal="16dp"
+    android:paddingTop="16dp"
+    android:paddingBottom="8dp">
 
     <TextView
         android:id="@+id/tickets_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="History"
-        android:textSize="22sp"
+        android:fontFamily="@font/inter_semibold"
+        android:gravity="start"
+        android:text="Your Tickets"
+        android:textColor="@color/text_primary"
+        android:textSize="24sp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tickets_tab_layout"
+    <LinearLayout
+        android:id="@+id/tickets_tab_shell"
         android:layout_width="0dp"
-        android:background="@color/white"
-        android:backgroundTint="@color/white"
-        app:tabBackground="@color/white"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
         android:layout_marginTop="12dp"
+        android:background="@drawable/bg_tickets_tab_shell"
+        android:elevation="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="4dp"
         app:layout_constraintTop_toBottomOf="@id/tickets_title"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/tickets_tab_active"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/bg_tickets_tab_item"
+            android:clickable="true"
+            android:focusable="true"
+            android:fontFamily="@font/inter_semibold"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="Active"
+            android:textColor="@color/tickets_tab_text_color"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tickets_tab_attending"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/bg_tickets_tab_item"
+            android:clickable="true"
+            android:focusable="true"
+            android:fontFamily="@font/inter_semibold"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="Attending"
+            android:textColor="@color/tickets_tab_text_color"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tickets_tab_past"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/bg_tickets_tab_item"
+            android:clickable="true"
+            android:focusable="true"
+            android:fontFamily="@font/inter_semibold"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="Past"
+            android:textColor="@color/tickets_tab_text_color"
+            android:textSize="12sp" />
+    </LinearLayout>
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/tickets_view_pager"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="12dp"
-        app:layout_constraintTop_toBottomOf="@id/tickets_tab_layout"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/tickets_tab_shell"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
