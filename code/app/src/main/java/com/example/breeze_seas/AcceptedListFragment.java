@@ -22,15 +22,18 @@ public class AcceptedListFragment extends Fragment {
     private OrganizerListAdapter adapter;
     private ListView listView;
     private ProgressBar waitingProgress;
-    private String event="test_event_1";
-    public void refreshData() {
-        if (acceptedList != null && adapter != null) {
-            if (waitingProgress != null) waitingProgress.setVisibility(View.VISIBLE);
-            acceptedList.fetchFinalList(adapter, () -> {
-                if (waitingProgress != null) waitingProgress.setVisibility(View.GONE);
-            });
-        }
+    private String eventId="test_event_001"; //Bundle expected from EventDetail Page
+    private int capacity=10; //bundle expected from EventDetail page/ organizer page
+
+    public static AcceptedListFragment newInstance(String eventId, int capacity) {
+        AcceptedListFragment fragment = new AcceptedListFragment();
+        Bundle args = new Bundle();
+        args.putString("EVENT_ID", eventId);
+        args.putInt("CAPACITY", capacity);
+        fragment.setArguments(args);
+        return fragment;
     }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -38,18 +41,22 @@ public class AcceptedListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_accepted_list, container, false);
         listView=view.findViewById(R.id.accept_frag_list_view);
         waitingProgress = view.findViewById(R.id.accepted_list_spinner);
-        acceptedList=new FinalList(event);
-        adapter=new OrganizerListAdapter(getContext(), R.layout.item_organizer_list,acceptedList.getAcceptedList());
+        acceptedList=new FinalList(eventId,capacity);
+        adapter=new OrganizerListAdapter(getContext(), R.layout.item_organizer_list,acceptedList.getFinalList());
         listView.setAdapter(adapter);
         return view;
     }
-
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState){
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
     }
     @Override
     public void onResume() {
         super.onResume();
-        refreshData();
+        waitingProgress.setVisibility(View.VISIBLE);
+        acceptedList.fetchAccepted(adapter, () -> {
+            waitingProgress.setVisibility(View.GONE);
+        });
     }
+
 }

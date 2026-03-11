@@ -16,14 +16,22 @@ import com.google.android.material.button.MaterialButton;
 
 
 public class WaitingListFragment extends Fragment {
+
     private WaitingList waitingList;
     private OrganizerListAdapter adapter;
     private ListView listView;
     private ProgressBar waitingProgress;
-    private String eventId="test_event_1"; //Bundle expected from EventDetail Page
-    private int lotterySize=3; //bundle expected? No defined attribute yet
+    private String eventId="test_event_001"; //Bundle expected from EventDetail Page
     private int capacity=10; //bundle expected from EventDetail page/ organizer page
 
+    public static WaitingListFragment newInstance(String eventId, int capacity) {
+        WaitingListFragment fragment = new WaitingListFragment();
+        Bundle args = new Bundle();
+        args.putString("EVENT_ID", eventId);
+        args.putInt("CAPACITY", capacity);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Nullable
     @Override
@@ -40,41 +48,32 @@ public class WaitingListFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        waitingProgress.setVisibility(View.VISIBLE);
-        waitingList.fetchWaitingList(adapter,()->{waitingProgress.setVisibility(View.GONE);});
         MaterialButton runLottery=view.findViewById(R.id.btn_run_lottery);
         runLottery.setOnClickListener(v->{
-            Lottery lottery=new Lottery(eventId);
+            runLottery.setEnabled(false);
+            Lottery lottery=new Lottery(eventId,2);
             waitingProgress.setVisibility(View.VISIBLE);
-            lottery.runLottery(lotterySize,() -> {
+            lottery.runLottery(2,() -> {
                 // Refresh data once lottery is committed
-                waitingList.fetchWaitingList(adapter, () -> {
-                    waitingProgress.setVisibility(View.GONE);
-                    runLottery.setEnabled(true);
-                });
+                refreshWaitingList();
+                runLottery.setEnabled(true);
             });
         });
-        listView.setOnItemClickListener((parent,view1,position,id)->{
-            User selected=(User) parent.getItemAtPosition(position);
-            new androidx.appcompat.app.AlertDialog.Builder(requireContext()).setTitle("Remove from waiting list")
-                    .setMessage("Are you sure you want to remove this user?").setPositiveButton("No", (dialog, which) -> dialog.dismiss())
-                    .setNegativeButton("Yes", (dialog, which) -> {
-                        waitingProgress.setVisibility(View.VISIBLE);
-                        waitingList.removeEntrant(adapter,selected,()->{
-                            waitingProgress.setVisibility(View.GONE);
-                        });
-                    })
-                    .show();
-        });
     }
+
     @Override
     public void onResume() {
         super.onResume();
-        waitingProgress.setVisibility(View.VISIBLE);
-        waitingList.fetchWaitingList(adapter, () -> {
-            waitingProgress.setVisibility(View.GONE);
-        });
+        refreshWaitingList();
+
     }
 
+    private void refreshWaitingList() {
+        waitingProgress.setVisibility(View.VISIBLE);
+        waitingList.fetchWaiting(adapter, () -> {
+            if (isAdded()) {
+                waitingProgress.setVisibility(View.GONE);
+            }
+        });
+    }
 }
-

@@ -3,39 +3,91 @@ package com.example.breeze_seas;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class InvitationList {
     private String eventId;
+    private int capacity;
     private ArrayList<User> invitedList;
-    private FirebaseFirestore db;
-
-    public InvitationList(String event){
+    private final FirebaseFirestore db;
+    public InvitationList(String eventId, int capacity){
         this.eventId=eventId;
-        this.invitedList=new ArrayList<User>();
+        this.capacity=capacity;
         this.db=DBConnector.getDb();
+        this.invitedList=new ArrayList<>();
     }
 
-    public ArrayList<User> getInvitedList() {
+    public ArrayList<User> getInvitedList(){
         return invitedList;
     }
 
-    public void fetchInvitedList(android.widget.BaseAdapter adapter, Runnable onFinish) {
-        CollectionReference list=db.collection("events").document(eventId)
-                .collection("WaitingList");
-        list.whereEqualTo("status", "Pending").get()
-                .addOnCompleteListener(op -> {
-                    if (op.isSuccessful() && op.getResult() != null) {
-                        invitedList.clear();
-                        for (DocumentSnapshot doc : op.getResult()) {
-                            User invitedEntrant = doc.toObject(User.class);
-                            if (invitedEntrant != null) invitedList.add(invitedEntrant);
-                        }
-                        if (adapter != null) adapter.notifyDataSetChanged();
+    public void fetchPending(android.widget.BaseAdapter adapter,Runnable onFinish){ //quick fetch
+        invitedList.clear();
+        CollectionReference usersRef=db.collection("users");
+        CollectionReference eventRef=db.collection("events");
+        //change to participants
+        Query listQuery = eventRef.document(eventId)
+                .collection("participants")
+                .orderBy("invitedAt", Query.Direction.ASCENDING);
+        ArrayList<String> idList=new ArrayList<>();
+        listQuery.get().addOnCompleteListener(task->{
+            if(task.isSuccessful() && task.getResult()!=null){
+                invitedList.clear();
+                for(DocumentSnapshot doc: task.getResult()){
+                    if(Objects.equals(doc.getString("status"), "pending")){
+                        idList.add(doc.getId());
                     }
-                    if (onFinish != null) onFinish.run();
-                });
+                }
+                fetchInvitedUsers(idList,adapter,onFinish);
+            }
+            else{
+                if(onFinish!=null){
+                    onFinish.run();
+                }
+            }
+        });
+    }
+
+    public void fetchInvitedUsers(ArrayList<String> ids,android.widget.BaseAdapter adapter,Runnable onFinish){
+        if (ids.isEmpty()){
+            onFinish.run();
+            return;
+        }
+
+        AtomicInteger count = new AtomicInteger(0);
+
+        User[] sortedUsers = new User[ids.size()];
+
+        for (int i = 0; i < ids.size(); i++) {
+            final int index = i;
+            String id = ids.get(i);
+
+            db.collection("users").document(id).get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && task.getResult().exists()) {
+                            User user = task.getResult().toObject(User.class);
+                            if (user != null) {
+                                sortedUsers[index] = user;
+                            }
+                        }
+
+                        if (count.incrementAndGet() == ids.size()) {
+                            invitedList.clear();
+                            for (User u : sortedUsers) {
+                                if (u != null) invitedList.add(u);
+                            }
+                            if (adapter != null) adapter.notifyDataSetChanged();
+                            if (onFinish != null) onFinish.run();
+                        }
+
+
+                    });
+        }
+
     }
 
 }

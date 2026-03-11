@@ -15,6 +15,15 @@ import com.google.android.material.tabs.TabLayoutMediator;
 
 public class OrganizerListHostFragment extends Fragment {
 
+    public static OrganizerListHostFragment newInstance(String eventId, int capacity) {
+        OrganizerListHostFragment fragment = new OrganizerListHostFragment();
+        Bundle args = new Bundle();
+        args.putString("EVENT_ID", eventId);
+        args.putInt("CAPACITY", capacity);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle saved) {

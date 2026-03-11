@@ -12,19 +12,35 @@ import com.example.breeze_seas.WaitingListFragment;
 
 
 public class OrganizerPagerAdapter extends FragmentStateAdapter {
+
+    private final Fragment hostFragment;
     public OrganizerPagerAdapter(@NonNull Fragment fragment) {
+
         super(fragment);
+        this.hostFragment=fragment;
     }
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        switch (position) {
-            case 0: return new WaitingListFragment();
-            case 1: return new PendingListFragment();
-            case 2: return new AcceptedListFragment();
-            case 3: return new CancelledListFragment();
-            default: return new WaitingListFragment();
+        String eventId = "";
+        if (hostFragment.getArguments() != null) {
+            eventId = hostFragment.getArguments().getString("EVENT_ID");
         }
+
+        if (position == 0) {
+            return WaitingListFragment.newInstance(eventId, 0);
+        } else if (position==1) {
+            return PendingListFragment.newInstance(eventId, 0);
+        } else if (position==2) {
+            return AcceptedListFragment.newInstance(eventId,0);
+        }
+        else if (position==3){
+            return CancelledListFragment.newInstance(eventId, 0);
+        }
+        else{
+            return WaitingListFragment.newInstance(eventId, 0);
+        }
+
     }
 
     @Override

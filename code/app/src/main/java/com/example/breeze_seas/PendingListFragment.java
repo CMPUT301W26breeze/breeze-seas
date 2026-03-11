@@ -12,43 +12,47 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
-
 public class PendingListFragment extends Fragment {
-    private InvitationList invitedList;
+    private InvitationList inviteList;
     private OrganizerListAdapter adapter;
     private ListView listView;
     private ProgressBar waitingProgress;
-    private String event="test_event_1";
-    public void refreshData() {
-        if (invitedList != null && adapter != null) {
-            if (waitingProgress != null) waitingProgress.setVisibility(View.VISIBLE);
-            invitedList.fetchInvitedList(adapter, () -> {
-                if (waitingProgress != null) waitingProgress.setVisibility(View.GONE);
-            });
-        }
+    private String eventId = "test_event_001"; //Bundle expected from EventDetail Page
+    private int capacity = 10; //bundle expected from EventDetail page/ organizer page
+
+    public static PendingListFragment newInstance(String eventId, int capacity) {
+        PendingListFragment fragment = new PendingListFragment();
+        Bundle args = new Bundle();
+        args.putString("EVENT_ID", eventId);
+        args.putInt("CAPACITY", capacity);
+        fragment.setArguments(args);
+        return fragment;
     }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_pending_list, container, false);
-        listView=view.findViewById(R.id.pending_frag_list_view);
+        listView = view.findViewById(R.id.pending_frag_list_view);
         waitingProgress = view.findViewById(R.id.pending_list_spinner);
-        invitedList=new InvitationList(event);
-        adapter=new OrganizerListAdapter(getContext(), R.layout.item_organizer_list,invitedList.getInvitedList());
+        inviteList = new InvitationList(eventId, capacity);
+        adapter = new OrganizerListAdapter(getContext(), R.layout.item_organizer_list, inviteList.getInvitedList());
         listView.setAdapter(adapter);
         return view;
     }
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState){
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
     }
+
     @Override
     public void onResume() {
         super.onResume();
-        refreshData();
+        waitingProgress.setVisibility(View.VISIBLE);
+        inviteList.fetchPending(adapter, () -> {
+            waitingProgress.setVisibility(View.GONE);
+        });
     }
-
-
-
-
 }
