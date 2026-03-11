@@ -23,24 +23,22 @@ public class OrganizerPagerAdapter extends FragmentStateAdapter {
     @Override
     public Fragment createFragment(int position) {
         String eventId = "";
+        int capacity = 0;
+
+
         if (hostFragment.getArguments() != null) {
-            eventId = hostFragment.getArguments().getString("EVENT_ID");
+            eventId = hostFragment.getArguments().getString("EVENT_ID", "");
+            capacity = hostFragment.getArguments().getInt("CAPACITY", 0);
         }
 
-        if (position == 0) {
-            return WaitingListFragment.newInstance(eventId, 0);
-        } else if (position==1) {
-            return PendingListFragment.newInstance(eventId, 0);
-        } else if (position==2) {
-            return AcceptedListFragment.newInstance(eventId,0);
-        }
-        else if (position==3){
-            return CancelledListFragment.newInstance(eventId, 0);
-        }
-        else{
-            return WaitingListFragment.newInstance(eventId, 0);
-        }
 
+        switch (position) {
+            case 0: return WaitingListFragment.newInstance(eventId, capacity);
+            case 1: return PendingListFragment.newInstance(eventId, capacity);
+            case 2: return AcceptedListFragment.newInstance(eventId, capacity);
+            case 3: return CancelledListFragment.newInstance(eventId, capacity);
+            default: return WaitingListFragment.newInstance(eventId, capacity);
+        }
     }
 
     @Override
