@@ -30,4 +30,12 @@
         <item name="android:textAllCaps">false</item>
     </style>
 
+    <style name="Widget.Breezeseas.ProfileTextInput" parent="Widget.Material3.TextInputLayout.FilledBox.Dense">
+        <item name="boxBackgroundMode">none</item>
+        <item name="hintTextColor">@color/text_secondary</item>
+        <item name="android:textColorHint">@color/text_secondary</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+    </style>
+
 </resources>
