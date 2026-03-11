@@ -96,13 +96,21 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
 
     private void loadEvents(View view, List<Event> events) {
         eventList = events;
-        // TODO: check for null value in events
+        // Guard against null
+        if (eventList == null) {
+            eventList = new ArrayList<Event>();
+        }
 
-        RecyclerView eventsView = view.findViewById(R.id.explore_recycler_view_events);
         // Initiate adapter
+        RecyclerView eventsView = view.findViewById(R.id.explore_recycler_view_events);
         ExploreEventViewAdapter adapter =  new ExploreEventViewAdapter(getContext(), this, eventList);
         eventsView.setAdapter(adapter);
         eventsView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        // After initializing, check whether events are present or not
+        if (adapter.getItemCount() == 0) {
+            showNoEventsText(true);
+        }
     }
 
     /**

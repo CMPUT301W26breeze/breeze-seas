@@ -60,7 +60,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="No joinable events found."
+            android:text="No joinable events found.\nTry refreshing at a later time."
             android:textSize="18dp"
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
