@@ -1,5 +1,6 @@
 package com.example.breeze_seas;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -83,8 +84,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception e) {
-                Log.e(TAG, "Firebase auth bootstrap failed. Falling back to guest flow.", e);
-                initializeUI(savedInstanceState, null);
+                Log.e(TAG, "Firebase auth bootstrap failed.", e);
+                showFatalAuthError();
             }
         });
 
@@ -180,5 +181,17 @@ public class MainActivity extends AppCompatActivity {
                 .replace(R.id.fragment_container, fragment)
                 .addToBackStack(fragment.getClass().getSimpleName())
                 .commit();
+    }
+
+    private void showFatalAuthError() {
+        new AlertDialog.Builder(this)
+                .setTitle("Authentication Error")
+                .setMessage("Firebase authentication failed. The app will now close.")
+                .setCancelable(false)
+                .setPositiveButton("Close", (dialog, which) -> {
+                    dialog.dismiss();
+                    finish();
+                })
+                .show();
     }
 }

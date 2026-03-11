@@ -12,7 +12,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.firebase.FirebaseNetworkException;
-import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 
 /**
@@ -73,47 +72,32 @@ public class SignUpFragment extends Fragment {
                         this.email, this.phoneNumber, false);
 
                 confirmButton.setEnabled(false);
-                FirebaseSession.ensureAuthenticated(new FirebaseSession.OnReadyListener() {
-                    @Override
-                    public void onReady() {
-                        // Grab userDBInstance from viewModel
-                        UserDB userDBInstance = viewModel.getUserDBInstance().getValue();
-                        userDBInstance.createUser(user)
-                                .addOnSuccessListener(unused -> {
-                                    if (!isAdded()) {
-                                        return;
-                                    }
+                // Grab userDBInstance from viewModel
+                UserDB userDBInstance = viewModel.getUserDBInstance().getValue();
+                userDBInstance.createUser(user)
+                        .addOnSuccessListener(unused -> {
+                            if (!isAdded()) {
+                                return;
+                            }
 
-                                    // Add user to view model
-                                    viewModel.setUser(user);
+                            // Add user to view model
+                            viewModel.setUser(user);
 
-                                    // Switch to ExploreFragment only after the user write succeeds.
-                                    ((MainActivity) requireActivity()).showBottomNav(true);
-                                    requireActivity().getSupportFragmentManager()
-                                            .beginTransaction()
-                                            .replace(R.id.fragment_container, new ExploreFragment())
-                                            .commit();
-                                })
-                                .addOnFailureListener(e -> {
-                                    if (!isAdded()) {
-                                        return;
-                                    }
+                            // Switch to ExploreFragment only after the user write succeeds.
+                            ((MainActivity) requireActivity()).showBottomNav(true);
+                            requireActivity().getSupportFragmentManager()
+                                    .beginTransaction()
+                                    .replace(R.id.fragment_container, new ExploreFragment())
+                                    .commit();
+                        })
+                        .addOnFailureListener(e -> {
+                            if (!isAdded()) {
+                                return;
+                            }
 
-                                    confirmButton.setEnabled(true);
-                                    dialogMsg(buildSignUpErrorMessage(e));
-                                });
-                    }
-
-                    @Override
-                    public void onError(@NonNull Exception e) {
-                        if (!isAdded()) {
-                            return;
-                        }
-
-                        confirmButton.setEnabled(true);
-                        dialogMsg(buildSignUpErrorMessage(e));
-                    }
-                });
+                            confirmButton.setEnabled(true);
+                            dialogMsg(buildSignUpErrorMessage(e));
+                        });
             }
         });
 
@@ -230,10 +214,6 @@ public class SignUpFragment extends Fragment {
             if (firestoreException.getCode() == FirebaseFirestoreException.Code.UNAVAILABLE) {
                 return baseMessage + "\n\nFirestore is unavailable right now. Check your connection and try again.";
             }
-        }
-
-        if (e instanceof FirebaseAuthException) {
-            return baseMessage + "\n\nFirebase authentication failed: " + e.getMessage();
         }
 
         if (e instanceof FirebaseNetworkException) {
