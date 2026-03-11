@@ -33,7 +33,7 @@
         app:layout_constraintTop_toBottomOf="@id/notificationTitle" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/notificationsRecycler"
+        android:id="@+id/notifications_recycler"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:clipToPadding="false"
@@ -45,7 +45,7 @@
         app:layout_constraintTop_toBottomOf="@id/notificationSubtitle" />
 
     <LinearLayout
-        android:id="@+id/notificationsEmptyState"
+        android:id="@+id/notifications_empty_state"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
@@ -74,7 +74,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:fontFamily="@font/inter_bold"
-            android:text="You're all caught up"
+            android:text="Your notifications are turned off"
             android:textColor="@color/text_primary"
             android:textSize="22sp" />
 
