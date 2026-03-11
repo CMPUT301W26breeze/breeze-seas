@@ -1,7 +1,5 @@
 package com.example.breeze_seas;
 
-import android.graphics.drawable.Drawable;
-
 import com.google.firebase.Timestamp;
 
 public class Notification {
@@ -10,22 +8,22 @@ public class Notification {
     private NotificationType type;
     private String content; // should be an empty string if  not an announcement
     private String eventId;
-    private Timestamp timestamp;
+    private Timestamp sentAt;
 
     public Notification() {
         this.notificationId = null;
         this.type = null;
         this.content = null;
         this.eventId = null;
-        this.timestamp = null;
+        this.sentAt = null;
     }
 
-    public Notification(String notificationId, NotificationType type, String content, String eventId, Timestamp timestamp) {
+    public Notification(String notificationId, NotificationType type, String content, String eventId, Timestamp sentAt) {
         this.notificationId = notificationId;
         this.type = type;
         this.content = content;
         this.eventId = eventId;
-        this.timestamp = timestamp;
+        this.sentAt = sentAt;
     }
 
     public Notification(NotificationType type, String content) {
@@ -33,7 +31,7 @@ public class Notification {
         this.type = type;
         this.content = content;
         this.eventId = null;
-        this.timestamp = null;
+        this.sentAt = null;
     }
 
     public String getNotificationId() {
@@ -68,12 +66,12 @@ public class Notification {
         this.eventId = eventId;
     }
 
-    public Timestamp getTimestamp() {
-        return timestamp;
+    public Timestamp getSentAt() {
+        return sentAt;
     }
 
-    public void setTimestamp(Timestamp timestamp) {
-        this.timestamp = timestamp;
+    public void setSentAt(Timestamp sentAt) {
+        this.sentAt = sentAt;
     }
 
     public String getDisplayMessage() {

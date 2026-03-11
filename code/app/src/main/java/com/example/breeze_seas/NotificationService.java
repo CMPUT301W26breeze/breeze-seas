@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -35,7 +34,7 @@ public class NotificationService {
         notificationData.put("type", notification.getType());
         notificationData.put("content", notification.getContent());
         notificationData.put("eventId", notification.getEventId());
-        notificationData.put("sentAt", notification.getTimestamp());
+        notificationData.put("sentAt", notification.getSentAt());
 
         Task<Void> writeTask = notificationsRef.document(notificationId)
                 .set(notificationData, SetOptions.merge());
