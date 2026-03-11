@@ -9,9 +9,8 @@ import java.util.ArrayList;
 
 public class Lottery {
 
-    private FirebaseFirestore db; //the database
+    private final FirebaseFirestore db; //the database
     private String event; //to uniquely identify the event
-    private int size=3; //how many entrants the event can take
     private ArrayList<User> entrantList; //need to fill this with eligible users (i.e still waiting)
     public Lottery(String event){
         this.event=event;
@@ -19,18 +18,15 @@ public class Lottery {
         this.db=DBConnector.getDb();
     }
 
-    public void setSize(int size) {
-        this.size = size;
-    }
+    public void runLottery(int size,Runnable onFinish){
 
-    public void runLottery(Runnable onFinish){
-
-        if (this.size <= 0) return; //lottery should select at least one person
+        if (size <= 0) {
+            return; //lottery should select at least one person
+        }
 
         //navigate to WaitingList collection of the event
         CollectionReference list=db.collection("Events").document(event)
                 .collection("WaitingList");
-
 
         //send fetch data request
         list.get().addOnCompleteListener(op->{

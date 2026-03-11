@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CancelledList {
-    private String event;
+    private String eventId;
     private ArrayList<User> cancelledList;
-    FirebaseFirestore db;
-    public CancelledList(String event){
-        this.event=event;
+    private final FirebaseFirestore db;
+    public CancelledList(String eventId){
+        this.eventId=eventId;
         this.db=DBConnector.getDb();
         this.cancelledList=new ArrayList<User>();
     }
@@ -22,7 +22,7 @@ public class CancelledList {
     }
 
     public void fetchFinalList(android.widget.BaseAdapter adapter, Runnable onFinish){
-        CollectionReference list=db.collection("Events").document(event)
+        CollectionReference list=db.collection("events").document(eventId)
                 .collection("WaitingList");
         list.whereEqualTo("status", "Cancelled").get()
                 .addOnCompleteListener(op -> {

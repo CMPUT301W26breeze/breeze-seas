@@ -10,26 +10,19 @@ import java.util.List;
 public class FinalList {
     private String event;
     private ArrayList<User> acceptedList;
-    private int capacity;
-    FirebaseFirestore db;
+    private final FirebaseFirestore db;
     public FinalList(String event){
         this.event=event;
-        this.capacity=capacity;
         this.db=DBConnector.getDb();
-        this.capacity=-1;
         this.acceptedList=new ArrayList<User>();
     }
 
-    public void setCapacity(int capacity) {
-        this.capacity = capacity;
-    }
-
     public ArrayList<User> getAcceptedList() {
+
         return acceptedList;
     }
-
     public void fetchFinalList(android.widget.BaseAdapter adapter, Runnable onFinish){
-        CollectionReference list=db.collection("Events").document(event)
+        CollectionReference list=db.collection("events").document(event)
                 .collection("WaitingList");
         list.whereEqualTo("status", "Accepted").get()
                 .addOnCompleteListener(op -> {
@@ -43,6 +36,5 @@ public class FinalList {
                     }
                     if (onFinish != null) onFinish.run();
                 });
-
     }
 }

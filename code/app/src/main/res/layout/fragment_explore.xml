@@ -22,6 +22,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:hint="Search for Events"
+                android:backgroundTint="@color/grey_border"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/explore_filter_button"
                 app:layout_constraintStart_toStartOf="parent"
@@ -35,6 +36,7 @@
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="20dp"
                 android:text="Filter"
+                android:backgroundTint="@color/black"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/explore_search_bar"
@@ -53,12 +55,27 @@
             app:layout_constraintTop_toBottomOf="@+id/explore_top_menu_wrapper"
             app:layout_constraintVertical_bias="1.0" />
 
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/explore_no_events_found_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="No joinable events found."
+            android:textSize="18dp"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/explore_top_menu_wrapper"/>
+
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/explore_QRCode_floating_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="15dp"
             android:layout_marginBottom="15dp"
+            android:backgroundTint="@color/black"
+            app:iconTint="@color/white"
             app:icon="@drawable/ic_qr_code"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />

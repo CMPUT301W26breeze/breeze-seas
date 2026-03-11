@@ -1,106 +1,142 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/explore_event_entry_card"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:layout_marginStart="16dp"
+    android:layout_marginTop="6dp"
+    android:layout_marginEnd="16dp"
+    android:layout_marginBottom="6dp"
+    app:cardElevation="@dimen/cardview_default_elevation"
+    app:cardCornerRadius="12dp"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:strokeColor="@color/black"
+    app:strokeWidth="1dp">
 
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/explore_event_entry_card"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:cardCornerRadius="12dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:layout_height="match_parent"
+        android:layout_margin="5dp">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/explore_event_entry_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="3dp"
+            android:layout_marginBottom="24dp"
+            android:gravity="start"
+            android:text="Event 1"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@id/explore_event_entry_time_renaming"
+            app:layout_constraintEnd_toStartOf="@id/explore_event_entry_waiting_list_icon"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/explore_event_entry_wrapper"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginStart="5dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="5dp"
-                android:layout_marginBottom="5dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/explore_event_entry_image"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/explore_event_entry_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Event 1"
-                    android:textAlignment="center"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.31" />
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/explore_event_entry_end_date"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_marginTop="10dp"
-                    android:text="Ends in 1 day"
-                    android:textAlignment="center"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/explore_event_entry_title" />
-
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/explore_event_entry_person"
-                    android:layout_width="21dp"
-                    android:layout_height="21dp"
-                    android:src="@drawable/ic_person"
-                    app:layout_constraintDimensionRatio="1:1"
-                    app:layout_constraintEnd_toStartOf="@+id/explore_event_entry_capacity_string"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/explore_event_entry_capacity_string"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="34/60"
-                    android:textAlignment="center"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/explore_event_entry_image"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_marginStart="5dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="5dp"
-                android:layout_marginBottom="5dp"
-                android:scaleType="centerCrop"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/explore_event_entry_wrapper"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.0"
-                app:shapeAppearanceOverlay="@style/RoundedCorners"
-                tools:srcCompat="@tools:sample/backgrounds/scenic" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/explore_event_entry_time_icon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="3dp"
+            android:layout_marginBottom="5dp"
+            android:src="@drawable/ic_timer"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintStart_toStartOf="parent" />
 
 
-    </com.google.android.material.card.MaterialCardView>
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/explore_event_entry_time_renaming"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:layout_marginBottom="5dp"
+            android:gravity="start"
+            android:paddingStart="3dp"
+            android:text="Closes in 1 day"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/explore_event_entry_time_icon"
+            app:layout_constraintTop_toBottomOf="@+id/explore_event_entry_title" />
 
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/explore_event_entry_person_icon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_person"
+            app:layout_constraintBottom_toTopOf="@+id/explore_event_entry_luck_icon"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toStartOf="@+id/explore_event_entry_capacity" />
 
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/explore_event_entry_capacity"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:layout_marginEnd="8dp"
+            android:gravity="center"
+            android:paddingStart="3dp"
+            android:text="60"
+            app:layout_constraintBottom_toTopOf="@+id/explore_event_entry_luck_percent"
+            app:layout_constraintEnd_toStartOf="@id/explore_event_entry_image" />
 
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/explore_event_entry_waiting_list_icon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_pending"
+            app:layout_constraintBottom_toTopOf="@+id/explore_event_entry_person_icon"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toStartOf="@id/explore_event_entry_waiting_list_count" />
 
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/explore_event_entry_waiting_list_count"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:layout_marginEnd="8dp"
+            android:gravity="center"
+            android:paddingStart="3dp"
+            android:text="0"
+            app:layout_constraintBottom_toTopOf="@id/explore_event_entry_capacity"
+            app:layout_constraintEnd_toStartOf="@id/explore_event_entry_image" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/explore_event_entry_luck_icon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginBottom="5dp"
+            android:src="@drawable/ic_luck"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toStartOf="@id/explore_event_entry_luck_percent" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/explore_event_entry_luck_percent"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="5dp"
+            android:gravity="center"
+            android:paddingStart="1dp"
+            android:text="100%"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/explore_event_entry_image" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/explore_event_entry_image"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginEnd="1dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
+            app:shapeAppearanceOverlay="@style/RoundedCorners"
+            tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

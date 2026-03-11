@@ -11,6 +11,7 @@ public class SessionViewModel extends ViewModel {
     private final MutableLiveData<String> androidID = new MutableLiveData<>();
     private final MutableLiveData<UserDB> userDBInstance = new MutableLiveData<>();
     private final MutableLiveData<User> user = new MutableLiveData<>();
+    private final MutableLiveData<Event> eventShown = new MutableLiveData<>();
 
     /**
      * Returns the current android ID
@@ -59,5 +60,21 @@ public class SessionViewModel extends ViewModel {
      */
     public void setUser(User userInstance) {
         user.setValue(userInstance);
+    }
+
+    /**
+     * Gets the event object that will be presented in the EventDetails Fragment
+     * @return The event object to be displayed
+     */
+    public MutableLiveData<Event> getEventShown() {
+        return eventShown;
+    }
+
+    /**
+     * Sets the event object for EventDetailsFragment to display
+     * @param eventShown The event object to show
+     */
+    public void setEventShown(Event eventShown) {
+        this.eventShown.setValue(eventShown);
     }
 }
