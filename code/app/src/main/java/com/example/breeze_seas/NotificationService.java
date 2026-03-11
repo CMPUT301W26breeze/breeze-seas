@@ -18,15 +18,13 @@ public class NotificationService {
 
     private final FirebaseFirestore db;
     private final CollectionReference notificationsRef;
-    Notification notification;
 
-    public NotificationService(Notification notification) {
+    public NotificationService() {
         this.db = DBConnector.getDb();
         this.notificationsRef = db.collection("notifications");
-        this.notification = notification;
     }
 
-    public Task<Void> sendNotification() {
+    public Task<Void> sendNotification(Notification notification) {
         String notificationId = notification.getNotificationId();
         Map<String, Object> notificationData = new HashMap<>();
 

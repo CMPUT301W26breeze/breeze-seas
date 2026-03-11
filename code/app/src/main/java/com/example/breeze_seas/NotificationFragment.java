@@ -24,6 +24,8 @@ public class NotificationFragment extends Fragment {
 
     private UserDB userDBInstance = new UserDB();
     private User currentUser;
+    private NotificationService notificationService = new NotificationService();
+
     private RecyclerView notificationsRecycler;
 
     private LinearLayout emptyStateLayout;
@@ -55,11 +57,7 @@ public class NotificationFragment extends Fragment {
             }
         });
 
-        if (currentUser.notificationEnabled()) {
 
-        } else {
-            emptyStateLayout.setVisibility(VISIBLE);
-        }
 
 
     }
@@ -71,6 +69,11 @@ public class NotificationFragment extends Fragment {
 
                 currentUser = user;
 
+                if (currentUser.notificationEnabled()) {
+                    // TODO: Implement notification display logic
+                } else {
+                    emptyStateLayout.setVisibility(VISIBLE);
+                }
             }
 
             @Override
