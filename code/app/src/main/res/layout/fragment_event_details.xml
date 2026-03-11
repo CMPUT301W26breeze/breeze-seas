@@ -1,155 +1,241 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/event_details_wrapper"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/event_details_wrapper"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/event_details_fragment_container"
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/event_details_event_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:text="&lt;Event Name&gt;"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@id/event_details_event_photo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_weight="7">
+        app:layout_constraintVertical_weight="2" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/event_details_event_photo"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        android:background="@drawable/ic_image_placeholder"
+        app:layout_constraintBottom_toBottomOf="@id/event_details_event_info_wrapper"
+        app:layout_constraintDimensionRatio="1.0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/event_details_event_title"
+        app:shapeAppearanceOverlay="@style/RoundedCorners"
+        app:layout_constraintVertical_weight="5"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/event_details_event_info_wrapper"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/event_details_event_description"
+        app:layout_constraintTop_toBottomOf="@id/event_details_event_photo"
+        app:layout_constraintVertical_weight="3"
+        android:layout_marginTop="5dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/event_details_view_QRCode_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:backgroundTint="@color/black"
+            android:text="View QR Code"
+            android:textStyle="bold"
+            app:cornerRadius="10dp"
+            app:layout_constraintBottom_toTopOf="@+id/event_details_event_capacity"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/event_details_event_title"
+            android:id="@+id/event_details_event_capacity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Capacity:\n50"
+            app:layout_constraintBottom_toTopOf="@+id/event_details_event_waiting_list_count"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/event_details_view_QRCode_button" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/event_details_event_waiting_list_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Currently in Waiting List:\n131"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.14"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/event_details_event_capacity" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/event_details_event_start_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="Starts:\nMarch 7th, 2026"
+            app:layout_constraintBottom_toTopOf="@+id/event_details_event_end_date"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.9"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/event_details_event_end_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:text="&lt;Event Name&gt;"
-            android:textSize="24sp"
-            app:layout_constraintBottom_toTopOf="@id/event_details_event_photo"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_weight="2" />
-
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/event_details_event_photo"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="30dp"
-            android:layout_marginEnd="30dp"
-            android:background="@color/black"
-            app:layout_constraintBottom_toBottomOf="@id/event_details_event_info_wrapper"
-            app:layout_constraintDimensionRatio="1.0"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/event_details_event_title"
-            app:shapeAppearanceOverlay="@style/RoundedCorners"
-            app:layout_constraintVertical_weight="5"/>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/event_details_event_info_wrapper"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/event_details_event_description"
-            app:layout_constraintTop_toBottomOf="@id/event_details_event_photo"
-            app:layout_constraintVertical_weight="3"
-            android:layout_marginTop="5dp">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/event_details_view_QRCode_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:backgroundTint="@color/black"
-                android:text="View QR Code"
-                android:textStyle="bold"
-                app:cornerRadius="10dp"
-                app:layout_constraintBottom_toTopOf="@+id/event_details_event_capacity"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.1"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/event_details_event_capacity"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Capacity:\n50"
-                app:layout_constraintBottom_toTopOf="@+id/event_details_event_waiting_list_count"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.1"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/event_details_view_QRCode_button" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/event_details_event_waiting_list_count"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Currently in Waiting List:\n131"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.14"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/event_details_event_capacity" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/event_details_even_start_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Starts:\nMarch 7th, 2026"
-                app:layout_constraintBottom_toTopOf="@+id/event_details_event_end_date"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.9"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/event_details_event_end_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="Ends:\nApril 6th, 2026"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.87"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/event_details_even_start_date" />
-
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/event_details_event_description"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="30dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginEnd="30dp"
-            android:layout_marginBottom="5dp"
-            android:background="@color/grey_border"
-            android:gravity="left"
-            android:padding="8dp"
-            android:text="&lt;Insert Event Description Here&gt;"
+            android:text="Ends:\nApril 6th, 2026"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.87"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/event_details_event_info_wrapper"
-            app:layout_constraintVertical_weight="3"/>
-
+            app:layout_constraintTop_toBottomOf="@+id/event_details_event_start_date" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/event_details_fragment_container"
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/event_details_event_description"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintVertical_weight="1"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="5dp"
+        android:background="@color/grey_border"
+        android:gravity="left"
+        android:padding="8dp"
+        android:text="&lt;Insert Event Description Here&gt;"
+        app:layout_constraintBottom_toTopOf="@id/event_details_placeholder"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/event_details_event_info_wrapper"
+        app:layout_constraintVertical_weight="3"/>
+
+    <!-- Simple placeholder to take up space -->
+    <Space
+        android:id="@+id/event_details_placeholder"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintVertical_weight="2"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/event_details_wrapper"
-        tools:layout="@layout/item_event_details_join_waitlist"/>
+        app:layout_constraintTop_toBottomOf="@id/event_details_event_description" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/event_details_join_waitlist_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:backgroundTint="@color/black"
+        android:text="Join Waiting List"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:cornerRadius="14dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/event_details_placeholder" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/event_details_leave_waitlist_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Leave Waiting List"
+        android:textStyle="bold"
+        android:backgroundTint="@color/black"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        app:cornerRadius="14dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/event_details_placeholder"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/event_details_invite_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="You got invited!"
+        android:textSize="16sp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/event_details_placeholder"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/event_details_accept_invite_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Accept"
+        android:textStyle="bold"
+        android:backgroundTint="@color/black"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        app:cornerRadius="14dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/event_details_decline_invite_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/event_details_placeholder"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/event_details_decline_invite_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Decline"
+        android:textStyle="bold"
+        android:backgroundTint="@color/black"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        app:cornerRadius="14dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/event_details_accept_invite_button"
+        app:layout_constraintTop_toTopOf="@+id/event_details_placeholder" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/event_details_invite_accepted_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Hooray!\nYou're in the event!"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/event_details_placeholder"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/event_details_invite_declined_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Invitation Declined.\nMaybe next time."
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/event_details_placeholder"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
