@@ -11,20 +11,16 @@ import java.util.List;
 
 public class AdminBrowseEventsAdapter extends RecyclerView.Adapter<AdminBrowseEventsAdapter.EventViewHolder> {
 
-    public static class EventItem {
-        public String title;
-        public String organizer;
-
-        public EventItem(String title, String organizer) {
-            this.title = title;
-            this.organizer = organizer;
-        }
+    public interface OnEventClickListener {
+        void onEventClick(Event event);
     }
 
-    private List<EventItem> eventList;
+    private final List<Event> eventList;
+    private final OnEventClickListener listener;
 
-    public AdminBrowseEventsAdapter(List<EventItem> eventList) {
+    public AdminBrowseEventsAdapter(List<Event> eventList, OnEventClickListener listener) {
         this.eventList = eventList;
+        this.listener = listener;
     }
 
     @NonNull
@@ -38,10 +34,17 @@ public class AdminBrowseEventsAdapter extends RecyclerView.Adapter<AdminBrowseEv
 
     @Override
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
-        EventItem event = eventList.get(position);
+        Event event = eventList.get(position);
 
-        holder.tvEventTitle.setText(event.title);
-        holder.tvEventOrganizer.setText(event.organizer);
+        holder.tvEventTitle.setText(event.getName());
+
+        holder.tvEventOrganizer.setText(event.getDetails().isEmpty() ? "Placeholder" : event.getDetails());
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onEventClick(event);
+            }
+        });
 
         holder.btnDelete.setOnClickListener(v -> {
             int currentPosition = holder.getBindingAdapterPosition();
@@ -50,6 +53,8 @@ public class AdminBrowseEventsAdapter extends RecyclerView.Adapter<AdminBrowseEv
                 eventList.remove(currentPosition);
                 notifyItemRemoved(currentPosition);
                 notifyItemRangeChanged(currentPosition, eventList.size());
+
+                // TODO: Wait for Event deletion implementation:
             }
         });
     }
