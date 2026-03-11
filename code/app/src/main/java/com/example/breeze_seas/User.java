@@ -89,9 +89,6 @@ public class User {
     }
 
     public void setEmail(String email) {
-        if (!email.contains("@")) {
-            throw new IllegalArgumentException("An email has to contain and @ symbol");
-        }
         this.email = email;
     }
 
@@ -108,7 +105,7 @@ public class User {
     }
 
     public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+        this.phoneNumber = phoneNumber.replaceAll("[^0-9]", "");;
     }
 
     public boolean isAdmin() {
@@ -141,5 +138,17 @@ public class User {
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+
+    private String buildFullName() {
+        String firstName = getFirstName() == null ? "" : getFirstName().trim();
+        String lastName = getLastName() == null ? "" : getLastName().trim();
+        String fullName = (firstName + " " + lastName).trim();
+
+        if (!fullName.isEmpty()) {
+            return fullName;
+        }
+
+        return fullName;
     }
 }

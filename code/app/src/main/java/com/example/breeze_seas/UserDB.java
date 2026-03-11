@@ -43,13 +43,11 @@ public class UserDB {
 
         String deviceId = user.getDeviceId();
         Map<String, Object> userData = new HashMap<>();
-        String fullName = buildFullName(user);
 
         userData.put("deviceId", deviceId);
         userData.put("firstName", user.getFirstName());
         userData.put("lastName", user.getLastName());
         userData.put("userName", user.getUserName());
-        userData.put("name", fullName);
         userData.put("email", user.getEmail());
         userData.put("phoneNumber", user.getPhoneNumber());
         userData.put("isAdmin", user.isAdmin());
@@ -138,18 +136,6 @@ public class UserDB {
                     Log.e("DB_ERROR", "Error fetching user", e);
                     listener.onError(e);
                 });
-    }
-
-    private String buildFullName(User user) {
-        String firstName = user.getFirstName() == null ? "" : user.getFirstName().trim();
-        String lastName = user.getLastName() == null ? "" : user.getLastName().trim();
-        String fullName = (firstName + " " + lastName).trim();
-
-        if (!fullName.isEmpty()) {
-            return fullName;
-        }
-
-        return user.getUserName();
     }
 
     private User parseUser(DocumentSnapshot documentSnapshot) {

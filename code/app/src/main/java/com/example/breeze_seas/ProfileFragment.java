@@ -1,20 +1,28 @@
 package com.example.breeze_seas;
+import android.content.Context;
+
+import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.materialswitch.MaterialSwitch;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import java.util.HashMap;
+import java.util.Map;
 
 /*** ProfileFragment is a top-level destination accessed via Bottom Navigation.
  *
@@ -23,6 +31,8 @@ import com.google.android.material.textfield.TextInputLayout;
  */
 public class ProfileFragment extends Fragment {
 
+    UserDB userDBInstance = new UserDB();
+    User currentUser;
     private ShapeableImageView profileImageView;
     private TextInputLayout firstNameLayout, lastNameLayout,
             userNameLayout, emailLayout, phoneLayout;
@@ -62,6 +72,16 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Initialize the view model, get the deviceId, and fetch user data
+        SessionViewModel viewModel;
+        viewModel = new ViewModelProvider(requireActivity()).get(SessionViewModel.class);
+        viewModel.getAndroidID().observe(getViewLifecycleOwner(), deviceId -> {
+            if (deviceId != null) {
+                Log.d("BreezeSeas", "Observed ID: " + deviceId);
+                fetchUserData(deviceId);
+            }
+        });
+
         // Toggle first name field when edit icon is clicked
         editFirstNameBtn.setOnClickListener(v -> {
             toggleEditField(firstNameLayout);
@@ -89,7 +109,44 @@ public class ProfileFragment extends Fragment {
 
         // Save button
         saveBtn.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Profile Saved!", Toast.LENGTH_SHORT).show();
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Save Changes")
+                    .setMessage("Are you sure you want to save your changes?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+
+                        String firstNameInput = getInput(firstNameLayout);
+                        currentUser.setFirstName(firstNameInput);
+                        String lastNameInput = getInput(lastNameLayout);
+                        currentUser.setLastName(lastNameInput);
+                        String userNameInput = getInput(userNameLayout);
+                        currentUser.setUserName(userNameInput);
+                        String emailInput = getInput(emailLayout);
+                        if (!emailInput.contains("@")){
+                            Toast.makeText(getContext(), "Incorrect Email!",
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        currentUser.setEmail(emailInput);
+                        String phoneInput = getInput(phoneLayout);
+                        if (!phoneInput.matches("^[0-9 ]*$")) {
+                            Toast.makeText(getContext(), "Incorrect Phone Number!",
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        currentUser.setPhoneNumber(phoneInput);
+
+
+
+                        String deviceId = currentUser.getDeviceId();
+                        Map<String,Object> updates = mapUpdates();
+                        userDBInstance.updateUser(deviceId, updates);
+                        Toast.makeText(getContext(), "Profile Saved!",
+                                Toast.LENGTH_SHORT).show();
+                    })
+                    .setNegativeButton("No", (dialog, which) -> {
+                        dialog.dismiss();
+                    })
+                    .show();
         });
 
         deleteBtn.setOnClickListener(v ->
@@ -103,7 +160,10 @@ public class ProfileFragment extends Fragment {
     }
 
     private void toggleEditField(TextInputLayout layout) {
-        if (layout.getEditText() == null) return;
+
+        if (layout.getEditText() == null) {
+            return;
+        }
 
         boolean isEnabled = layout.getEditText().isEnabled();
         layout.getEditText().setEnabled(!isEnabled);
@@ -111,8 +171,57 @@ public class ProfileFragment extends Fragment {
         if (!isEnabled) {
             layout.getEditText().requestFocus();
             layout.getEditText().setSelection(layout.getEditText().getText().length());
+
+            InputMethodManager imm = (InputMethodManager)
+                    requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.showSoftInput(layout.getEditText(),0);
+            }
         }
     }
+
+    public String getInput(TextInputLayout layout){
+            String input;
+            input = layout.getEditText().
+                getText().toString();
+            return input;
+    }
+
+    private void fetchUserData(String deviceId) {
+        userDBInstance.getUser(deviceId, new UserDB.OnUserLoadedListener() {
+            @Override
+            public void onUserLoaded(User user) {
+
+                currentUser = user;
+
+                // Fill the text fields
+                firstNameLayout.getEditText().setText(user.getFirstName());
+                lastNameLayout.getEditText().setText(user.getLastName());
+                userNameLayout.getEditText().setText(user.getUserName());
+                emailLayout.getEditText().setText(user.getEmail());
+                phoneLayout.getEditText().setText(user.getPhoneNumber());
+
+            }
+
+            @Override
+            public void onError(Exception e) {
+            }
+        });
+    }
+
+    private Map<String,Object> mapUpdates() {
+
+        Map<String,Object> updates = new HashMap<String,Object>();
+        updates.put("firstName", currentUser.getFirstName());
+        updates.put("lastName", currentUser.getLastName());
+        updates.put("userName", currentUser.getUserName());
+        updates.put("email", currentUser.getEmail());
+        updates.put("phoneNumber", currentUser.getPhoneNumber());
+
+        return updates;
+    }
+
 }
+
 
 

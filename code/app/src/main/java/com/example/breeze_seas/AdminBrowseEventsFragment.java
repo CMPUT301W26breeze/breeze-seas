@@ -1,7 +1,9 @@
 package com.example.breeze_seas;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,6 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AdminBrowseEventsFragment extends Fragment {
+
+    private AdminBrowseEventsAdapter adapter;
+    private final List<Event> eventsList = new ArrayList<>();
 
     public AdminBrowseEventsFragment() { super(R.layout.fragment_admin_browse_events); }
 
@@ -33,17 +38,38 @@ public class AdminBrowseEventsFragment extends Fragment {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        List<AdminBrowseEventsAdapter.EventItem> dummyEvents = new ArrayList<>();
-        dummyEvents.add(new AdminBrowseEventsAdapter.EventItem("Annual Summer Picnic", "Organizer: John Doe"));
-        dummyEvents.add(new AdminBrowseEventsAdapter.EventItem("Tech Innovators Conference", "Organizer: Jane Smith"));
-        dummyEvents.add(new AdminBrowseEventsAdapter.EventItem("Community Beach Cleanup", "Organizer: Ocean Protectors"));
-        dummyEvents.add(new AdminBrowseEventsAdapter.EventItem("Local Art Walk", "Organizer: Sarah Jenkins"));
-        dummyEvents.add(new AdminBrowseEventsAdapter.EventItem("Startup Pitch Night", "Organizer: Venture Capital Group"));
-        dummyEvents.add(new AdminBrowseEventsAdapter.EventItem("Winter Charity Gala", "Organizer: The Foundation"));
-        dummyEvents.add(new AdminBrowseEventsAdapter.EventItem("Spring Marathon", "Organizer: City Athletics"));
-        dummyEvents.add(new AdminBrowseEventsAdapter.EventItem("Food Truck Festival", "Organizer: Culinary Arts Dept"));
+        adapter = new AdminBrowseEventsAdapter(eventsList, event -> {
+            AdminEventDetailsFragment detailsFragment = new AdminEventDetailsFragment();
 
-        AdminBrowseEventsAdapter adapter = new AdminBrowseEventsAdapter(dummyEvents);
+            Bundle args = new Bundle();
+            args.putString("eventId", event.getId());
+            detailsFragment.setArguments(args);
+
+            requireActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, detailsFragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
+
         recyclerView.setAdapter(adapter);
+
+        fetchEvents();
+    }
+
+    private void fetchEvents() {
+        EventDB.getInstance().getAllEvents(new EventDB.LoadEventsCallback() {
+            @Override
+            public void onSuccess(List<Event> events) {
+                eventsList.clear();
+                eventsList.addAll(events);
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e("AdminEvents", "Error loading events", e);
+                Toast.makeText(getContext(), "Failed to load events.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

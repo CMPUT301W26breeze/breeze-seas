@@ -16,7 +16,7 @@ public class AdminBrowseProfilesFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        MaterialToolbar toolbar = view.findViewById(R.id.abp_topAppBar);
+        MaterialToolbar toolbar = view.findViewById(R.id.abp_top_app_bar);
         toolbar.setNavigationOnClickListener(v -> {
             requireActivity().getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new AdminDashboardFragment())
