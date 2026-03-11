@@ -18,7 +18,8 @@ public final class TicketTabMapper {
         ACTION_REQUIRED,
         ACCEPTED,
         DECLINED,
-        CANCELLED
+        CANCELLED,
+        NOT_SELECTED
     }
 
     public enum TicketTab {
@@ -41,6 +42,7 @@ public final class TicketTabMapper {
                 return TicketTab.ATTENDING;
             case DECLINED:
             case CANCELLED:
+            case NOT_SELECTED:
             default:
                 return TicketTab.PAST;
         }
