@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
-
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,7 +16,6 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
-
 
 /*** MainActivity is the container for the app's main navigation.
  *
@@ -31,7 +29,6 @@ import androidx.lifecycle.ViewModelProvider;
  */
 public class MainActivity extends AppCompatActivity {
 
-
     private static final String TAG = "MainActivity";
     private static final String KEY_SELECTED_DESTINATION = "selected_destination";
     private static final int[] TOP_LEVEL_DESTINATIONS = {
@@ -42,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
             R.id.nav_profile
     };
 
-
     private final ExploreFragment exploreFragment = new ExploreFragment();
     private final OrganizeFragment organizeFragment = new OrganizeFragment();
     private final NotificationFragment notificationFragment = new NotificationFragment();
@@ -51,13 +47,11 @@ public class MainActivity extends AppCompatActivity {
     private SessionViewModel viewModel;
     private int selectedDestinationId = View.NO_ID;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -73,8 +67,6 @@ public class MainActivity extends AppCompatActivity {
 
         viewModel = new ViewModelProvider(this).get(SessionViewModel.class);
 
-
-        // Get android ID
         String androidID = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
         viewModel.setAndroidID(androidID);
 
@@ -122,7 +114,6 @@ public class MainActivity extends AppCompatActivity {
      * @param user User class object, may be null if user does not exist for current device.
      */
     private void initializeUI(Bundle savedInstanceState, User user) {
-
         if (user == null) {
             showBottomNav(false);
             updateBottomNavSelection(View.NO_ID);
@@ -172,7 +163,6 @@ public class MainActivity extends AppCompatActivity {
                 .replace(R.id.fragment_container, fragment)
                 .commit();
     }
-
 
     public void openSecondaryFragment(Fragment fragment) {
         getSupportFragmentManager()
