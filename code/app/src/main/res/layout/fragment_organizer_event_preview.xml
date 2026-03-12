@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/surface_subtle"
+    android:background="@color/white"
     android:clipToPadding="false"
     android:fillViewport="true"
     android:paddingStart="20dp"
@@ -47,7 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="22dp"
             android:fontFamily="@font/inter_semibold"
-            android:text="Event title"
+            android:text="@string/organizer_event_preview_loading"
             android:textColor="@color/text_primary"
             android:textSize="30sp" />
 
@@ -58,7 +58,7 @@
             android:layout_marginTop="10dp"
             android:fontFamily="@font/inter_regular"
             android:lineSpacingExtra="2dp"
-            android:text="Preview your event before entrant-management flows are fully wired."
+            android:text="@string/organizer_event_preview_subtitle_text"
             android:textColor="@color/text_secondary"
             android:textSize="15sp" />
 
@@ -71,11 +71,21 @@
             android:orientation="vertical"
             android:padding="20dp">
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_medium"
+                android:text="@string/create_event_poster_label"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
+
             <FrameLayout
+                android:id="@+id/organizer_event_preview_poster_card"
                 android:layout_width="match_parent"
                 android:layout_height="220dp"
+                android:layout_marginTop="10dp"
                 android:background="@drawable/bg_profile_field_shell"
-                android:padding="14dp">
+                android:foreground="?attr/selectableItemBackgroundBorderless">
 
                 <ImageView
                     android:id="@+id/organizer_event_preview_poster"
@@ -86,75 +96,198 @@
                     android:src="@drawable/ic_image_placeholder" />
             </FrameLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/inter_medium"
-                    android:text="@string/organizer_event_preview_registration_label"
-                    android:textColor="@color/text_primary"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/organizer_event_preview_reg_window"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/bg_profile_field_shell"
-                    android:fontFamily="@font/inter_regular"
-                    android:paddingStart="14dp"
-                    android:paddingTop="14dp"
-                    android:paddingEnd="14dp"
-                    android:paddingBottom="14dp"
-                    android:text="Registration window"
-                    android:textColor="@color/text_primary"
-                    android:textSize="15sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+            <Button
+                android:id="@+id/organizer_event_preview_update_poster_button"
+                android:layout_width="wrap_content"
+                android:layout_height="46dp"
                 android:layout_marginTop="14dp"
+                android:background="@drawable/bg_ticket_status_outline"
+                android:backgroundTint="@null"
+                app:backgroundTint="@null"
+                android:fontFamily="@font/inter_medium"
+                android:paddingStart="18dp"
+                android:paddingEnd="18dp"
+                android:text="@string/organizer_event_preview_update_poster"
+                android:textAllCaps="false"
+                android:textColor="@color/text_primary" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/inter_medium"
+                android:text="@string/create_event_name_label"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_profile_field_shell"
+                android:paddingStart="14dp"
+                android:paddingTop="13dp"
+                android:paddingEnd="14dp"
+                android:paddingBottom="13dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/organizer_event_preview_name_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:fontFamily="@font/inter_regular"
+                    android:hint="@string/create_event_name_hint"
+                    android:inputType="textCapSentences"
+                    android:padding="0dp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_secondary"
+                    android:textSize="15sp" />
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/inter_medium"
+                android:text="@string/organizer_event_preview_registration_label"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
+
+            <LinearLayout
+                android:id="@+id/organizer_event_preview_reg_period_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:baselineAligned="false"
                 android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/organizer_event_preview_waiting_cap"
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_profile_field_shell"
+                    android:paddingStart="14dp"
+                    android:paddingTop="13dp"
+                    android:paddingEnd="14dp"
+                    android:paddingBottom="13dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/organizer_event_preview_reg_from_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:clickable="true"
+                        android:focusable="false"
+                        android:fontFamily="@font/inter_regular"
+                        android:hint="@string/create_event_from"
+                        android:padding="0dp"
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/text_secondary"
+                        android:textSize="15sp" />
+                </FrameLayout>
+
+                <FrameLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@drawable/bg_profile_field_shell"
-                    android:fontFamily="@font/inter_regular"
                     android:paddingStart="14dp"
-                    android:paddingTop="14dp"
+                    android:paddingTop="13dp"
                     android:paddingEnd="14dp"
-                    android:paddingBottom="14dp"
-                    android:text="Waiting cap"
+                    android:paddingBottom="13dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/organizer_event_preview_reg_to_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:clickable="true"
+                        android:focusable="false"
+                        android:fontFamily="@font/inter_regular"
+                        android:hint="@string/create_event_to"
+                        android:padding="0dp"
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/text_secondary"
+                        android:textSize="15sp" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/inter_medium"
+                android:text="@string/create_event_capacity_label"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_profile_field_shell"
+                android:paddingStart="14dp"
+                android:paddingTop="13dp"
+                android:paddingEnd="14dp"
+                android:paddingBottom="13dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/organizer_event_preview_capacity_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:fontFamily="@font/inter_regular"
+                    android:hint="@string/create_event_capacity_hint"
+                    android:inputType="number"
+                    android:padding="0dp"
                     android:textColor="@color/text_primary"
-                    android:textSize="14sp" />
+                    android:textColorHint="@color/text_secondary"
+                    android:textSize="15sp" />
+            </FrameLayout>
 
-                <Space
-                    android:layout_width="12dp"
-                    android:layout_height="1dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_profile_field_shell"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingTop="14dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="14dp">
 
-                <TextView
-                    android:id="@+id/organizer_event_preview_geo"
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_profile_field_shell"
-                    android:fontFamily="@font/inter_regular"
-                    android:paddingStart="14dp"
-                    android:paddingTop="14dp"
-                    android:paddingEnd="14dp"
-                    android:paddingBottom="14dp"
-                    android:text="Geo setting"
-                    android:textColor="@color/text_primary"
-                    android:textSize="14sp" />
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter_medium"
+                        android:text="@string/create_event_geo_label"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="@font/inter_regular"
+                        android:text="@string/create_event_geo_hint"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/organizer_event_preview_geo_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:thumbTint="@color/profile_switch_thumb_color"
+                    app:trackTint="@color/profile_switch_track_color" />
             </LinearLayout>
 
             <TextView
@@ -166,28 +299,65 @@
                 android:textColor="@color/text_primary"
                 android:textSize="13sp" />
 
-            <TextView
-                android:id="@+id/organizer_event_preview_details"
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_profile_field_shell"
-                android:fontFamily="@font/inter_regular"
-                android:lineSpacingExtra="2dp"
-                android:minHeight="140dp"
                 android:paddingStart="14dp"
-                android:paddingTop="14dp"
+                android:paddingTop="13dp"
                 android:paddingEnd="14dp"
-                android:paddingBottom="14dp"
-                android:text="Event details"
-                android:textColor="@color/text_primary"
+                android:paddingBottom="13dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/organizer_event_preview_details_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:fontFamily="@font/inter_regular"
+                    android:gravity="top"
+                    android:hint="@string/create_event_details_hint"
+                    android:inputType="textCapSentences|textMultiLine"
+                    android:minLines="5"
+                    android:padding="0dp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_secondary"
+                    android:textSize="15sp" />
+            </FrameLayout>
+
+            <Button
+                android:id="@+id/organizer_event_preview_save_button"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:layout_marginTop="22dp"
+                android:background="@drawable/bg_welcome_primary_button"
+                android:backgroundTint="@null"
+                app:backgroundTint="@null"
+                android:fontFamily="@font/inter_semibold"
+                android:text="@string/organizer_event_preview_save_button"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
                 android:textSize="15sp" />
+
+            <Button
+                android:id="@+id/organizer_event_preview_delete_button"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_ticket_status_outline"
+                android:backgroundTint="@null"
+                app:backgroundTint="@null"
+                android:fontFamily="@font/inter_medium"
+                android:text="@string/organizer_event_preview_delete_button"
+                android:textAllCaps="false"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp" />
 
             <Button
                 android:id="@+id/organizer_event_preview_manage_button"
                 android:layout_width="match_parent"
                 android:layout_height="54dp"
-                android:layout_marginTop="22dp"
+                android:layout_marginTop="18dp"
                 android:background="@drawable/bg_welcome_primary_button"
                 android:backgroundTint="@null"
                 app:backgroundTint="@null"

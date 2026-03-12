@@ -22,6 +22,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 public class CreateEventFragment extends Fragment {
 
@@ -87,7 +88,12 @@ public class CreateEventFragment extends Fragment {
     private void openDateRangePicker() {
         MaterialDatePicker.Builder<androidx.core.util.Pair<Long, Long>> builder =
                 MaterialDatePicker.Builder.dateRangePicker()
+                        .setTheme(R.style.ThemeOverlay_Breezeseas_DateRangePicker)
                         .setTitleText("Select registration period");
+
+        if (regFromMillis != null && regToMillis != null) {
+            builder.setSelection(new androidx.core.util.Pair<>(regFromMillis, regToMillis));
+        }
 
         MaterialDatePicker<androidx.core.util.Pair<Long, Long>> picker = builder.build();
 
@@ -97,6 +103,7 @@ public class CreateEventFragment extends Fragment {
             regToMillis = selection.second;
 
             SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.US);
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
             etRegFrom.setText(sdf.format(new Date(regFromMillis)));
             etRegTo.setText(sdf.format(new Date(regToMillis)));
         });
@@ -154,7 +161,6 @@ public class CreateEventFragment extends Fragment {
                 requireActivity().getSupportFragmentManager()
                         .beginTransaction()
                         .replace(R.id.fragment_container, fragment)
-                        .addToBackStack(null)
                         .commit();
             }
 

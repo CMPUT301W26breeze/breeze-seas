@@ -38,4 +38,13 @@
         <item name="android:paddingBottom">0dp</item>
     </style>
 
+    <style name="ThemeOverlay.Breezeseas.DateRangePicker" parent="ThemeOverlay.Material3.MaterialCalendar">
+        <item name="colorPrimary">@color/black</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSurface">@color/white</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="colorOutline">@color/grey_border</item>
+    </style>
+
 </resources>

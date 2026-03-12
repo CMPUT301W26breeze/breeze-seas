@@ -34,6 +34,11 @@ public class EventDB {
         void onFailure(Exception e);
     }
 
+    public interface EventMutationCallback {
+        void onSuccess();
+        void onFailure(Exception e);
+    }
+
     public void addEvent(@NonNull Event event, @NonNull AddEventCallback callback) {
         db.collection("events")
                 .add(event.toMap())
@@ -64,6 +69,22 @@ public class EventDB {
                 .document(id)
                 .get()
                 .addOnSuccessListener(doc -> callback.onSuccess(Event.fromDocument(doc)))
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    public void updateEvent(@NonNull Event event, @NonNull EventMutationCallback callback) {
+        db.collection("events")
+                .document(event.getId())
+                .set(event.toMap())
+                .addOnSuccessListener(unused -> callback.onSuccess())
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    public void deleteEvent(@NonNull String id, @NonNull EventMutationCallback callback) {
+        db.collection("events")
+                .document(id)
+                .delete()
+                .addOnSuccessListener(unused -> callback.onSuccess())
                 .addOnFailureListener(callback::onFailure);
     }
 
