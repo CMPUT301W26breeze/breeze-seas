@@ -170,7 +170,7 @@ public class ProfileFragment extends Fragment {
         deleteBtn.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Delete Profile (TODO)", Toast.LENGTH_SHORT).show();
 
-            //This is only here until organizer's event details page is completed
+            //TODO: Remove this after organizer event details fragment is implemented.
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container, new SendAnnouncementFragment())

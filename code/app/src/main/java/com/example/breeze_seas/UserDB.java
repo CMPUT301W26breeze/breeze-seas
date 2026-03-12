@@ -18,8 +18,6 @@ import java.util.Map;
  * using the device's unique ID as the primary key.
  */
 public class UserDB {
-
-    private static UserDB instance;
     private final FirebaseFirestore db;
     private final CollectionReference userRef;
 

@@ -22,16 +22,16 @@ public class Notification {
         this.sentAt = null;
     }
 
-    public Notification(String notificationId, NotificationType type,
+    public Notification( NotificationType type,
                         String content, String eventId,String eventName,
-                        String userId, Timestamp sentAt) {
-        this.notificationId = notificationId;
+                        String userId) {
+        this.notificationId = null;
         this.type = type;
         this.content = content;
         this.eventId = eventId;
         this.eventName = eventName;
         this.userId = userId;
-        this.sentAt = sentAt;
+        this.sentAt = null;
     }
 
     public Notification(NotificationType type, String content, Timestamp sentAt) {

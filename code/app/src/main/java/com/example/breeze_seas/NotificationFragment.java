@@ -1,5 +1,6 @@
 package com.example.breeze_seas;
 
+import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -24,7 +26,7 @@ public class NotificationFragment extends Fragment {
     private User currentUser;
     private NotificationService notificationService = new NotificationService();
     private RecyclerView notificationsRecycler;
-    private LinearLayout optOutStateLayout;
+    private LinearLayout optOutStateLayout, emptyStateLayout;
     private List<Notification> notifications = new ArrayList<>();
     private NotificationEntryAdapter adapter =
             new NotificationEntryAdapter(notifications);
@@ -36,8 +38,10 @@ public class NotificationFragment extends Fragment {
                 container, false);
 
         notificationsRecycler = view.findViewById(R.id.notifications_recycler);
+        notificationsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         notificationsRecycler.setAdapter(adapter);
-        optOutStateLayout = view.findViewById(R.id.notifications_empty_state);
+        optOutStateLayout = view.findViewById(R.id.notifications_opt_out_state);
+        emptyStateLayout = view.findViewById(R.id.notifications_empty_state);
 
 
         return view;
@@ -68,6 +72,7 @@ public class NotificationFragment extends Fragment {
             public void onUserLoaded(User user) {
 
                 currentUser = user;
+                Log.d("DB_SUCCESS", "ok got the user daddy");
 
                 // Display notifications
                 if (currentUser.notificationEnabled()) {
@@ -79,6 +84,8 @@ public class NotificationFragment extends Fragment {
                                     if (notifications.isEmpty()) {
 
                                     }
+                                    notificationsRecycler.setVisibility(GONE);
+                                    emptyStateLayout.setVisibility(VISIBLE);
                                     adapter.notifyDataSetChanged();
                                 }
                                 @Override
