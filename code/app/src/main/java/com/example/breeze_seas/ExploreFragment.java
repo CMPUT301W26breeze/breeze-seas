@@ -21,6 +21,7 @@ import java.util.List;
 public class ExploreFragment extends Fragment implements RecyclerViewClickListener {
 
     private TextView noEventsTest;
+    private View filterBtn;
     private View scanQRCodeBtn;
     private EventDB eventDBInstance;
     private List<Event> eventList;
@@ -63,7 +64,11 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
 
         // Bind views
         noEventsTest = view.findViewById(R.id.explore_no_events_found_text);
+        filterBtn = view.findViewById(R.id.explore_filter_button);
         scanQRCodeBtn = view.findViewById(R.id.explore_QRCode_floating_button);
+        filterBtn.setOnClickListener(v ->
+                ((MainActivity) requireActivity()).openSecondaryFragment(new FilterFragment())
+        );
         scanQRCodeBtn.setOnClickListener(v -> {
             // TODO: Bind QR Code Action
         });

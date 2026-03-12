@@ -70,250 +70,220 @@
                     </FrameLayout>
                 </FrameLayout>
 
-                <LinearLayout
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:background="@drawable/bg_profile_field_shell"
+                    android:paddingStart="14dp"
+                    android:paddingTop="6dp"
+                    android:paddingEnd="14dp"
+                    android:paddingBottom="2dp"
+                    android:foregroundGravity="center_vertical">
 
-                    <FrameLayout
-                        android:layout_width="0dp"
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/first_name_filled_text_field"
+                        style="@style/Widget.Breezeseas.ProfileTextInput"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_profile_field_shell"
-                        android:paddingStart="14dp"
-                        android:paddingTop="6dp"
-                        android:paddingEnd="14dp"
-                        android:paddingBottom="2dp"
-                        android:foregroundGravity="center_vertical">
+                        android:layout_marginEnd="42dp"
+                        android:enabled="false"
+                        android:hint="@string/first_name">
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/first_name_filled_text_field"
-                            style="@style/Widget.Breezeseas.ProfileTextInput"
+                        <com.google.android.material.textfield.TextInputEditText
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:enabled="false"
-                            android:hint="@string/first_name">
+                            android:background="@null"
+                            android:padding="0dp"
+                            android:textColor="@color/text_primary"
+                            android:textColorHint="@color/text_secondary" />
 
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:background="@null"
-                                android:padding="0dp"
-                                android:textColor="@color/text_primary"
-                                android:textColorHint="@color/text_secondary" />
-
-                        </com.google.android.material.textfield.TextInputLayout>
-                    </FrameLayout>
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <ImageButton
                         android:id="@+id/edit_first_name_button"
                         android:layout_width="28dp"
                         android:layout_height="28dp"
-                        android:layout_marginStart="12dp"
+                        android:layout_gravity="end|center_vertical"
+                        android:layout_marginEnd="10dp"
                         android:background="@null"
                         android:contentDescription="@string/edits_first_name"
                         android:padding="4dp"
                         android:src="@drawable/ic_edit"
                         app:tint="@color/text_secondary" />
-                </LinearLayout>
+                </FrameLayout>
 
-                <LinearLayout
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:background="@drawable/bg_profile_field_shell"
+                    android:paddingStart="14dp"
+                    android:paddingTop="6dp"
+                    android:paddingEnd="14dp"
+                    android:paddingBottom="2dp"
+                    android:foregroundGravity="center_vertical">
 
-                    <FrameLayout
-                        android:layout_width="0dp"
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/last_name_filled_text_field"
+                        style="@style/Widget.Breezeseas.ProfileTextInput"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_profile_field_shell"
-                        android:paddingStart="14dp"
-                        android:paddingTop="6dp"
-                        android:paddingEnd="14dp"
-                        android:paddingBottom="2dp"
-                        android:foregroundGravity="center_vertical">
+                        android:layout_marginEnd="42dp"
+                        android:enabled="false"
+                        android:hint="@string/last_name">
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/last_name_filled_text_field"
-                            style="@style/Widget.Breezeseas.ProfileTextInput"
+                        <com.google.android.material.textfield.TextInputEditText
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:enabled="false"
-                            android:hint="@string/last_name">
+                            android:background="@null"
+                            android:padding="0dp"
+                            android:textColor="@color/text_primary"
+                            android:textColorHint="@color/text_secondary" />
 
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:background="@null"
-                                android:padding="0dp"
-                                android:textColor="@color/text_primary"
-                                android:textColorHint="@color/text_secondary" />
-
-                        </com.google.android.material.textfield.TextInputLayout>
-                    </FrameLayout>
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <ImageButton
                         android:id="@+id/edit_last_name_button"
                         android:layout_width="28dp"
                         android:layout_height="28dp"
-                        android:layout_marginStart="12dp"
+                        android:layout_gravity="end|center_vertical"
+                        android:layout_marginEnd="10dp"
                         android:background="@null"
                         android:contentDescription="@string/edits_name"
                         android:padding="4dp"
                         android:src="@drawable/ic_edit"
                         app:tint="@color/text_secondary" />
-                </LinearLayout>
+                </FrameLayout>
 
-                <LinearLayout
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:background="@drawable/bg_profile_field_shell"
+                    android:paddingStart="14dp"
+                    android:paddingTop="6dp"
+                    android:paddingEnd="14dp"
+                    android:paddingBottom="2dp"
+                    android:foregroundGravity="center_vertical">
 
-                    <FrameLayout
-                        android:layout_width="0dp"
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/user_name_filled_text_field"
+                        style="@style/Widget.Breezeseas.ProfileTextInput"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_profile_field_shell"
-                        android:paddingStart="14dp"
-                        android:paddingTop="6dp"
-                        android:paddingEnd="14dp"
-                        android:paddingBottom="2dp"
-                        android:foregroundGravity="center_vertical">
+                        android:layout_marginEnd="42dp"
+                        android:enabled="false"
+                        android:hint="@string/user_name">
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/user_name_filled_text_field"
-                            style="@style/Widget.Breezeseas.ProfileTextInput"
+                        <com.google.android.material.textfield.TextInputEditText
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:enabled="false"
-                            android:hint="@string/user_name">
+                            android:background="@null"
+                            android:padding="0dp"
+                            android:textColor="@color/text_primary"
+                            android:textColorHint="@color/text_secondary" />
 
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:background="@null"
-                                android:padding="0dp"
-                                android:textColor="@color/text_primary"
-                                android:textColorHint="@color/text_secondary" />
-
-                        </com.google.android.material.textfield.TextInputLayout>
-                    </FrameLayout>
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <ImageButton
                         android:id="@+id/edit_user_name_button"
                         android:layout_width="28dp"
                         android:layout_height="28dp"
-                        android:layout_marginStart="12dp"
+                        android:layout_gravity="end|center_vertical"
+                        android:layout_marginEnd="10dp"
                         android:background="@null"
                         android:contentDescription="@string/edits_user_name"
                         android:padding="4dp"
                         android:src="@drawable/ic_edit"
                         app:tint="@color/text_secondary" />
-                </LinearLayout>
+                </FrameLayout>
 
-                <LinearLayout
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:background="@drawable/bg_profile_field_shell"
+                    android:paddingStart="14dp"
+                    android:paddingTop="6dp"
+                    android:paddingEnd="14dp"
+                    android:paddingBottom="2dp"
+                    android:foregroundGravity="center_vertical">
 
-                    <FrameLayout
-                        android:layout_width="0dp"
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/email_filled_text_field"
+                        style="@style/Widget.Breezeseas.ProfileTextInput"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_profile_field_shell"
-                        android:paddingStart="14dp"
-                        android:paddingTop="6dp"
-                        android:paddingEnd="14dp"
-                        android:paddingBottom="2dp"
-                        android:foregroundGravity="center_vertical">
+                        android:layout_marginEnd="42dp"
+                        android:enabled="false"
+                        android:hint="@string/email">
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/email_filled_text_field"
-                            style="@style/Widget.Breezeseas.ProfileTextInput"
+                        <com.google.android.material.textfield.TextInputEditText
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:enabled="false"
-                            android:hint="@string/email">
+                            android:background="@null"
+                            android:padding="0dp"
+                            android:textColor="@color/text_primary"
+                            android:textColorHint="@color/text_secondary" />
 
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:background="@null"
-                                android:padding="0dp"
-                                android:textColor="@color/text_primary"
-                                android:textColorHint="@color/text_secondary" />
-
-                        </com.google.android.material.textfield.TextInputLayout>
-                    </FrameLayout>
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <ImageButton
                         android:id="@+id/edit_email_button"
                         android:layout_width="28dp"
                         android:layout_height="28dp"
-                        android:layout_marginStart="12dp"
+                        android:layout_gravity="end|center_vertical"
+                        android:layout_marginEnd="10dp"
                         android:background="@null"
                         android:contentDescription="@string/edits_email"
                         android:padding="4dp"
                         android:src="@drawable/ic_edit"
                         app:tint="@color/text_secondary" />
-                </LinearLayout>
+                </FrameLayout>
 
-                <LinearLayout
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:background="@drawable/bg_profile_field_shell"
+                    android:paddingStart="14dp"
+                    android:paddingTop="6dp"
+                    android:paddingEnd="14dp"
+                    android:paddingBottom="2dp"
+                    android:foregroundGravity="center_vertical">
 
-                    <FrameLayout
-                        android:layout_width="0dp"
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/phone_number_filled_text_field"
+                        style="@style/Widget.Breezeseas.ProfileTextInput"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_profile_field_shell"
-                        android:paddingStart="14dp"
-                        android:paddingTop="6dp"
-                        android:paddingEnd="14dp"
-                        android:paddingBottom="2dp"
-                        android:foregroundGravity="center_vertical">
+                        android:layout_marginEnd="42dp"
+                        android:enabled="false"
+                        android:hint="@string/phone_number">
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/phone_number_filled_text_field"
-                            style="@style/Widget.Breezeseas.ProfileTextInput"
+                        <com.google.android.material.textfield.TextInputEditText
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:enabled="false"
-                            android:hint="@string/phone_number">
+                            android:background="@null"
+                            android:padding="0dp"
+                            android:textColor="@color/text_primary"
+                            android:textColorHint="@color/text_secondary" />
 
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:background="@null"
-                                android:padding="0dp"
-                                android:textColor="@color/text_primary"
-                                android:textColorHint="@color/text_secondary" />
-
-                        </com.google.android.material.textfield.TextInputLayout>
-                    </FrameLayout>
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <ImageButton
                         android:id="@+id/edit_phone_number_button"
                         android:layout_width="28dp"
                         android:layout_height="28dp"
-                        android:layout_marginStart="12dp"
+                        android:layout_gravity="end|center_vertical"
+                        android:layout_marginEnd="10dp"
                         android:background="@null"
                         android:contentDescription="@string/edits_name"
                         android:padding="4dp"
                         android:src="@drawable/ic_edit"
                         app:tint="@color/text_secondary" />
-                </LinearLayout>
+                </FrameLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"

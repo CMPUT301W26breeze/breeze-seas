@@ -65,6 +65,7 @@
     <string name="organize_event_open_preview">Open Preview</string>
     <string name="explore_title">Explore</string>
     <string name="explore_subtitle">Browse local events and jump straight to a listing when you scan a QR code.</string>
+    <string name="explore_filter">Filter</string>
     <string name="explore_scan_qr">Scan QR</string>
     <string name="explore_empty_state">No joinable events are available right now.</string>
     <string name="explore_card_no_description">No event description added yet.</string>
