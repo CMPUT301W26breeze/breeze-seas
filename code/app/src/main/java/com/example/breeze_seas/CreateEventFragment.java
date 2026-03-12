@@ -1,133 +1,205 @@
 package com.example.breeze_seas;
 
+import android.net.Uri;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.text.TextUtils;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
 import java.util.Locale;
 
-public class OrganizeFragment extends Fragment {
+public class CreateEventFragment extends Fragment {
 
-    private final List<Event> events = new ArrayList<>();
-    private EventAdapter adapter;
+    private ImageView ivPoster;
+    private LinearLayout posterPlaceholder;
 
-    public OrganizeFragment() {
-        super(R.layout.fragment_organize);
+    private TextInputEditText etRegFrom, etRegTo, etEventName, etEventDetails, etCapacity, etEventCapacity, etPrice;
+    private SwitchMaterial swGeo;
+
+    private Long regFromMillis = null;
+    private Long regToMillis = null;
+    private Uri posterUri = null;
+
+    private final ActivityResultLauncher<String> pickImage =
+            registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
+                if (uri != null) {
+                    posterUri = uri;
+                    ivPoster.setImageURI(uri);
+                    ivPoster.setVisibility(View.VISIBLE);
+                    posterPlaceholder.setVisibility(View.GONE);
+                }
+            });
+
+    public CreateEventFragment() {
+        super(R.layout.fragment_create_event);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        RecyclerView rv = view.findViewById(R.id.rvMyEvents);
-        rv.setLayoutManager(new LinearLayoutManager(requireContext()));
-        adapter = new EventAdapter(events);
-        rv.setAdapter(adapter);
-
-        loadEvents();
-
-        FloatingActionButton fab = view.findViewById(R.id.fabCreateEvent);
-        fab.setOnClickListener(v ->
-                ((MainActivity) requireActivity()).openSecondaryFragment(new CreateEventFragment())
+        MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
+        toolbar.setNavigationOnClickListener(v ->
+                requireActivity().getSupportFragmentManager().popBackStack()
         );
 
-        view.findViewById(R.id.btnFilter).setOnClickListener(v ->
-                ((MainActivity) requireActivity()).openSecondaryFragment(new FilterFragment())
-        );
+        ivPoster = view.findViewById(R.id.ivPoster);
+        posterPlaceholder = view.findViewById(R.id.posterPlaceholder);
+
+        View cardPoster = view.findViewById(R.id.cardPoster);
+        View btnAddImage = view.findViewById(R.id.btnAddImage);
+        View btnRegPeriod = view.findViewById(R.id.btnRegPeriod);
+
+        etRegFrom = view.findViewById(R.id.etRegFrom);
+        etRegTo = view.findViewById(R.id.etRegTo);
+        etEventName = view.findViewById(R.id.etEventName);
+        etEventDetails = view.findViewById(R.id.etEventDetails);
+        etCapacity = view.findViewById(R.id.etCapacity);
+        etEventCapacity = view.findViewById(R.id.etEventCapacity);
+        etPrice = view.findViewById(R.id.etPrice);
+        swGeo = view.findViewById(R.id.swGeo);
+
+        View.OnClickListener pickPoster = v -> pickImage.launch("image/*");
+        cardPoster.setOnClickListener(pickPoster);
+        btnAddImage.setOnClickListener(pickPoster);
+
+        View.OnClickListener pickRange = v -> openDateRangePicker();
+        btnRegPeriod.setOnClickListener(pickRange);
+        etRegFrom.setOnClickListener(pickRange);
+        etRegTo.setOnClickListener(pickRange);
+
+        view.findViewById(R.id.btnCreate).setOnClickListener(v -> onCreateClicked());
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        loadEvents();
+    private void openDateRangePicker() {
+        MaterialDatePicker.Builder<androidx.core.util.Pair<Long, Long>> builder =
+                MaterialDatePicker.Builder.dateRangePicker()
+                        .setTitleText("Select registration period");
+
+        MaterialDatePicker<androidx.core.util.Pair<Long, Long>> picker = builder.build();
+
+        picker.addOnPositiveButtonClickListener(selection -> {
+            if (selection == null) return;
+            regFromMillis = selection.first;
+            regToMillis = selection.second;
+
+            SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.US);
+            etRegFrom.setText(sdf.format(new Date(regFromMillis)));
+            etRegTo.setText(sdf.format(new Date(regToMillis)));
+        });
+
+        picker.show(getParentFragmentManager(), "reg_range");
     }
 
-    private void loadEvents() {
+    private void onCreateClicked() {
+        String name = etEventName.getText() == null ? "" : etEventName.getText().toString().trim();
+        String details = etEventDetails.getText() == null ? "" : etEventDetails.getText().toString().trim();
+        String waitingCapText = etCapacity.getText() == null ? "" : etCapacity.getText().toString().trim();
+        String eventCapText = etEventCapacity.getText() == null ? "" : etEventCapacity.getText().toString().trim();
+        String priceText = etPrice.getText() == null ? "" : etPrice.getText().toString().trim();
+
+        if (TextUtils.isEmpty(name)) {
+            etEventName.setError("Required");
+            return;
+        }
+
+        if (regFromMillis == null || regToMillis == null) {
+            Toast.makeText(requireContext(), "Please set registration period", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
             Toast.makeText(requireContext(), "User not signed in", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        EventDB.getInstance().getEventsByOrganizerId(currentUser.getUid(), new EventDB.LoadEventsCallback() {
+        Integer waitingListCap = null;
+        if (!TextUtils.isEmpty(waitingCapText)) {
+            try {
+                waitingListCap = Integer.parseInt(waitingCapText);
+            } catch (NumberFormatException e) {
+                etCapacity.setError("Enter a valid number");
+                return;
+            }
+        }
+
+        Integer eventCapacity = null;
+        if (!TextUtils.isEmpty(eventCapText)) {
+            try {
+                eventCapacity = Integer.parseInt(eventCapText);
+            } catch (NumberFormatException e) {
+                etEventCapacity.setError("Enter a valid number");
+                return;
+            }
+        }
+
+        Double price = null;
+        if (!TextUtils.isEmpty(priceText)) {
+            try {
+                price = Double.parseDouble(priceText);
+            } catch (NumberFormatException e) {
+                etPrice.setError("Enter a valid price");
+                return;
+            }
+        }
+
+        Event event = new Event(
+                "",
+                currentUser.getUid(),
+                name,
+                details,
+                posterUri == null ? null : posterUri.toString(),
+                new Timestamp(new Date(regFromMillis)),
+                new Timestamp(new Date(regToMillis)),
+                Timestamp.now(),
+                eventCapacity,
+                waitingListCap,
+                price,
+                swGeo.isChecked(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>()
+        );
+
+        EventDB.getInstance().addEvent(event, new EventDB.AddEventCallback() {
             @Override
-            public void onSuccess(List<Event> loadedEvents) {
-                events.clear();
-                events.addAll(loadedEvents);
-                if (adapter != null) {
-                    adapter.notifyDataSetChanged();
-                }
+            public void onSuccess(String eventId) {
+                Toast.makeText(requireContext(), "Event created", Toast.LENGTH_SHORT).show();
+
+                Bundle args = new Bundle();
+                args.putString("eventId", eventId);
+
+                ViewQrCodeFragment fragment = new ViewQrCodeFragment();
+                fragment.setArguments(args);
+
+                ((MainActivity) requireActivity()).openSecondaryFragment(fragment);
             }
 
             @Override
             public void onFailure(Exception e) {
-                Toast.makeText(requireContext(), "Failed to load events", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Failed to create event", Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    static class EventAdapter extends RecyclerView.Adapter<EventAdapter.VH> {
-        private final List<Event> data;
-
-        EventAdapter(List<Event> data) {
-            this.data = data;
-        }
-
-        static class VH extends RecyclerView.ViewHolder {
-            TextView tvName, tvDates, tvCap;
-
-            VH(@NonNull View itemView) {
-                super(itemView);
-                tvName = itemView.findViewById(R.id.tvEventName);
-                tvDates = itemView.findViewById(R.id.tvEventDates);
-                tvCap = itemView.findViewById(R.id.tvEventCapacity);
-            }
-        }
-
-        @NonNull
-        @Override
-        public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_event, parent, false);
-            return new VH(v);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull VH holder, int position) {
-            Event e = data.get(position);
-
-            holder.tvName.setText(e.getName());
-
-            SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.US);
-            String from = e.getRegistrationOpen() == null ? "N/A" : sdf.format(e.getRegistrationOpen().toDate());
-            String to = e.getRegistrationClose() == null ? "N/A" : sdf.format(e.getRegistrationClose().toDate());
-            holder.tvDates.setText("Reg: " + from + " → " + to);
-
-            Integer cap = e.getWaitingListCapacity();
-            holder.tvCap.setText(cap == null
-                    ? "Waiting list cap: Unlimited"
-                    : "Waiting list cap: " + cap);
-        }
-
-        @Override
-        public int getItemCount() {
-            return data.size();
-        }
     }
 }

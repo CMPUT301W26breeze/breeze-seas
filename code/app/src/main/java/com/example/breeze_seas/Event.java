@@ -1,133 +1,199 @@
 package com.example.breeze_seas;
 
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-import android.widget.Toast;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentSnapshot;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 
-public class OrganizeFragment extends Fragment {
+public class Event {
+    private final String id;
+    private final String organizerId;
 
-    private final List<Event> events = new ArrayList<>();
-    private EventAdapter adapter;
+    private final String name;
+    private final String details;
+    private final String posterUriString;
 
-    public OrganizeFragment() {
-        super(R.layout.fragment_organize);
+    private final Timestamp registrationOpen;
+    private final Timestamp registrationClose;
+    private final Timestamp createdAt;
+
+    private final Integer eventCapacity;
+    private final Integer waitingListCapacity;
+    private final Double price;
+
+    private final boolean geoRequired;
+
+    private final List<String> waitingList;
+    private final List<String> invitationList;
+    private final List<String> finalList;
+    private final List<String> cancelList;
+
+    public Event(String id,
+                 String organizerId,
+                 String name,
+                 String details,
+                 String posterUriString,
+                 Timestamp registrationOpen,
+                 Timestamp registrationClose,
+                 Timestamp createdAt,
+                 Integer eventCapacity,
+                 Integer waitingListCapacity,
+                 Double price,
+                 boolean geoRequired,
+                 List<String> waitingList,
+                 List<String> invitationList,
+                 List<String> finalList,
+                 List<String> cancelList) {
+        this.id = id;
+        this.organizerId = organizerId;
+        this.name = name;
+        this.details = details;
+        this.posterUriString = posterUriString;
+        this.registrationOpen = registrationOpen;
+        this.registrationClose = registrationClose;
+        this.createdAt = createdAt;
+        this.eventCapacity = eventCapacity;
+        this.waitingListCapacity = waitingListCapacity;
+        this.price = price;
+        this.geoRequired = geoRequired;
+        this.waitingList = waitingList == null ? new ArrayList<>() : waitingList;
+        this.invitationList = invitationList == null ? new ArrayList<>() : invitationList;
+        this.finalList = finalList == null ? new ArrayList<>() : finalList;
+        this.cancelList = cancelList == null ? new ArrayList<>() : cancelList;
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public String getId() {
+        return id;
+    }
 
-        RecyclerView rv = view.findViewById(R.id.rvMyEvents);
-        rv.setLayoutManager(new LinearLayoutManager(requireContext()));
-        adapter = new EventAdapter(events);
-        rv.setAdapter(adapter);
+    public String getOrganizerId() {
+        return organizerId;
+    }
 
-        loadEvents();
+    public String getName() {
+        return name;
+    }
 
-        FloatingActionButton fab = view.findViewById(R.id.fabCreateEvent);
-        fab.setOnClickListener(v ->
-                ((MainActivity) requireActivity()).openSecondaryFragment(new CreateEventFragment())
+    public String getDetails() {
+        return details;
+    }
+
+    public String getPosterUriString() {
+        return posterUriString;
+    }
+
+    public Timestamp getRegistrationOpen() {
+        return registrationOpen;
+    }
+
+    public Timestamp getRegistrationClose() {
+        return registrationClose;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public Integer getEventCapacity() {
+        return eventCapacity;
+    }
+
+    public Integer getWaitingListCapacity() {
+        return waitingListCapacity;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public boolean isGeoRequired() {
+        return geoRequired;
+    }
+
+    public List<String> getWaitingList() {
+        return waitingList;
+    }
+
+    public List<String> getInvitationList() {
+        return invitationList;
+    }
+
+    public List<String> getFinalList() {
+        return finalList;
+    }
+
+    public List<String> getCancelList() {
+        return cancelList;
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("organizerId", organizerId);
+        map.put("name", name);
+        map.put("details", details);
+        map.put("posterUriString", posterUriString);
+
+        map.put("registrationOpen", registrationOpen);
+        map.put("registrationClose", registrationClose);
+        map.put("createdAt", createdAt);
+
+        map.put("eventCapacity", eventCapacity);
+        map.put("waitingListCapacity", waitingListCapacity);
+        map.put("price", price);
+
+        map.put("geoRequired", geoRequired);
+
+        map.put("waitingList", waitingList);
+        map.put("invitationList", invitationList);
+        map.put("finalList", finalList);
+        map.put("cancelList", cancelList);
+
+        return map;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Event fromDocument(DocumentSnapshot doc) {
+        if (doc == null || !doc.exists()) return null;
+
+        String organizerId = doc.getString("organizerId");
+        String name = doc.getString("name");
+        String details = doc.getString("details");
+        String posterUriString = doc.getString("posterUriString");
+
+        Timestamp registrationOpen = doc.getTimestamp("registrationOpen");
+        Timestamp registrationClose = doc.getTimestamp("registrationClose");
+        Timestamp createdAt = doc.getTimestamp("createdAt");
+
+        Long eventCapacityLong = doc.getLong("eventCapacity");
+        Long waitingListCapacityLong = doc.getLong("waitingListCapacity");
+        Double price = doc.getDouble("price");
+        Boolean geoRequired = doc.getBoolean("geoRequired");
+
+        List<String> waitingList = (List<String>) doc.get("waitingList");
+        List<String> invitationList = (List<String>) doc.get("invitationList");
+        List<String> finalList = (List<String>) doc.get("finalList");
+        List<String> cancelList = (List<String>) doc.get("cancelList");
+
+        return new Event(
+                doc.getId(),
+                organizerId == null ? "" : organizerId,
+                name == null ? "" : name,
+                details == null ? "" : details,
+                posterUriString,
+                registrationOpen,
+                registrationClose,
+                createdAt,
+                eventCapacityLong == null ? null : eventCapacityLong.intValue(),
+                waitingListCapacityLong == null ? null : waitingListCapacityLong.intValue(),
+                price,
+                geoRequired != null && geoRequired,
+                waitingList == null ? new ArrayList<>() : waitingList,
+                invitationList == null ? new ArrayList<>() : invitationList,
+                finalList == null ? new ArrayList<>() : finalList,
+                cancelList == null ? new ArrayList<>() : cancelList
         );
-
-        view.findViewById(R.id.btnFilter).setOnClickListener(v ->
-                ((MainActivity) requireActivity()).openSecondaryFragment(new FilterFragment())
-        );
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        loadEvents();
-    }
-
-    private void loadEvents() {
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser == null) {
-            Toast.makeText(requireContext(), "User not signed in", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        EventDB.getInstance().getEventsByOrganizerId(currentUser.getUid(), new EventDB.LoadEventsCallback() {
-            @Override
-            public void onSuccess(List<Event> loadedEvents) {
-                events.clear();
-                events.addAll(loadedEvents);
-                if (adapter != null) {
-                    adapter.notifyDataSetChanged();
-                }
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                Toast.makeText(requireContext(), "Failed to load events", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    static class EventAdapter extends RecyclerView.Adapter<EventAdapter.VH> {
-        private final List<Event> data;
-
-        EventAdapter(List<Event> data) {
-            this.data = data;
-        }
-
-        static class VH extends RecyclerView.ViewHolder {
-            TextView tvName, tvDates, tvCap;
-
-            VH(@NonNull View itemView) {
-                super(itemView);
-                tvName = itemView.findViewById(R.id.tvEventName);
-                tvDates = itemView.findViewById(R.id.tvEventDates);
-                tvCap = itemView.findViewById(R.id.tvEventCapacity);
-            }
-        }
-
-        @NonNull
-        @Override
-        public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_event, parent, false);
-            return new VH(v);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull VH holder, int position) {
-            Event e = data.get(position);
-
-            holder.tvName.setText(e.getName());
-
-            SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.US);
-            String from = e.getRegistrationOpen() == null ? "N/A" : sdf.format(e.getRegistrationOpen().toDate());
-            String to = e.getRegistrationClose() == null ? "N/A" : sdf.format(e.getRegistrationClose().toDate());
-            holder.tvDates.setText("Reg: " + from + " → " + to);
-
-            Integer cap = e.getWaitingListCapacity();
-            holder.tvCap.setText(cap == null
-                    ? "Waiting list cap: Unlimited"
-                    : "Waiting list cap: " + cap);
-        }
-
-        @Override
-        public int getItemCount() {
-            return data.size();
-        }
     }
 }
