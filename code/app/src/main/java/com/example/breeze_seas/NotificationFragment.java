@@ -71,10 +71,11 @@ public class NotificationFragment extends Fragment {
 
                 // Display notifications
                 if (currentUser.notificationEnabled()) {
-                    notifications = notificationService.getNotifications(currentUser.getDeviceId(),
+                    notificationService.getNotifications(currentUser.getDeviceId(),
                             new NotificationService.OnNotificationLoadedListener(){
 
-                                public void onNotificationLoaded() {
+                                public void onNotificationLoaded(List<Notification> fetchedNotifications) {
+                                    notifications = fetchedNotifications;
                                     if (notifications.isEmpty()) {
 
                                     }
@@ -82,6 +83,7 @@ public class NotificationFragment extends Fragment {
                                 }
                                 @Override
                                 public void onError(Exception e) {
+                                    Log.e("DB_ERROR", "Error fetching notifications", e);
                                 }
                             });
                 } else {
@@ -91,7 +93,7 @@ public class NotificationFragment extends Fragment {
 
             @Override
             public void onError(Exception e) {
-                currentUser = new User();
+                Log.e("DB_ERROR", "Error fetching user by deviceId", e);
             }
         });
 

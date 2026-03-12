@@ -17,7 +17,6 @@ import java.util.Map;
 
 public class NotificationService {
 
-    private static NotificationService instance;
     private final FirebaseFirestore db;
     private final CollectionReference notificationsRef;
 
