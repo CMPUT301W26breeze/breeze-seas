@@ -76,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onReady() {
                 UserDB userDBInstance = new UserDB();
-                viewModel.setUserDBInstance(userDBInstance);
 
                 userDBInstance.getUser(androidID, new UserDB.OnUserLoadedListener() {
                     @Override
@@ -114,24 +113,43 @@ public class MainActivity extends AppCompatActivity {
      * @param user User class object, may be null if user does not exist for current device.
      */
     private void initializeUI(Bundle savedInstanceState, User user) {
-        if (user == null) {
-            showBottomNav(false);
-            updateBottomNavSelection(View.NO_ID);
 
-            WelcomeScreenFragment welcomeScreenFragment = new WelcomeScreenFragment();
-            setCurrentFragment(welcomeScreenFragment);
-            return;
-        }
 
-        showBottomNav(true);
-        viewModel.setUser(user);
+        // TESTING
+        Event e = new e
+        EventDB.addEvent()
 
-        if (savedInstanceState == null
-                || getSupportFragmentManager().findFragmentById(R.id.fragment_container) == null) {
-            openTopLevelDestination(R.id.nav_explore);
-        } else {
-            syncBottomNavSelectionWithCurrentFragment();
-        }
+
+        return;
+
+
+
+
+
+
+
+
+
+
+
+//        if (user == null) {
+//            showBottomNav(false);
+//            updateBottomNavSelection(View.NO_ID);
+//
+//            WelcomeScreenFragment welcomeScreenFragment = new WelcomeScreenFragment();
+//            setCurrentFragment(welcomeScreenFragment);
+//            return;
+//        }
+//
+//        showBottomNav(true);
+//        viewModel.setUser(user);
+//
+//        if (savedInstanceState == null
+//                || getSupportFragmentManager().findFragmentById(R.id.fragment_container) == null) {
+//            openTopLevelDestination(R.id.nav_explore);
+//        } else {
+//            syncBottomNavSelectionWithCurrentFragment();
+//        }
     }
 
     /**

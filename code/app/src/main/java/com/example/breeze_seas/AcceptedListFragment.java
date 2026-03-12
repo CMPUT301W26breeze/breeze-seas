@@ -17,14 +17,6 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 
 
-import com.google.android.material.tabs.TabLayout;
-
-
-import java.util.List;
-
-
-
-
 public class AcceptedListFragment extends Fragment {
     private AcceptedList acceptedList;
     private OrganizerListAdapter adapter;
@@ -34,7 +26,8 @@ public class AcceptedListFragment extends Fragment {
     private Event currentEvent;
 
 
-    public AcceptedListFragment() { }
+    public AcceptedListFragment() {
+    }
 
 
     @Override
@@ -95,3 +88,4 @@ public class AcceptedListFragment extends Fragment {
             }
         });
     }
+}

@@ -25,6 +25,7 @@ public class Event {
     private AcceptedList acceptedList;
     private DeclinedList declinedList;
 
+    // For use by EventDB
     public Event(String eventId,
                  String organizerId,
                  String name,
@@ -67,12 +68,60 @@ public class Event {
         this.declinedList = declinedList;
     }
 
+    //*
+    // For practical instantiation use of event
+    // Please pass the event object to EventDb.addEvent() afterwards.
+    public Event(String organizerId,
+                 String name,
+                 String description,
+                 String image,
+                 String qrValue,
+                 Timestamp registrationStartDate,
+                 Timestamp registrationEndDate,
+                 Timestamp eventStartDate,
+                 Timestamp eventEndDate,
+                 boolean geolocationEnforced,
+                 int eventCapacity,
+                 int waitingListCapacity,
+                 int drawARound,
+                 WaitingList waitingList,
+                 PendingList pendingList,
+                 AcceptedList acceptedList,
+                 DeclinedList declinedList) {
+        this.organizerId = organizerId;
+        this.name = name;
+        this.description = description;
+        this.image = image;
+        this.qrValue = qrValue;
+        this.dateModified = Timestamp.now();  // Use timestamp at creation
+        this.eventCapacity = eventCapacity;
+        this.waitingListCapacity = waitingListCapacity;
+        this.drawARound = drawARound;
+        this.dateCreated = Timestamp.now();  // Use timestamp at creation
+        this.registrationStartDate = registrationStartDate;
+        this.registrationEndDate = registrationEndDate;
+        this.eventStartDate = eventStartDate;
+        this.eventEndDate = eventEndDate;
+        this.geolocationEnforced = geolocationEnforced;
+        this.waitingList = waitingList;
+        this.pendingList = pendingList;
+        this.acceptedList = acceptedList;
+        this.declinedList = declinedList;
+    }
+
     public String getEventId() {
         return eventId;
+    }
+    public void setEventId(String eventId) {
+        this.eventId = eventId;
     }
 
     public String getOrganizerId() {
         return organizerId;
+    }
+
+    public void setOrganizerId(String organizerId) {
+        this.organizerId = organizerId;
     }
 
     public boolean isGeolocationEnforced() {
@@ -214,27 +263,5 @@ public class Event {
     public void setEventCapacity(int eventCapacity) {
         this.eventCapacity = eventCapacity;
     }
-    public static Event fromDocument(DocumentSnapshot doc) {
-        if (doc == null || !doc.exists()) return null;
 
-        String name = doc.getString("name");
-        String details = doc.getString("details");
-        String posterUriString = doc.getString("posterUriString");
-
-        Long regFrom = doc.getLong("regFromMillis");
-        Long regTo = doc.getLong("regToMillis");
-        Long capLong = doc.getLong("waitingListCap");
-        Boolean geo = doc.getBoolean("geoRequired");
-
-        return new Event(
-                doc.getId(),
-                name == null ? "" : name,
-                details == null ? "" : details,
-                posterUriString,
-                regFrom == null ? 0L : regFrom,
-                regTo == null ? 0L : regTo,
-                capLong == null ? null : capLong.intValue(),
-                geo != null && geo
-        );
-    }
 }

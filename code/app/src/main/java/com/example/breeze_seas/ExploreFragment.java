@@ -1,11 +1,7 @@
 package com.example.breeze_seas;
 
-import static com.example.breeze_seas.DBConnector.getDb;
-
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,9 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textview.MaterialTextView;
-import com.google.firebase.Firebase;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,19 +70,16 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
             // TODO: Bind QR Code Action
         });
 
-        // EventDB instance
-        eventDBInstance = EventDB.getInstance();
-
         // Get events from DB
-        eventDBInstance.getAllEvents(new EventDB.LoadEventsCallback() {
+        EventDB.getAllEvents(new EventDB.LoadEventsCallback() {
             @Override
-            public void onSuccess(List<Event> events) {
+            public void onSuccess(ArrayList<Event> events) {
                 loadEvents(view, events);
             }
 
             @Override
             public void onFailure(Exception e) {
-                eventList = null;
+                loadEvents(view, null);
             }
         });
     }

@@ -15,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 
 import com.google.android.material.button.MaterialButton;
@@ -50,7 +49,7 @@ public class WaitingListFragment extends Fragment {
         listView = view.findViewById(R.id.waiting_frag_list_view);
         waitingProgress = view.findViewById(R.id.waiting_list_spinner);
         if (currentEvent != null) {
-            waitingList = new WaitingList(currentEvent, currentEvent.getWaitingListCap());
+            waitingList = new WaitingList(currentEvent, currentEvent.getWaitingListCapacity());
             adapter = new OrganizerListAdapter(getContext(), R.layout.item_organizer_list, waitingList.getUserList());
             listView.setAdapter(adapter);
         }

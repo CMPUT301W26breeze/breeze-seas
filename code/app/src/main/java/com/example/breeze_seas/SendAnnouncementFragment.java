@@ -5,7 +5,6 @@ import static com.example.breeze_seas.NotificationType.ANNOUNCEMENT_SELECTED;
 import static com.example.breeze_seas.NotificationType.ANNOUNCEMENT_WAITLIST;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,7 +57,7 @@ public class SendAnnouncementFragment extends Fragment {
                 if (eventShown != null) {
                     String content = notificationTextBox.getEditText().getText().toString();
                     String userId = "a35fff58c4cd24e1";
-                    String eventId = eventShown.getId();
+                    String eventId = eventShown.getEventId();
                     String eventName = eventShown.getName();
                     NotificationType type = ANNOUNCEMENT_WAITLIST;
                     int selectedTabPosition = tabLayout.getSelectedTabPosition();

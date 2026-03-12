@@ -44,7 +44,7 @@ public class OrganizerEventPreviewFragment extends Fragment {
         TextView title = view.findViewById(R.id.organizer_event_preview_title);
         title.setText(R.string.organizer_event_preview_loading);
 
-        EventDB.getInstance().getEventById(eventId, new EventDB.LoadSingleEventCallback() {
+        EventDB.getEventById(eventId, new EventDB.LoadSingleEventCallback() {
             @Override
             public void onSuccess(Event event) {
                 if (!isAdded()) {
@@ -80,24 +80,24 @@ public class OrganizerEventPreviewFragment extends Fragment {
         TextView details = view.findViewById(R.id.organizer_event_preview_details);
         ImageView poster = view.findViewById(R.id.organizer_event_preview_poster);
 
-        title.setText(event.getName());
-        subtitle.setText(R.string.organizer_event_preview_subtitle_text);
-        regWindow.setText(getString(
-                R.string.organizer_event_preview_registration_window,
-                formatDate(event.getRegFromMillis()),
-                formatDate(event.getRegToMillis())
-        ));
-        waitingCap.setText(event.getWaitingListCap() == null
-                ? getString(R.string.organizer_event_preview_waiting_unlimited)
-                : getString(R.string.organizer_event_preview_waiting_limited, event.getWaitingListCap()));
-        geoRequirement.setText(event.isGeoRequired()
-                ? getString(R.string.organizer_event_preview_geo_required)
-                : getString(R.string.organizer_event_preview_geo_optional));
-        details.setText(event.getDetails().trim().isEmpty()
-                ? getString(R.string.organizer_event_preview_no_description)
-                : event.getDetails());
-
-        bindPoster(poster, event.getPosterUriString());
+//        title.setText(event.getName());
+//        subtitle.setText(R.string.organizer_event_preview_subtitle_text);
+//        regWindow.setText(getString(
+//                R.string.organizer_event_preview_registration_window,
+//                formatDate(event.getRegFromMillis()),
+//                formatDate(event.getRegToMillis())
+//        ));
+//        waitingCap.setText(event.getWaitingListCap() == null
+//                ? getString(R.string.organizer_event_preview_waiting_unlimited)
+//                : getString(R.string.organizer_event_preview_waiting_limited, event.getWaitingListCap()));
+//        geoRequirement.setText(event.isGeoRequired()
+//                ? getString(R.string.organizer_event_preview_geo_required)
+//                : getString(R.string.organizer_event_preview_geo_optional));
+//        details.setText(event.getDetails().trim().isEmpty()
+//                ? getString(R.string.organizer_event_preview_no_description)
+//                : event.getDetails());
+//
+//        bindPoster(poster, event.getPosterUriString());
 
         view.findViewById(R.id.organizer_event_preview_manage_button).setOnClickListener(v -> {
             openManageEntrantsFragment(event);

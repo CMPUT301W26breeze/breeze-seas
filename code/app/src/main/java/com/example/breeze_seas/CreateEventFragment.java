@@ -129,39 +129,40 @@ public class CreateEventFragment extends Fragment {
             }
         }
 
-        Event event = new Event(
-                "",
-                name,
-                details,
-                posterUri == null ? null : posterUri.toString(),
-                regFromMillis,
-                regToMillis,
-                cap,
-                swGeo.isChecked()
-        );
+//        Event event = new Event(
+//                "",
+//                name,
+//                details,
+//                posterUri == null ? null : posterUri.toString(),
+//                regFromMillis,
+//                regToMillis,
+//                cap,
+//                swGeo.isChecked()
+//        );
 
-        EventDB.getInstance().addEvent(event, new EventDB.AddEventCallback() {
-            @Override
-            public void onSuccess(String eventId) {
-                Toast.makeText(requireContext(), "Event created", Toast.LENGTH_SHORT).show();
-
-                Bundle args = new Bundle();
-                args.putString("eventId", eventId);
-
-                ViewQrCodeFragment fragment = new ViewQrCodeFragment();
-                fragment.setArguments(args);
-
-                requireActivity().getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.fragment_container, fragment)
-                        .addToBackStack(null)
-                        .commit();
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                Toast.makeText(requireContext(), "Failed to create event", Toast.LENGTH_SHORT).show();
-            }
-        });
+        // TODO: FIX THIS
+//        EventDB.addEvent(event, new EventDB.AddEventCallback() {
+//            @Override
+//            public void onSuccess(String eventId) {
+//                Toast.makeText(requireContext(), "Event created", Toast.LENGTH_SHORT).show();
+//
+//                Bundle args = new Bundle();
+//                args.putString("eventId", eventId);
+//
+//                ViewQrCodeFragment fragment = new ViewQrCodeFragment();
+//                fragment.setArguments(args);
+//
+//                requireActivity().getSupportFragmentManager()
+//                        .beginTransaction()
+//                        .replace(R.id.fragment_container, fragment)
+//                        .addToBackStack(null)
+//                        .commit();
+//            }
+//
+//            @Override
+//            public void onFailure(Exception e) {
+//                Toast.makeText(requireContext(), "Failed to create event", Toast.LENGTH_SHORT).show();
+//            }
+//        });
     }
 }

@@ -35,7 +35,7 @@ public abstract class StatusList {
         if (user == null || user.getDeviceId() == null) return;
         FirebaseFirestore db = DBConnector.getDb();
         DocumentReference participantRef = db.collection("events")
-                .document(event.getId())
+                .document(event.getEventId())
                 .collection("participants")
                 .document(user.getDeviceId());
 
@@ -67,7 +67,7 @@ public abstract class StatusList {
 
 
         DocumentReference participantRef = db.collection("events")
-                .document(event.getId())
+                .document(event.getEventId())
                 .collection("participants")
                 .document(user.getDeviceId());
 
@@ -89,7 +89,7 @@ public abstract class StatusList {
     public void refresh(ListUpdateListener listener) {
         FirebaseFirestore db = DBConnector.getDb();
         db.collection("events")
-                .document(event.getId())
+                .document(event.getEventId())
                 .collection("participants")
                 .whereEqualTo("status", getStatusName())
                 .orderBy("timeJoined", Query.Direction.ASCENDING)

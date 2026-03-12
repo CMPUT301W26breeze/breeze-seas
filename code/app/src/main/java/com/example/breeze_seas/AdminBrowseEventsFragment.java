@@ -42,7 +42,7 @@ public class AdminBrowseEventsFragment extends Fragment {
             AdminEventDetailsFragment detailsFragment = new AdminEventDetailsFragment();
 
             Bundle args = new Bundle();
-            args.putString("eventId", event.getId());
+            args.putString("eventId", event.getEventId());
             detailsFragment.setArguments(args);
 
             requireActivity().getSupportFragmentManager().beginTransaction()
@@ -57,9 +57,9 @@ public class AdminBrowseEventsFragment extends Fragment {
     }
 
     private void fetchEvents() {
-        EventDB.getInstance().getAllEvents(new EventDB.LoadEventsCallback() {
+        EventDB.getAllEvents(new EventDB.LoadEventsCallback() {
             @Override
-            public void onSuccess(List<Event> events) {
+            public void onSuccess(ArrayList<Event> events) {
                 eventsList.clear();
                 eventsList.addAll(events);
                 adapter.notifyDataSetChanged();

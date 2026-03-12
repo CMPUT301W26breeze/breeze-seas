@@ -35,14 +35,14 @@ public class ViewQrCodeFragment extends Fragment {
         ImageView ivQr = view.findViewById(R.id.ivQr);
 
         if (eventId != null) {
-            EventDB.getInstance().getEventById(eventId, new EventDB.LoadSingleEventCallback() {
+            EventDB.getEventById(eventId, new EventDB.LoadSingleEventCallback() {
                 @Override
                 public void onSuccess(Event event) {
                     if (!isAdded()) return;
 
                     if (event != null) {
                         tvEventName.setText(event.getName());
-                        ivQr.setImageBitmap(makeQr("event:" + event.getId()));
+                        ivQr.setImageBitmap(makeQr("event:" + event.getEventId()));
                         view.findViewById(R.id.btnManageEntrants).setOnClickListener(v ->
                                 openManageEntrantsFragment(event)
                         );
