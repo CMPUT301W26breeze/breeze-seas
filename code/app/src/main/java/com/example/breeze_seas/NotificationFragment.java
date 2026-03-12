@@ -72,7 +72,6 @@ public class NotificationFragment extends Fragment {
             public void onUserLoaded(User user) {
 
                 currentUser = user;
-                Log.d("DB_SUCCESS", "ok got the user daddy");
 
                 // Display notifications
                 if (currentUser.notificationEnabled()) {
@@ -80,13 +79,21 @@ public class NotificationFragment extends Fragment {
                             new NotificationService.OnNotificationLoadedListener(){
 
                                 public void onNotificationLoaded(List<Notification> fetchedNotifications) {
+                                    Log.d("ALARMMM", "get notification got here");
                                     notifications = fetchedNotifications;
                                     if (notifications.isEmpty()) {
-
+                                        notificationsRecycler.setVisibility(GONE);
+                                        emptyStateLayout.setVisibility(VISIBLE);
                                     }
-                                    notificationsRecycler.setVisibility(GONE);
-                                    emptyStateLayout.setVisibility(VISIBLE);
-                                    adapter.notifyDataSetChanged();
+                                    else {
+                                        Log.d("ALARMMM", "tomato pasta");
+                                        notifications.clear();
+                                        notifications.addAll(fetchedNotifications);
+
+                                        notificationsRecycler.setVisibility(View.VISIBLE);
+                                        emptyStateLayout.setVisibility(View.GONE);
+                                        adapter.notifyDataSetChanged();
+                                    }
                                 }
                                 @Override
                                 public void onError(Exception e) {
