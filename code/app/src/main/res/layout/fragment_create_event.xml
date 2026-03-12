@@ -95,9 +95,9 @@
                     android:id="@+id/etEventDetails"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:minLines="3"
                     android:gravity="top"
-                    android:inputType="textMultiLine" />
+                    android:inputType="textMultiLine"
+                    android:minLines="3" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
@@ -110,8 +110,8 @@
                 android:id="@+id/btnRegPeriod"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:baselineAligned="false">
+                android:baselineAligned="false"
+                android:orientation="horizontal">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="0dp"
@@ -124,8 +124,8 @@
                         android:id="@+id/etRegFrom"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:focusable="false"
-                        android:clickable="true" />
+                        android:clickable="true"
+                        android:focusable="false" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -138,8 +138,8 @@
                         android:id="@+id/etRegTo"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:focusable="false"
-                        android:clickable="true" />
+                        android:clickable="true"
+                        android:focusable="false" />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
@@ -156,16 +156,25 @@
                     android:inputType="number" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/swLimitWaitingList"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:text="Limit Waiting List Capacity" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilWaitingListCapacity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:hint="Waiting List Capacity (optional)">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etCapacity"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:enabled="false"
                     android:inputType="number" />
             </com.google.android.material.textfield.TextInputLayout>
 

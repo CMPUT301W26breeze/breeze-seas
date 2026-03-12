@@ -18,6 +18,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -33,7 +34,8 @@ public class CreateEventFragment extends Fragment {
     private LinearLayout posterPlaceholder;
 
     private TextInputEditText etRegFrom, etRegTo, etEventName, etEventDetails, etCapacity, etEventCapacity;
-    private SwitchMaterial swGeo;
+    private TextInputLayout tilWaitingListCapacity;
+    private SwitchMaterial swGeo, swLimitWaitingList;
 
     private Long regFromMillis = null;
     private Long regToMillis = null;
@@ -75,7 +77,11 @@ public class CreateEventFragment extends Fragment {
         etEventDetails = view.findViewById(R.id.etEventDetails);
         etCapacity = view.findViewById(R.id.etCapacity);
         etEventCapacity = view.findViewById(R.id.etEventCapacity);
+
+        tilWaitingListCapacity = view.findViewById(R.id.tilWaitingListCapacity);
+
         swGeo = view.findViewById(R.id.swGeo);
+        swLimitWaitingList = view.findViewById(R.id.swLimitWaitingList);
 
         View.OnClickListener pickPoster = v -> pickImage.launch("image/*");
         cardPoster.setOnClickListener(pickPoster);
@@ -85,6 +91,16 @@ public class CreateEventFragment extends Fragment {
         btnRegPeriod.setOnClickListener(pickRange);
         etRegFrom.setOnClickListener(pickRange);
         etRegTo.setOnClickListener(pickRange);
+
+        swLimitWaitingList.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            etCapacity.setEnabled(isChecked);
+            tilWaitingListCapacity.setEnabled(isChecked);
+
+            if (!isChecked) {
+                etCapacity.setText("");
+                etCapacity.clearFocus();
+            }
+        });
 
         view.findViewById(R.id.btnCreate).setOnClickListener(v -> onCreateClicked());
     }
@@ -132,7 +148,11 @@ public class CreateEventFragment extends Fragment {
         }
 
         Integer waitingListCap = null;
-        if (!TextUtils.isEmpty(waitingCapText)) {
+        if (swLimitWaitingList.isChecked()) {
+            if (TextUtils.isEmpty(waitingCapText)) {
+                etCapacity.setError("Required when limit is enabled");
+                return;
+            }
             try {
                 waitingListCap = Integer.parseInt(waitingCapText);
             } catch (NumberFormatException e) {
