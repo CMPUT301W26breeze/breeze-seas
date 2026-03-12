@@ -1,9 +1,11 @@
 package com.example.breeze_seas;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -12,9 +14,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.textfield.TextInputLayout;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -37,36 +36,18 @@ public class OrganizeFragment extends Fragment {
 
         RecyclerView rv = view.findViewById(R.id.rvMyEvents);
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
-        adapter = new EventAdapter(events);
+        adapter = new EventAdapter(events, event ->
+                ((MainActivity) requireActivity()).openSecondaryFragment(
+                        OrganizerEventPreviewFragment.newInstance(event.getId())
+                )
+        );
         rv.setAdapter(adapter);
 
         loadEvents();
 
-        FloatingActionButton fab = view.findViewById(R.id.fabCreateEvent);
-        fab.setOnClickListener(v ->
+        View createButton = view.findViewById(R.id.fabCreateEvent);
+        createButton.setOnClickListener(v ->
                 ((MainActivity) requireActivity()).openSecondaryFragment(new CreateEventFragment())
-        );
-
-        TextInputLayout til = view.findViewById(R.id.tilSearch);
-        til.setEndIconOnClickListener(v ->
-                Toast.makeText(requireContext(), "Notifications (TODO)", Toast.LENGTH_SHORT).show()
-        );
-
-        view.findViewById(R.id.btnScanQr).setOnClickListener(v -> {
-            View bottomNav = requireActivity().findViewById(R.id.bottom_navigation);
-
-            if (bottomNav == null) {
-                Toast.makeText(requireContext(), "Bottom navigation not found", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            Toast.makeText(requireContext(), "Scan QR screen not wired yet", Toast.LENGTH_SHORT).show();
-
-            // bottomNav.setSelectedItemId(R.id.nav_scan);
-        });
-
-        view.findViewById(R.id.btnFilter).setOnClickListener(v ->
-                ((MainActivity) requireActivity()).openSecondaryFragment(new FilterFragment())
         );
     }
 
@@ -95,20 +76,30 @@ public class OrganizeFragment extends Fragment {
     }
 
     static class EventAdapter extends RecyclerView.Adapter<EventAdapter.VH> {
-        private final List<Event> data;
+        interface OnEventClickListener {
+            void onEventClick(Event event);
+        }
 
-        EventAdapter(List<Event> data) {
+        private final List<Event> data;
+        private final OnEventClickListener onEventClickListener;
+
+        EventAdapter(List<Event> data, OnEventClickListener onEventClickListener) {
             this.data = data;
+            this.onEventClickListener = onEventClickListener;
         }
 
         static class VH extends RecyclerView.ViewHolder {
-            TextView tvName, tvDates, tvCap;
+            ImageView ivPoster;
+            TextView tvName, tvDates, tvCap, tvDetails, tvAction;
 
             VH(@NonNull View itemView) {
                 super(itemView);
+                ivPoster = itemView.findViewById(R.id.ivEventPoster);
                 tvName = itemView.findViewById(R.id.tvEventName);
                 tvDates = itemView.findViewById(R.id.tvEventDates);
                 tvCap = itemView.findViewById(R.id.tvEventCapacity);
+                tvDetails = itemView.findViewById(R.id.tvEventDetails);
+                tvAction = itemView.findViewById(R.id.tvEventAction);
             }
         }
 
@@ -124,6 +115,15 @@ public class OrganizeFragment extends Fragment {
         public void onBindViewHolder(@NonNull VH holder, int position) {
             Event e = data.get(position);
 
+            holder.ivPoster.setImageResource(R.drawable.ic_image_placeholder);
+            if (e.getPosterUriString() != null && !e.getPosterUriString().trim().isEmpty()) {
+                try {
+                    holder.ivPoster.setImageURI(Uri.parse(e.getPosterUriString()));
+                } catch (Exception ignored) {
+                    holder.ivPoster.setImageResource(R.drawable.ic_image_placeholder);
+                }
+            }
+
             holder.tvName.setText(e.getName());
 
             SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.US);
@@ -135,6 +135,11 @@ public class OrganizeFragment extends Fragment {
             holder.tvCap.setText(cap == null
                     ? "Waiting list cap: Unlimited"
                     : "Waiting list cap: " + cap);
+            holder.tvDetails.setText(e.getDetails().trim().isEmpty()
+                    ? holder.itemView.getContext().getString(R.string.organize_event_no_description)
+                    : e.getDetails());
+            holder.tvAction.setText(R.string.organize_event_open_preview);
+            holder.itemView.setOnClickListener(v -> onEventClickListener.onEventClick(e));
         }
 
         @Override

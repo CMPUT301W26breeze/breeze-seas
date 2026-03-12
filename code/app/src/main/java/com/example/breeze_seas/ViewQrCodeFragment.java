@@ -38,6 +38,9 @@ public class ViewQrCodeFragment extends Fragment {
                     if (event != null) {
                         tvEventName.setText(event.getName());
                         ivQr.setImageBitmap(makeQr("event:" + event.getId()));
+                        view.findViewById(R.id.btnManageEntrants).setOnClickListener(v ->
+                                openManageEntrantsFragment(event.getId(), event.getName())
+                        );
                     } else {
                         tvEventName.setText("Unknown Event");
                     }
@@ -54,13 +57,32 @@ public class ViewQrCodeFragment extends Fragment {
             tvEventName.setText("Unknown Event");
         }
 
-        view.findViewById(R.id.btnManageEntrants).setOnClickListener(v ->
-                ((MainActivity) requireActivity()).openSecondaryFragment(new ManageEntrantsFragment())
-        );
-
         view.findViewById(R.id.btnClose).setOnClickListener(v ->
                 requireActivity().getSupportFragmentManager().popBackStack()
         );
+    }
+
+    private void openManageEntrantsFragment(@NonNull String eventId, @Nullable String eventName) {
+        try {
+            Class<?> fragmentClass = Class.forName("com.example.breeze_seas.ManageEntrantsFragment");
+            Object instance = fragmentClass.getDeclaredConstructor().newInstance();
+            if (!(instance instanceof Fragment)) {
+                throw new IllegalStateException("ManageEntrantsFragment is not a Fragment");
+            }
+
+            Fragment fragment = (Fragment) instance;
+            Bundle args = new Bundle();
+            args.putString("eventId", eventId);
+            args.putString("eventName", eventName);
+            fragment.setArguments(args);
+            ((MainActivity) requireActivity()).openSecondaryFragment(fragment);
+        } catch (Exception e) {
+            Toast.makeText(
+                    requireContext(),
+                    R.string.organizer_event_preview_manage_unavailable,
+                    Toast.LENGTH_SHORT
+            ).show();
+        }
     }
 
     private Bitmap makeQr(String content) {

@@ -1,4 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
@@ -29,14 +30,28 @@
     <Button
         android:id="@+id/btnManageEntrants"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="54dp"
         android:layout_marginTop="20dp"
-        android:text="Manage Entrants" />
+        android:background="@drawable/bg_welcome_primary_button"
+        android:backgroundTint="@null"
+        app:backgroundTint="@null"
+        android:fontFamily="@font/inter_semibold"
+        android:text="Manage Entrants"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="15sp" />
 
     <Button
         android:id="@+id/btnClose"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="54dp"
         android:layout_marginTop="12dp"
-        android:text="Close" />
+        android:background="@drawable/bg_welcome_primary_button"
+        android:backgroundTint="@null"
+        app:backgroundTint="@null"
+        android:fontFamily="@font/inter_semibold"
+        android:text="Close"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="15sp" />
 </LinearLayout>
