@@ -4,8 +4,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -32,6 +35,9 @@ public class CreateEventFragment extends Fragment {
 
     private ImageView ivPoster;
     private LinearLayout posterPlaceholder;
+    private Button btnAddImage;
+    private ImageButton btnEditPoster;
+    private TextView tvPosterHint;
 
     private TextInputEditText etRegFrom, etRegTo, etEventName, etEventDetails, etCapacity, etEventCapacity;
     private TextInputLayout tilWaitingListCapacity;
@@ -48,6 +54,8 @@ public class CreateEventFragment extends Fragment {
                     ivPoster.setImageURI(uri);
                     ivPoster.setVisibility(View.VISIBLE);
                     posterPlaceholder.setVisibility(View.GONE);
+                    btnAddImage.setText("Update Poster");
+                    tvPosterHint.setText("Poster Uploaded");
                 }
             });
 
@@ -66,9 +74,11 @@ public class CreateEventFragment extends Fragment {
 
         ivPoster = view.findViewById(R.id.ivPoster);
         posterPlaceholder = view.findViewById(R.id.posterPlaceholder);
+        btnAddImage = view.findViewById(R.id.btnAddImage);
+        btnEditPoster = view.findViewById(R.id.btnEditPoster);
+        tvPosterHint = view.findViewById(R.id.tvPosterHint);
 
         View cardPoster = view.findViewById(R.id.cardPoster);
-        View btnAddImage = view.findViewById(R.id.btnAddImage);
         View btnRegPeriod = view.findViewById(R.id.btnRegPeriod);
 
         etRegFrom = view.findViewById(R.id.etRegFrom);
@@ -86,6 +96,7 @@ public class CreateEventFragment extends Fragment {
         View.OnClickListener pickPoster = v -> pickImage.launch("image/*");
         cardPoster.setOnClickListener(pickPoster);
         btnAddImage.setOnClickListener(pickPoster);
+        btnEditPoster.setOnClickListener(pickPoster);
 
         View.OnClickListener pickRange = v -> openDateRangePicker();
         btnRegPeriod.setOnClickListener(pickRange);

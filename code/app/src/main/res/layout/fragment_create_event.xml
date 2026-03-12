@@ -55,13 +55,26 @@
                         <ImageView
                             android:layout_width="48dp"
                             android:layout_height="48dp"
-                            android:src="@android:drawable/ic_menu_gallery" />
+                            android:src="@android:drawable/ic_menu_camera" />
 
                         <TextView
+                            android:id="@+id/tvPosterHint"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Add Event Poster" />
+                            android:layout_marginTop="8dp"
+                            android:text="Tap to Upload Poster" />
                     </LinearLayout>
+
+                    <ImageButton
+                        android:id="@+id/btnEditPoster"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="10dp"
+                        android:background="@android:color/transparent"
+                        android:contentDescription="Edit Poster"
+                        android:padding="6dp"
+                        android:src="@android:drawable/ic_menu_edit" />
                 </FrameLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -71,7 +84,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Choose Image" />
+                android:text="Upload Poster" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
