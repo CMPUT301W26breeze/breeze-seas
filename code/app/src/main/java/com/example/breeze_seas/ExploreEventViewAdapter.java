@@ -12,6 +12,8 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.textview.MaterialTextView;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -42,16 +44,16 @@ public class ExploreEventViewAdapter extends RecyclerView.Adapter<ExploreEventVi
         holder.eventTitle.setText(eventList.get(position).getName());
 
         // TODO: helper function to calculate time remaining
-        //holder.eventTimeRemaining.setText(eventList.get(position).getRegToMillis())
-        holder.eventTimeRemaining.setText("Closes in 1 day");
+        //holder.eventTimeRemaining.setText(endsIn(eventList.get(position).getRegToMillis()))
+        holder.eventTimeRemaining.setText("Closes in " + "1" + " day");
 
         // TODO: helper function to calculate ppl in waiting list
         //holder.eventWaitingListCount.setText(eventList.get(position).getWaitingList().count())
-        holder.eventWaitingListCount.setText("60%");
+        holder.eventWaitingListCount.setText("0");
 
         // TODO: helper function to calculate ppl in event capacity
         //holder.eventCapacity.setText(eventList.get(position).getName());
-        holder.eventCapacity.setText("0");
+        holder.eventCapacity.setText("60");
 
         // TODO: helper function to calculate chance of being drawn
         //holder.eventCapacity.setText(chanceCalc(eventList.get(position).getTotalParticipants()));
@@ -115,5 +117,18 @@ public class ExploreEventViewAdapter extends RecyclerView.Adapter<ExploreEventVi
         } else {  // no decimal precision for 10% or higher
             return String.format(Locale.US, "%.0f", percent) + "%";
         }
+    }
+
+    /**
+     * Calculates the time remaining that the user has to join the event.
+     * Available
+     * @return String that describes how much time the user has before registration ends
+     */
+    private String endsIn(Date endTime) {
+        // Get current time
+        Date currentTime = Calendar.getInstance().getTime();
+
+        // TODO: Calculate time left
+        return "Closes in " + "1" + " day";
     }
 }

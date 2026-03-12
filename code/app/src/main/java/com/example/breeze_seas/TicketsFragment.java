@@ -20,6 +20,9 @@ import com.google.android.material.tabs.TabLayoutMediator;
 public class TicketsFragment extends Fragment {
     // The tab switching implementation in this fragment was developed with Gemini,
     // "How to implement TabLayout with ViewPager2 in Android using Java", 2026-03-03.
+    private ViewPager2 viewPager;
+    private TabLayoutMediator tabLayoutMediator;
+
     public TicketsFragment() {
         super(R.layout.fragment_tickets);
     }
@@ -29,15 +32,31 @@ public class TicketsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         TabLayout tabLayout = view.findViewById(R.id.tickets_tab_layout);
-        ViewPager2 viewPager = view.findViewById(R.id.tickets_view_pager);
+        viewPager = view.findViewById(R.id.tickets_view_pager);
 
         viewPager.setAdapter(new TicketsPagerAdapter(this));
 
-        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+        tabLayoutMediator = new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             if (position == 0) tab.setText("Active");
             else if (position == 1) tab.setText("Attending");
             else tab.setText("Past Events");
-        }).attach();
+        });
+        tabLayoutMediator.attach();
+    }
+
+    @Override
+    public void onDestroyView() {
+        if (tabLayoutMediator != null) {
+            tabLayoutMediator.detach();
+            tabLayoutMediator = null;
+        }
+
+        if (viewPager != null) {
+            viewPager.setAdapter(null);
+            viewPager = null;
+        }
+
+        super.onDestroyView();
     }
 
     private static class TicketsPagerAdapter extends FragmentStateAdapter {

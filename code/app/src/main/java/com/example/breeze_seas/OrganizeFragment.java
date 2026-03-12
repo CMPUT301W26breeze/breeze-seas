@@ -13,7 +13,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -54,7 +53,7 @@ public class OrganizeFragment extends Fragment {
         );
 
         view.findViewById(R.id.btnScanQr).setOnClickListener(v -> {
-            BottomNavigationView bottomNav = requireActivity().findViewById(R.id.bottom_navigation);
+            View bottomNav = requireActivity().findViewById(R.id.bottom_navigation);
 
             if (bottomNav == null) {
                 Toast.makeText(requireContext(), "Bottom navigation not found", Toast.LENGTH_SHORT).show();

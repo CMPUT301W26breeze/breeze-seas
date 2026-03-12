@@ -20,10 +20,10 @@ import com.google.android.material.snackbar.Snackbar;
  * - Optional cancelled states
  *
  * <p>Current state:
- * - Returns no live entries yet because only waiting and accepted states are wired.
+ * - Loads declined, cancelled, and not-selected entries through {@link TicketDB}.
  *
  * <p>Outstanding:
- * - Add past-state mappings once declined/cancelled/not-selected states are finalized.
+ * - Expand past-history detail once the team finalizes whether completed accepted events should move here too.
  */
 public class PastTicketsFragment extends Fragment {
 

@@ -10,11 +10,9 @@ import androidx.annotation.Nullable;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -26,13 +24,12 @@ import java.util.Locale;
  * TicketDB loads ticket-tab data and isolates Firestore access from the UI layer.
  *
  * <p>Current integration scope:
- * - resolves the current user from the device Android ID used elsewhere in the app
- * - supports live Firestore loading for {@code waiting} and {@code accepted} statuses
+ * - uses the agreed device-based schema from {@code events/{eventId}/participants/{deviceId}}
+ * - supports live Firestore loading for the agreed participant statuses
  * - keeps demo-mode seeding available for instrumented tests only
  *
  * <p>Outstanding:
- * - replace Android-ID user resolution with the final shared user/session source if the team adopts one
- * - add real mappings for invited/declined/cancelled states when those contracts are finalized
+ * - replace fallback display labels once the final event metadata contract is fully implemented
  */
 public final class TicketDB {
 
@@ -40,13 +37,9 @@ public final class TicketDB {
         void onTicketsChanged();
     }
 
-    private interface CurrentUserCallback {
-        void onResolved(@Nullable DocumentReference userRef);
-    }
-
     private static final String TAG = "TicketDB";
-    private static final String USER_COLLECTION = "User";
-    private static final String WAITING_LIST_COLLECTION = "waitingList";
+    private static final String EVENTS_COLLECTION = "events";
+    private static final String PARTICIPANTS_COLLECTION = "participants";
 
     private static final TicketDB INSTANCE = new TicketDB();
 
@@ -57,6 +50,8 @@ public final class TicketDB {
     private final List<PastEventUIModel> pastTickets = new ArrayList<>();
 
     private boolean useDemoData = false;
+    @Nullable
+    private String currentDeviceId;
 
     private TicketDB() {
     }
@@ -92,15 +87,18 @@ public final class TicketDB {
             return;
         }
 
-        resolveCurrentUserReference(context.getApplicationContext(), userRef -> {
-            if (userRef == null) {
-                Log.w(TAG, "No current user document could be resolved for Tickets.");
-                replaceTickets(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-                return;
-            }
+        String deviceId = getCurrentDeviceId(context.getApplicationContext());
+        if (deviceId == null) {
+            Log.w(TAG, "No current device id could be resolved for Tickets.");
+            replaceTickets(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+            return;
+        }
 
-            loadTicketsForUser(userRef);
-        });
+        synchronized (this) {
+            currentDeviceId = deviceId;
+        }
+
+        loadTicketsForDeviceId(deviceId);
     }
 
     @NonNull
@@ -126,8 +124,10 @@ public final class TicketDB {
 
     public void acceptInvitation(@NonNull TicketUIModel ticket) {
         boolean changed = false;
+        boolean showDemoData;
 
         synchronized (this) {
+            showDemoData = useDemoData;
             if (useDemoData && removeActionRequiredTicket(ticket.getEventId())) {
                 if (!containsAttendingTicket(ticket.getEventId())) {
                     attendingTickets.add(0, buildAttendingTicket(ticket));
@@ -141,13 +141,17 @@ public final class TicketDB {
             return;
         }
 
-        Log.w(TAG, "Live accept flow is not wired yet because invited status integration is still pending.");
+        if (!showDemoData) {
+            updateParticipantStatus(ticket.getEventId(), "accepted");
+        }
     }
 
     public void declineInvitation(@NonNull TicketUIModel ticket) {
         boolean changed = false;
+        boolean showDemoData;
 
         synchronized (this) {
+            showDemoData = useDemoData;
             if (useDemoData) {
                 changed = removeActionRequiredTicket(ticket.getEventId());
             }
@@ -158,58 +162,28 @@ public final class TicketDB {
             return;
         }
 
-        Log.w(TAG, "Live decline flow is not wired yet because invited status integration is still pending.");
+        if (!showDemoData) {
+            updateParticipantStatus(ticket.getEventId(), "declined");
+        }
     }
 
-    private void resolveCurrentUserReference(
-            @NonNull Context context,
-            @NonNull CurrentUserCallback callback
-    ) {
+    @Nullable
+    private String getCurrentDeviceId(@NonNull Context context) {
         String androidId = Settings.Secure.getString(
                 context.getContentResolver(),
                 Settings.Secure.ANDROID_ID
         );
 
         if (androidId == null || androidId.trim().isEmpty()) {
-            callback.onResolved(null);
-            return;
-        }
-
-        DocumentReference directUserRef = db.collection(USER_COLLECTION).document(androidId);
-        directUserRef.get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        callback.onResolved(directUserRef);
-                        return;
-                    }
-
-                    db.collection(USER_COLLECTION)
-                            .whereEqualTo("deviceId", androidId)
-                            .limit(1)
-                            .get()
-                            .addOnSuccessListener(querySnapshot -> callback.onResolved(firstReference(querySnapshot)))
-                            .addOnFailureListener(e -> {
-                                Log.e(TAG, "Failed to resolve current user by deviceId.", e);
-                                callback.onResolved(null);
-                            });
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to resolve current user by document id.", e);
-                    callback.onResolved(null);
-                });
-    }
-
-    @Nullable
-    private DocumentReference firstReference(@Nullable QuerySnapshot querySnapshot) {
-        if (querySnapshot == null || querySnapshot.isEmpty()) {
             return null;
         }
-        return querySnapshot.getDocuments().get(0).getReference();
+
+        return androidId;
     }
 
-    private void loadTicketsForUser(@NonNull DocumentReference currentUserRef) {
-        db.collectionGroup(WAITING_LIST_COLLECTION)
-                .whereEqualTo("candidate", currentUserRef)
+    private void loadTicketsForDeviceId(@NonNull String deviceId) {
+        db.collectionGroup(PARTICIPANTS_COLLECTION)
+                .whereEqualTo("deviceId", deviceId)
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     if (querySnapshot == null || querySnapshot.isEmpty()) {
@@ -259,43 +233,47 @@ public final class TicketDB {
     }
 
     @NonNull
-    private Task<LoadedTicket> loadTicket(@NonNull QueryDocumentSnapshot waitingListEntry) {
-        DocumentReference eventRef = waitingListEntry.getDocumentReference("eventId");
-        if (eventRef == null && waitingListEntry.getReference().getParent() != null) {
-            eventRef = waitingListEntry.getReference().getParent().getParent();
+    private Task<LoadedTicket> loadTicket(@NonNull QueryDocumentSnapshot participantEntry) {
+        String eventId = participantEntry.getString("eventId");
+        if ((eventId == null || eventId.trim().isEmpty())
+                && participantEntry.getReference().getParent() != null
+                && participantEntry.getReference().getParent().getParent() != null) {
+            eventId = participantEntry.getReference().getParent().getParent().getId();
         }
 
-        if (eventRef == null) {
+        if (eventId == null || eventId.trim().isEmpty()) {
             return Tasks.forResult(null);
         }
 
-        String status = normalizeStatus(waitingListEntry.getString("status"));
+        String status = normalizeStatus(participantEntry.getString("status"));
+        Timestamp joinedAt = participantEntry.getTimestamp("joinedAt");
 
-        return eventRef.get().continueWith(task -> {
+        return db.collection(EVENTS_COLLECTION).document(eventId).get().continueWith(task -> {
             if (!task.isSuccessful()) {
                 if (task.getException() != null) {
-                    Log.e(TAG, "Failed to fetch event document for ticket row " + waitingListEntry.getId(), task.getException());
+                    Log.e(TAG, "Failed to fetch event document for participant row " + participantEntry.getId(), task.getException());
                 }
                 return null;
             }
 
-            return mapTicket(status, task.getResult());
+            return mapTicket(status, task.getResult(), joinedAt);
         });
     }
 
     @Nullable
-    private LoadedTicket mapTicket(@NonNull String status, @Nullable DocumentSnapshot eventDocument) {
+    private LoadedTicket mapTicket(
+            @NonNull String status,
+            @Nullable DocumentSnapshot eventDocument,
+            @Nullable Timestamp joinedAt
+    ) {
         if (eventDocument == null || !eventDocument.exists()) {
             return null;
         }
 
         String eventId = eventDocument.getId();
         String title = fallback(eventDocument.getString("title"), "Untitled event");
-        String dateLabel = buildDateLabel(
-                eventDocument.getTimestamp("eventStart"),
-                eventDocument.getTimestamp("eventEnd")
-        );
-        String locationLabel = fallback(eventDocument.getString("location"), "Location not available");
+        String dateLabel = buildDateLabel(eventDocument, joinedAt);
+        String locationLabel = fallback(eventDocument.getString("location"), "Location details in event page");
 
         if ("waiting".equals(status)) {
             return LoadedTicket.forActive(new TicketUIModel(
@@ -303,6 +281,24 @@ public final class TicketDB {
                     title,
                     dateLabel,
                     TicketUIModel.Status.PENDING
+            ));
+        }
+
+        if ("backup".equals(status)) {
+            return LoadedTicket.forActive(new TicketUIModel(
+                    eventId,
+                    title,
+                    dateLabel,
+                    TicketUIModel.Status.BACKUP
+            ));
+        }
+
+        if ("invited".equals(status)) {
+            return LoadedTicket.forActive(new TicketUIModel(
+                    eventId,
+                    title,
+                    dateLabel,
+                    TicketUIModel.Status.ACTION_REQUIRED
             ));
         }
 
@@ -318,12 +314,38 @@ public final class TicketDB {
             ));
         }
 
+        if ("declined".equals(status)
+                || "cancelled".equals(status)
+                || "not_selected".equals(status)) {
+            return LoadedTicket.forPast(new PastEventUIModel(
+                    title,
+                    dateLabel,
+                    locationLabel,
+                    formatPastStatus(status),
+                    formatPastDetail(status),
+                    "declined".equals(status) ? R.drawable.ic_clock : R.drawable.ic_info
+            ));
+        }
+
         return null;
     }
 
     @NonNull
-    private String buildDateLabel(@Nullable Timestamp eventStart, @Nullable Timestamp eventEnd) {
-        Timestamp displayTimestamp = eventStart != null ? eventStart : eventEnd;
+    private String buildDateLabel(@NonNull DocumentSnapshot eventDocument, @Nullable Timestamp joinedAt) {
+        Timestamp displayTimestamp = eventDocument.getTimestamp("eventStart");
+        if (displayTimestamp == null) {
+            displayTimestamp = eventDocument.getTimestamp("eventEnd");
+        }
+        if (displayTimestamp == null) {
+            displayTimestamp = eventDocument.getTimestamp("registrationCloseAt");
+        }
+        if (displayTimestamp == null) {
+            displayTimestamp = eventDocument.getTimestamp("registrationOpenAt");
+        }
+        if (displayTimestamp == null) {
+            displayTimestamp = joinedAt;
+        }
+
         if (displayTimestamp == null) {
             return "Date unavailable";
         }
@@ -345,7 +367,56 @@ public final class TicketDB {
         if (value == null || value.trim().isEmpty()) {
             return fallbackValue;
         }
-        return value;
+        return value.trim();
+    }
+
+    @NonNull
+    private String formatPastStatus(@NonNull String status) {
+        if ("declined".equals(status)) {
+            return "Declined";
+        }
+        if ("cancelled".equals(status)) {
+            return "Cancelled";
+        }
+        if ("not_selected".equals(status)) {
+            return "Not selected";
+        }
+        return "Past";
+    }
+
+    @NonNull
+    private String formatPastDetail(@NonNull String status) {
+        if ("declined".equals(status)) {
+            return "You declined the invitation to register.";
+        }
+        if ("cancelled".equals(status)) {
+            return "This registration was cancelled.";
+        }
+        if ("not_selected".equals(status)) {
+            return "The draw completed without selecting your entry.";
+        }
+        return "This ticket is no longer active.";
+    }
+
+    private void updateParticipantStatus(@NonNull String eventId, @NonNull String nextStatus) {
+        String deviceId;
+
+        synchronized (this) {
+            deviceId = currentDeviceId;
+        }
+
+        if (deviceId == null || deviceId.trim().isEmpty()) {
+            Log.w(TAG, "Cannot update participant status without a current device id.");
+            return;
+        }
+
+        db.collection(EVENTS_COLLECTION)
+                .document(eventId)
+                .collection(PARTICIPANTS_COLLECTION)
+                .document(deviceId)
+                .update("status", nextStatus)
+                .addOnSuccessListener(unused -> loadTicketsForDeviceId(deviceId))
+                .addOnFailureListener(e -> Log.e(TAG, "Failed to update participant status to " + nextStatus, e));
     }
 
     private void replaceTickets(
@@ -513,6 +584,11 @@ public final class TicketDB {
         @NonNull
         private static LoadedTicket forAttending(@NonNull AttendingTicketUIModel ticket) {
             return new LoadedTicket(null, ticket, null);
+        }
+
+        @NonNull
+        private static LoadedTicket forPast(@NonNull PastEventUIModel ticket) {
+            return new LoadedTicket(null, null, ticket);
         }
     }
 }

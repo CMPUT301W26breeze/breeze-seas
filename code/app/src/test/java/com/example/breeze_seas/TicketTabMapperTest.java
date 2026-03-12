@@ -46,6 +46,12 @@ public class TicketTabMapperTest {
     }
 
     @Test
+    public void mapToTab_notSelectedReturnsPast() {
+        assertEquals(TicketTabMapper.TicketTab.PAST,
+                TicketTabMapper.mapToTab(TicketTabMapper.TicketState.NOT_SELECTED));
+    }
+
+    @Test
     public void filterStatesForTab_activeReturnsOnlyActiveStates() {
         List<TicketTabMapper.TicketState> states = Arrays.asList(
                 TicketTabMapper.TicketState.PENDING,
@@ -53,7 +59,8 @@ public class TicketTabMapperTest {
                 TicketTabMapper.TicketState.BACKUP,
                 TicketTabMapper.TicketState.DECLINED,
                 TicketTabMapper.TicketState.ACTION_REQUIRED,
-                TicketTabMapper.TicketState.CANCELLED
+                TicketTabMapper.TicketState.CANCELLED,
+                TicketTabMapper.TicketState.NOT_SELECTED
         );
 
         assertEquals(
@@ -87,13 +94,15 @@ public class TicketTabMapperTest {
                 TicketTabMapper.TicketState.CANCELLED,
                 TicketTabMapper.TicketState.PENDING,
                 TicketTabMapper.TicketState.DECLINED,
-                TicketTabMapper.TicketState.ACCEPTED
+                TicketTabMapper.TicketState.ACCEPTED,
+                TicketTabMapper.TicketState.NOT_SELECTED
         );
 
         assertEquals(
                 Arrays.asList(
                         TicketTabMapper.TicketState.CANCELLED,
-                        TicketTabMapper.TicketState.DECLINED
+                        TicketTabMapper.TicketState.DECLINED,
+                        TicketTabMapper.TicketState.NOT_SELECTED
                 ),
                 TicketTabMapper.filterStatesForTab(states, TicketTabMapper.TicketTab.PAST)
         );
