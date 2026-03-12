@@ -2,6 +2,7 @@ package com.example.breeze_seas;
 
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,6 +54,13 @@ public class Lottery {
                     }
                     return;
                 }
+
+                FirebaseFirestore db = DBConnector.getDb();
+                db.collection("events").document(event.getEventId())
+                        .update("drawARound", FieldValue.increment(1))
+                        .addOnFailureListener(e -> {
+                            Log.e("Lottery", "Failed to increment draw round", e);
+                        });
 
 
                 Collections.shuffle(pool);
