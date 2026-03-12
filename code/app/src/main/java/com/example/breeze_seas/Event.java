@@ -22,7 +22,6 @@ public class Event {
 
     private final Integer eventCapacity;
     private final Integer waitingListCapacity;
-    private final Double price;
 
     private final boolean geoRequired;
 
@@ -41,7 +40,6 @@ public class Event {
                  Timestamp createdAt,
                  Integer eventCapacity,
                  Integer waitingListCapacity,
-                 Double price,
                  boolean geoRequired,
                  List<String> waitingList,
                  List<String> invitationList,
@@ -57,7 +55,6 @@ public class Event {
         this.createdAt = createdAt;
         this.eventCapacity = eventCapacity;
         this.waitingListCapacity = waitingListCapacity;
-        this.price = price;
         this.geoRequired = geoRequired;
         this.waitingList = waitingList == null ? new ArrayList<>() : waitingList;
         this.invitationList = invitationList == null ? new ArrayList<>() : invitationList;
@@ -105,10 +102,6 @@ public class Event {
         return waitingListCapacity;
     }
 
-    public Double getPrice() {
-        return price;
-    }
-
     public boolean isGeoRequired() {
         return geoRequired;
     }
@@ -142,7 +135,6 @@ public class Event {
 
         map.put("eventCapacity", eventCapacity);
         map.put("waitingListCapacity", waitingListCapacity);
-        map.put("price", price);
 
         map.put("geoRequired", geoRequired);
 
@@ -169,7 +161,6 @@ public class Event {
 
         Long eventCapacityLong = doc.getLong("eventCapacity");
         Long waitingListCapacityLong = doc.getLong("waitingListCapacity");
-        Double price = doc.getDouble("price");
         Boolean geoRequired = doc.getBoolean("geoRequired");
 
         List<String> waitingList = (List<String>) doc.get("waitingList");
@@ -188,7 +179,6 @@ public class Event {
                 createdAt,
                 eventCapacityLong == null ? null : eventCapacityLong.intValue(),
                 waitingListCapacityLong == null ? null : waitingListCapacityLong.intValue(),
-                price,
                 geoRequired != null && geoRequired,
                 waitingList == null ? new ArrayList<>() : waitingList,
                 invitationList == null ? new ArrayList<>() : invitationList,

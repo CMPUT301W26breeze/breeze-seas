@@ -32,7 +32,7 @@ public class CreateEventFragment extends Fragment {
     private ImageView ivPoster;
     private LinearLayout posterPlaceholder;
 
-    private TextInputEditText etRegFrom, etRegTo, etEventName, etEventDetails, etCapacity, etEventCapacity, etPrice;
+    private TextInputEditText etRegFrom, etRegTo, etEventName, etEventDetails, etCapacity, etEventCapacity;
     private SwitchMaterial swGeo;
 
     private Long regFromMillis = null;
@@ -75,7 +75,6 @@ public class CreateEventFragment extends Fragment {
         etEventDetails = view.findViewById(R.id.etEventDetails);
         etCapacity = view.findViewById(R.id.etCapacity);
         etEventCapacity = view.findViewById(R.id.etEventCapacity);
-        etPrice = view.findViewById(R.id.etPrice);
         swGeo = view.findViewById(R.id.swGeo);
 
         View.OnClickListener pickPoster = v -> pickImage.launch("image/*");
@@ -115,7 +114,6 @@ public class CreateEventFragment extends Fragment {
         String details = etEventDetails.getText() == null ? "" : etEventDetails.getText().toString().trim();
         String waitingCapText = etCapacity.getText() == null ? "" : etCapacity.getText().toString().trim();
         String eventCapText = etEventCapacity.getText() == null ? "" : etEventCapacity.getText().toString().trim();
-        String priceText = etPrice.getText() == null ? "" : etPrice.getText().toString().trim();
 
         if (TextUtils.isEmpty(name)) {
             etEventName.setError("Required");
@@ -153,16 +151,6 @@ public class CreateEventFragment extends Fragment {
             }
         }
 
-        Double price = null;
-        if (!TextUtils.isEmpty(priceText)) {
-            try {
-                price = Double.parseDouble(priceText);
-            } catch (NumberFormatException e) {
-                etPrice.setError("Enter a valid price");
-                return;
-            }
-        }
-
         Event event = new Event(
                 "",
                 currentUser.getUid(),
@@ -174,7 +162,6 @@ public class CreateEventFragment extends Fragment {
                 Timestamp.now(),
                 eventCapacity,
                 waitingListCap,
-                price,
                 swGeo.isChecked(),
                 new ArrayList<>(),
                 new ArrayList<>(),
