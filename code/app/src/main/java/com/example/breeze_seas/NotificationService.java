@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -16,6 +17,7 @@ import java.util.Map;
 
 public class NotificationService {
 
+    private static NotificationService instance;
     private final FirebaseFirestore db;
     private final CollectionReference notificationsRef;
 
@@ -50,27 +52,27 @@ public class NotificationService {
      * Interface definition for a callback to be invoked when user data is loaded or fails.
      */
     public interface OnNotificationLoadedListener {
-        void onNotificationLoaded(User user);
+        void onNotificationLoaded(List<Notification> notifications);
         void onError(Exception e);
     }
 
-    public List<Notification> getNotifications(String userId, OnNotificationLoadedListener listener ) {
-        ArrayList<Notification> myNotifications = new ArrayList<>();
-        notificationsRef.whereEqualTo("userId", userId) // Only get MY notifications
-                .orderBy("timestamp", Query.Direction.DESCENDING) // Newest first
-                .limit(50) // Don't load 10,000 notes at once; start with 50
+    public void getNotifications(String userId, OnNotificationLoadedListener listener ) {
+        notificationsRef
+                .whereEqualTo("userId", userId)
+                .orderBy("sentAt", Query.Direction.DESCENDING)
+                .limit(50)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Notification> notifications = new ArrayList<>();
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        myNotifications.add(doc.toObject(Notification.class));
+                        notifications.add(doc.toObject(Notification.class));
                     }
+                    listener.onNotificationLoaded(notifications);
                 })
                 .addOnFailureListener(e -> {
                     Log.e("DB_ERROR", "Error fetching notifications", e);
                     listener.onError(e);
                 });
-
-        return myNotifications;
     }
 
 }

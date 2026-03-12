@@ -8,6 +8,8 @@ public class Notification {
     private NotificationType type;
     private String content; // should be an empty string if  not an announcement
     private String eventId;
+    private String eventName;
+    private String userId;
     private Timestamp sentAt;
 
     public Notification() {
@@ -15,22 +17,30 @@ public class Notification {
         this.type = null;
         this.content = null;
         this.eventId = null;
+        this.eventName = null;
+        this.userId = null;
         this.sentAt = null;
     }
 
-    public Notification(String notificationId, NotificationType type, String content, String eventId, Timestamp sentAt) {
+    public Notification(String notificationId, NotificationType type,
+                        String content, String eventId,String eventName,
+                        String userId, Timestamp sentAt) {
         this.notificationId = notificationId;
         this.type = type;
         this.content = content;
         this.eventId = eventId;
+        this.eventName = eventName;
+        this.userId = userId;
         this.sentAt = sentAt;
     }
 
-    public Notification(NotificationType type, String content) {
+    public Notification(NotificationType type, String content, Timestamp sentAt) {
         this.notificationId = null;
         this.type = type;
         this.content = content;
         this.eventId = null;
+        this.eventName = null;
+        this.userId = null;
         this.sentAt = null;
     }
 
@@ -74,12 +84,28 @@ public class Notification {
         this.sentAt = sentAt;
     }
 
+    public String getEventName() {
+        return eventName;
+    }
+
+    public void setEventName(String eventName) {
+        this.eventName = eventName;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
     public String getDisplayMessage() {
         switch (type) {
             case WIN:
-                return "Congratulations! You won the lottery for " + content + "!";
+                return "Congratulations! You won the lottery for " + eventName + "!";
             case LOSS:
-                return "We're sorry, but you were not selected for " + content + ".";
+                return "We're sorry, but you were not selected for " + eventName + ".";
             case ANNOUNCEMENT_SELECTED:
             case ANNOUNCEMENT_WAITLIST:
             case ANNOUNCEMENT_CANCELLED:

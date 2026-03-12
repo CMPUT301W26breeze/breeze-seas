@@ -8,16 +8,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 public class NotificationFragment extends Fragment {
@@ -25,10 +23,11 @@ public class NotificationFragment extends Fragment {
     private UserDB userDBInstance = new UserDB();
     private User currentUser;
     private NotificationService notificationService = new NotificationService();
-
     private RecyclerView notificationsRecycler;
-
-    private LinearLayout emptyStateLayout;
+    private LinearLayout optOutStateLayout;
+    private List<Notification> notifications = new ArrayList<>();
+    private NotificationEntryAdapter adapter =
+            new NotificationEntryAdapter(notifications);
 
     @Nullable
     @Override
@@ -37,7 +36,8 @@ public class NotificationFragment extends Fragment {
                 container, false);
 
         notificationsRecycler = view.findViewById(R.id.notifications_recycler);
-        emptyStateLayout = view.findViewById(R.id.notifications_empty_state);
+        notificationsRecycler.setAdapter(adapter);
+        optOutStateLayout = view.findViewById(R.id.notifications_empty_state);
 
 
         return view;
@@ -69,10 +69,23 @@ public class NotificationFragment extends Fragment {
 
                 currentUser = user;
 
+                // Display notifications
                 if (currentUser.notificationEnabled()) {
-                    // TODO: Implement notification display logic
+                    notifications = notificationService.getNotifications(currentUser.getDeviceId(),
+                            new NotificationService.OnNotificationLoadedListener(){
+
+                                public void onNotificationLoaded() {
+                                    if (notifications.isEmpty()) {
+
+                                    }
+                                    adapter.notifyDataSetChanged();
+                                }
+                                @Override
+                                public void onError(Exception e) {
+                                }
+                            });
                 } else {
-                    emptyStateLayout.setVisibility(VISIBLE);
+                    optOutStateLayout.setVisibility(VISIBLE);
                 }
             }
 
