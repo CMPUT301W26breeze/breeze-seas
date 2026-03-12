@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,40 +22,49 @@ public class WaitingListFragment extends Fragment {
     private OrganizerListAdapter adapter;
     private ListView listView;
     private ProgressBar waitingProgress;
-    private String eventId="test_event_001"; //Bundle expected from EventDetail Page
-    private int capacity=10; //bundle expected from EventDetail page/ organizer page
+    private SessionViewModel sessionViewModel;
 
-    public static WaitingListFragment newInstance(String eventId, int capacity) {
-        WaitingListFragment fragment = new WaitingListFragment();
-        Bundle args = new Bundle();
-        args.putString("EVENT_ID", eventId);
-        args.putInt("CAPACITY", capacity);
-        fragment.setArguments(args);
-        return fragment;
+    private String eventId;
+    private int capacity;
+
+    public WaitingListFragment() { }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        sessionViewModel= new ViewModelProvider(requireActivity()).get(SessionViewModel.class);
+        Event currentEvent= sessionViewModel.getEventShown().getValue();
+        if (currentEvent != null) {
+
+            //getter required in the event class
+            //this.eventId = currentEvent.getEventId();
+            this.capacity = currentEvent.getWaitingListCap();
+        }
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
         View view = inflater.inflate(R.layout.fragment_waiting_list, container, false);
-        listView=view.findViewById(R.id.waiting_frag_list_view);
+        listView = view.findViewById(R.id.waiting_frag_list_view);
         waitingProgress = view.findViewById(R.id.waiting_list_spinner);
-        waitingList=new WaitingList(eventId,capacity);
-        adapter=new OrganizerListAdapter(getContext(), R.layout.item_organizer_list,waitingList.getWaitingList());
+        waitingList = new WaitingList(eventId, capacity);
+        adapter = new OrganizerListAdapter(getContext(), R.layout.item_organizer_list, waitingList.getWaitingList());
         listView.setAdapter(adapter);
         return view;
     }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        MaterialButton runLottery=view.findViewById(R.id.btn_run_lottery);
-        runLottery.setOnClickListener(v->{
+        MaterialButton runLottery = view.findViewById(R.id.btn_run_lottery);
+
+        runLottery.setOnClickListener(v -> {
+            if (eventId == null) return;
             runLottery.setEnabled(false);
-            Lottery lottery=new Lottery(eventId,2);
+            Lottery lottery = new Lottery(eventId, capacity);
             waitingProgress.setVisibility(View.VISIBLE);
-            lottery.runLottery(2,() -> {
-                // Refresh data once lottery is committed
+            lottery.runLottery(capacity, () -> {
                 refreshWaitingList();
                 runLottery.setEnabled(true);
             });
@@ -65,10 +75,10 @@ public class WaitingListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         refreshWaitingList();
-
     }
 
     private void refreshWaitingList() {
+        if (waitingList == null) return;
         waitingProgress.setVisibility(View.VISIBLE);
         waitingList.fetchWaiting(adapter, () -> {
             if (isAdded()) {

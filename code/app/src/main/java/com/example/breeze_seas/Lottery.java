@@ -15,7 +15,6 @@ public class Lottery {
     private final FirebaseFirestore db;
     private String eventId;
     private int capacity;
-    
 
     public Lottery(String eventId, int capacity){
         this.eventId=eventId;

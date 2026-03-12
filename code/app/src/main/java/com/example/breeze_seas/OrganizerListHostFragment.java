@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.breeze_seas.OrganizerPagerAdapter;
@@ -15,13 +16,7 @@ import com.google.android.material.tabs.TabLayoutMediator;
 
 public class OrganizerListHostFragment extends Fragment {
 
-    public static OrganizerListHostFragment newInstance(String eventId, int capacity) {
-        OrganizerListHostFragment fragment = new OrganizerListHostFragment();
-        Bundle args = new Bundle();
-        args.putString("EVENT_ID", eventId);
-        args.putInt("CAPACITY", capacity);
-        fragment.setArguments(args);
-        return fragment;
+    public OrganizerListHostFragment() {
     }
 
     @Nullable
@@ -29,6 +24,7 @@ public class OrganizerListHostFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle saved) {
 
         View view = inflater.inflate(R.layout.fragment_organizer_list_host, container, false);
+        SessionViewModel viewModel = new ViewModelProvider(requireActivity()).get(SessionViewModel.class);
         TabLayout tabLayout = view.findViewById(R.id.waiting_tabs_list);
         ViewPager2 viewPager = view.findViewById(R.id.organizer_view_pager);
         OrganizerPagerAdapter adapter = new OrganizerPagerAdapter(this);
