@@ -1,182 +1,271 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/surface_subtle"
+    android:clipToPadding="false"
+    android:fillViewport="true"
+    android:paddingStart="20dp"
+    android:paddingTop="24dp"
+    android:paddingEnd="20dp"
+    android:paddingBottom="32dp">
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/signup_greet_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:gravity="center"
-        android:text="Sign Up"
-        android:textSize="40dp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <!--First Name-->
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/signup_firstname_text"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="20dp"
-        android:text="First Name"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/signup_firstname_input"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signup_greet_text" />
+        android:orientation="vertical">
 
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/signup_firstname_input"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:background="@color/grey_border"
-        android:text=""
-        android:hint="Your first name"
-        app:layout_constraintBottom_toTopOf="@+id/signup_lastname_text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signup_firstname_text" />
+        <TextView
+            android:id="@+id/signup_brand_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_welcome_brand_pill"
+            android:fontFamily="@font/inter_medium"
+            android:paddingStart="12dp"
+            android:paddingTop="7dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="7dp"
+            android:text="@string/welcome_brand"
+            android:textColor="@color/text_primary"
+            android:textSize="12sp" />
 
-    <!--Last Name-->
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/signup_lastname_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:text="Last Name"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/signup_lastname_input"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signup_firstname_input" />
+        <TextView
+            android:id="@+id/signup_greet_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:fontFamily="@font/inter_semibold"
+            android:text="@string/signup_title"
+            android:textColor="@color/text_primary"
+            android:textSize="32sp" />
 
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/signup_lastname_input"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:background="@color/grey_border"
-        android:text=""
-        android:hint="Your last name"
-        app:layout_constraintBottom_toTopOf="@+id/signup_username_text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signup_lastname_text" />
+        <TextView
+            android:id="@+id/signup_subtitle_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/inter_regular"
+            android:lineSpacingExtra="2dp"
+            android:text="@string/signup_subtitle"
+            android:textColor="@color/text_secondary"
+            android:textSize="15sp" />
 
-    <!--User Name-->
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/signup_username_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:text="User Name"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/signup_username_input"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signup_lastname_input" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:background="@drawable/bg_welcome_hero_shell"
+            android:elevation="10dp"
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingTop="20dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="20dp">
 
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/signup_username_input"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:background="@color/grey_border"
-        android:text=""
-        android:hint="Your user name"
-        app:layout_constraintBottom_toTopOf="@+id/signup_email_text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signup_username_text" />
+            <TextView
+                android:id="@+id/signup_firstname_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_medium"
+                android:text="@string/first_name"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
 
-    <!--Email-->
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/signup_email_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:text="Email"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/signup_email_input"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signup_username_input" />
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_profile_field_shell"
+                android:paddingStart="14dp"
+                android:paddingTop="13dp"
+                android:paddingEnd="14dp"
+                android:paddingBottom="13dp">
 
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/signup_email_input"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:background="@color/grey_border"
-        android:text=""
-        android:hint="Your email address"
-        app:layout_constraintBottom_toTopOf="@+id/signup_phone_number_text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signup_email_text" />
+                <EditText
+                    android:id="@+id/signup_firstname_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:fontFamily="@font/inter_regular"
+                    android:hint="@string/signup_hint_first_name"
+                    android:importantForAutofill="yes"
+                    android:inputType="textPersonName"
+                    android:padding="0dp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_secondary"
+                    android:textSize="15sp" />
+            </FrameLayout>
 
-    <!--Phone Number-->
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/signup_phone_number_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:text="Phone Number (Optional)"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/signup_phone_number_input"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signup_email_input" />
+            <TextView
+                android:id="@+id/signup_lastname_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/inter_medium"
+                android:text="@string/last_name"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
 
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/signup_phone_number_input"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:background="@color/grey_border"
-        android:text=""
-        android:hint="Your phone number"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signup_phone_number_text" />
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_profile_field_shell"
+                android:paddingStart="14dp"
+                android:paddingTop="13dp"
+                android:paddingEnd="14dp"
+                android:paddingBottom="13dp">
 
-    <!--Confirm Button-->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/signup_confirm_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:backgroundTint="@color/black"
-        android:paddingStart="30dp"
-        android:paddingTop="10dp"
-        android:paddingEnd="30dp"
-        android:paddingBottom="10dp"
-        android:text="Confirm"
-        app:cornerRadius="10dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+                <EditText
+                    android:id="@+id/signup_lastname_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:fontFamily="@font/inter_regular"
+                    android:hint="@string/signup_hint_last_name"
+                    android:importantForAutofill="yes"
+                    android:inputType="textPersonName"
+                    android:padding="0dp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_secondary"
+                    android:textSize="15sp" />
+            </FrameLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/signup_username_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/inter_medium"
+                android:text="@string/user_name"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_profile_field_shell"
+                android:paddingStart="14dp"
+                android:paddingTop="13dp"
+                android:paddingEnd="14dp"
+                android:paddingBottom="13dp">
+
+                <EditText
+                    android:id="@+id/signup_username_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:fontFamily="@font/inter_regular"
+                    android:hint="@string/signup_hint_user_name"
+                    android:importantForAutofill="yes"
+                    android:inputType="text"
+                    android:padding="0dp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_secondary"
+                    android:textSize="15sp" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/signup_email_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/inter_medium"
+                android:text="@string/email"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_profile_field_shell"
+                android:paddingStart="14dp"
+                android:paddingTop="13dp"
+                android:paddingEnd="14dp"
+                android:paddingBottom="13dp">
+
+                <EditText
+                    android:id="@+id/signup_email_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:fontFamily="@font/inter_regular"
+                    android:hint="@string/signup_hint_email"
+                    android:importantForAutofill="yes"
+                    android:inputType="textEmailAddress"
+                    android:padding="0dp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_secondary"
+                    android:textSize="15sp" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/signup_phone_number_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/inter_medium"
+                android:text="@string/phone_number"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_profile_field_shell"
+                android:paddingStart="14dp"
+                android:paddingTop="13dp"
+                android:paddingEnd="14dp"
+                android:paddingBottom="13dp">
+
+                <EditText
+                    android:id="@+id/signup_phone_number_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:fontFamily="@font/inter_regular"
+                    android:hint="@string/signup_hint_phone_number"
+                    android:importantForAutofill="yes"
+                    android:inputType="phone"
+                    android:padding="0dp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_secondary"
+                    android:textSize="15sp" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/signup_note_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:fontFamily="@font/inter_regular"
+                android:lineSpacingExtra="2dp"
+                android:text="@string/signup_note"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+
+            <Button
+                android:id="@+id/signup_confirm_button"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:layout_marginTop="22dp"
+                android:background="@drawable/bg_welcome_primary_button"
+                android:backgroundTint="@null"
+                android:fontFamily="@font/inter_semibold"
+                android:paddingStart="18dp"
+                android:paddingEnd="18dp"
+                android:text="@string/signup_continue"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                app:backgroundTint="@null" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

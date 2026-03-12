@@ -1,34 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/welcome_background">
 
-
-    <com.google.android.material.textview.MaterialTextView
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="30dp"
-        android:layout_marginEnd="30dp"
-        android:text="Welcome to Seas!"
-        android:textSize="60dp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/welcome_screen_start_button"
+    <LinearLayout
+        android:id="@+id/welcome_brand_block"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="30dp"
-        android:backgroundTint="@color/black"
-        android:text="Get Started"
-        android:textSize="16dp"
-        android:textStyle="bold"
-        app:cornerRadius="10dp"
+        android:layout_marginTop="54dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@id/welcome_message_block"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.35">
+
+        <TextView
+            android:id="@+id/welcome_brand_wordmark"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_semibold"
+            android:gravity="center"
+            android:letterSpacing="0.01"
+            android:text="@string/welcome_brand"
+            android:textColor="@color/text_primary"
+            android:textSize="36sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/welcome_message_block"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@id/welcome_screen_start_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/welcome_brand_block"
+        app:layout_constraintVertical_bias="0.48">
+
+        <TextView
+            android:id="@+id/welcome_headline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_medium"
+            android:gravity="center"
+            android:lineSpacingExtra="4dp"
+            android:text="@string/welcome_headline"
+            android:textColor="@color/text_primary"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/welcome_subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:fontFamily="@font/inter_regular"
+            android:gravity="center"
+            android:lineSpacingExtra="4dp"
+            android:text="@string/welcome_subtitle"
+            android:textColor="@color/welcome_text_secondary"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/welcome_illustration"
+            android:layout_width="144dp"
+            android:layout_height="144dp"
+            android:layout_marginTop="34dp"
+            android:contentDescription="@string/welcome_illustration_desc"
+            android:src="@drawable/ic_welcome_ticket_wave" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/welcome_screen_start_button"
+        android:layout_width="0dp"
+        android:layout_height="54dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="38dp"
+        android:background="@drawable/bg_welcome_primary_button"
+        android:backgroundTint="@null"
+        android:fontFamily="@font/inter_semibold"
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp"
+        android:text="@string/get_started"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        app:backgroundTint="@null"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

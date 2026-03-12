@@ -20,4 +20,18 @@
     <string name="edits_first_name">Edits first name</string>
     <string name="edits_user_name">Edits user name</string>
     <string name="profile_subtitle">Keep your identity details and notification preferences up to date.</string>
+    <string name="get_started">Get Started</string>
+    <string name="welcome_brand">Breeze</string>
+    <string name="welcome_headline">Community events,\nwithout the rush.</string>
+    <string name="welcome_subtitle">Join local events through\na simple lottery.</string>
+    <string name="welcome_illustration_desc">Ticket illustration with waves</string>
+    <string name="signup_title">Create your profile</string>
+    <string name="signup_subtitle">We only need a few details so you can join events on this device without signing in every time.</string>
+    <string name="signup_hint_first_name">Your first name</string>
+    <string name="signup_hint_last_name">Your last name</string>
+    <string name="signup_hint_user_name">Choose a username</string>
+    <string name="signup_hint_email">Your email address</string>
+    <string name="signup_hint_phone_number">Your phone number</string>
+    <string name="signup_note">Your device is used to keep your profile ready for event sign-up and status updates.</string>
+    <string name="signup_continue">Continue</string>
 </resources>

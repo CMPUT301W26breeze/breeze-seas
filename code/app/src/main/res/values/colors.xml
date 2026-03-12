@@ -12,4 +12,6 @@
     <color name="tickets_tab_text_unselected">#111827</color>
     <color name="switch_track_checked">#33000000</color>
     <color name="switch_track_unchecked">#E5E7EB</color>
+    <color name="welcome_background">#FFFFFFFF</color>
+    <color name="welcome_text_secondary">#6B7280</color>
 </resources>
