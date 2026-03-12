@@ -83,12 +83,9 @@ public class Event {
                  boolean geolocationEnforced,
                  int eventCapacity,
                  int waitingListCapacity,
-                 int drawARound,
-                 WaitingList waitingList,
-                 PendingList pendingList,
-                 AcceptedList acceptedList,
-                 DeclinedList declinedList) {
+                 int drawARound) {
         this.organizerId = organizerId;
+        this.eventId = EventDB.genNewEventId();
         this.name = name;
         this.description = description;
         this.image = image;
@@ -103,10 +100,35 @@ public class Event {
         this.eventStartDate = eventStartDate;
         this.eventEndDate = eventEndDate;
         this.geolocationEnforced = geolocationEnforced;
-        this.waitingList = waitingList;
-        this.pendingList = pendingList;
-        this.acceptedList = acceptedList;
-        this.declinedList = declinedList;
+        this.waitingList = new WaitingList(this.eventId, waitingListCapacity);
+        this.pendingList = new PendingList(this.eventId -1);
+        this.acceptedList = new AcceptedList(this.eventId, eventCapacity);
+        this.declinedList = new DeclinedList(this.eventId, -1);
+    }
+
+    // Bare minimum
+    public Event(String organizerId,
+                 int eventCapacity) {
+        this.organizerId = organizerId;
+        this.eventId = EventDB.genNewEventId();
+        this.name = null;
+        this.description = null;
+        this.image = null;
+        this.qrValue = null;
+        this.dateModified = Timestamp.now();  // Use timestamp at creation
+        this.eventCapacity = eventCapacity;
+        this.waitingListCapacity = -1;
+        this.drawARound = 0;
+        this.dateCreated = Timestamp.now();  // Use timestamp at creation
+        this.registrationStartDate = null;
+        this.registrationEndDate = null;
+        this.eventStartDate = null;
+        this.eventEndDate = null;
+        this.geolocationEnforced = false;
+        this.waitingList = new WaitingList(this.eventId, -1);
+        this.pendingList = new PendingList(this.eventId -1);
+        this.acceptedList = new AcceptedList(this.eventId, eventCapacity);
+        this.declinedList = new DeclinedList(this.eventId, -1);
     }
 
     public String getEventId() {

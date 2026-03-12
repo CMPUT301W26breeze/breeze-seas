@@ -55,6 +55,9 @@ public class EventDB {
         return map;
     }
 
+    public static String genNewEventId() {
+        return eventRef.document().getId();
+    }
 
     // Add Event to DB
     public interface AddEventCallback {
