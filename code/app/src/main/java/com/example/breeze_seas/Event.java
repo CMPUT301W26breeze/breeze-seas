@@ -1,80 +1,133 @@
 package com.example.breeze_seas;
 
-import com.google.firebase.firestore.DocumentSnapshot;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import java.util.HashMap;
-import java.util.Map;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-public class Event {
-    private final String id;
-    private final String name;
-    private final String details;
-    private final String posterUriString;
-    private final long regFromMillis;
-    private final long regToMillis;
-    private final Integer waitingListCap; // null = unlimited
-    private final boolean geoRequired;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
-    public Event(String id,
-                 String name,
-                 String details,
-                 String posterUriString,
-                 long regFromMillis,
-                 long regToMillis,
-                 Integer waitingListCap,
-                 boolean geoRequired) {
-        this.id = id;
-        this.name = name;
-        this.details = details;
-        this.posterUriString = posterUriString;
-        this.regFromMillis = regFromMillis;
-        this.regToMillis = regToMillis;
-        this.waitingListCap = waitingListCap;
-        this.geoRequired = geoRequired;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+public class OrganizeFragment extends Fragment {
+
+    private final List<Event> events = new ArrayList<>();
+    private EventAdapter adapter;
+
+    public OrganizeFragment() {
+        super(R.layout.fragment_organize);
     }
 
-    public String getId() { return id; }
-    public String getName() { return name; }
-    public String getDetails() { return details; }
-    public String getPosterUriString() { return posterUriString; }
-    public long getRegFromMillis() { return regFromMillis; }
-    public long getRegToMillis() { return regToMillis; }
-    public Integer getWaitingListCap() { return waitingListCap; }
-    public boolean isGeoRequired() { return geoRequired; }
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-    public Map<String, Object> toMap() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("name", name);
-        map.put("details", details);
-        map.put("posterUriString", posterUriString);
-        map.put("regFromMillis", regFromMillis);
-        map.put("regToMillis", regToMillis);
-        map.put("waitingListCap", waitingListCap);
-        map.put("geoRequired", geoRequired);
-        return map;
-    }
+        RecyclerView rv = view.findViewById(R.id.rvMyEvents);
+        rv.setLayoutManager(new LinearLayoutManager(requireContext()));
+        adapter = new EventAdapter(events);
+        rv.setAdapter(adapter);
 
-    public static Event fromDocument(DocumentSnapshot doc) {
-        if (doc == null || !doc.exists()) return null;
+        loadEvents();
 
-        String name = doc.getString("name");
-        String details = doc.getString("details");
-        String posterUriString = doc.getString("posterUriString");
-
-        Long regFrom = doc.getLong("regFromMillis");
-        Long regTo = doc.getLong("regToMillis");
-        Long capLong = doc.getLong("waitingListCap");
-        Boolean geo = doc.getBoolean("geoRequired");
-
-        return new Event(
-                doc.getId(),
-                name == null ? "" : name,
-                details == null ? "" : details,
-                posterUriString,
-                regFrom == null ? 0L : regFrom,
-                regTo == null ? 0L : regTo,
-                capLong == null ? null : capLong.intValue(),
-                geo != null && geo
+        FloatingActionButton fab = view.findViewById(R.id.fabCreateEvent);
+        fab.setOnClickListener(v ->
+                ((MainActivity) requireActivity()).openSecondaryFragment(new CreateEventFragment())
         );
+
+        view.findViewById(R.id.btnFilter).setOnClickListener(v ->
+                ((MainActivity) requireActivity()).openSecondaryFragment(new FilterFragment())
+        );
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadEvents();
+    }
+
+    private void loadEvents() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Toast.makeText(requireContext(), "User not signed in", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        EventDB.getInstance().getEventsByOrganizerId(currentUser.getUid(), new EventDB.LoadEventsCallback() {
+            @Override
+            public void onSuccess(List<Event> loadedEvents) {
+                events.clear();
+                events.addAll(loadedEvents);
+                if (adapter != null) {
+                    adapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(requireContext(), "Failed to load events", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    static class EventAdapter extends RecyclerView.Adapter<EventAdapter.VH> {
+        private final List<Event> data;
+
+        EventAdapter(List<Event> data) {
+            this.data = data;
+        }
+
+        static class VH extends RecyclerView.ViewHolder {
+            TextView tvName, tvDates, tvCap;
+
+            VH(@NonNull View itemView) {
+                super(itemView);
+                tvName = itemView.findViewById(R.id.tvEventName);
+                tvDates = itemView.findViewById(R.id.tvEventDates);
+                tvCap = itemView.findViewById(R.id.tvEventCapacity);
+            }
+        }
+
+        @NonNull
+        @Override
+        public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_event, parent, false);
+            return new VH(v);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull VH holder, int position) {
+            Event e = data.get(position);
+
+            holder.tvName.setText(e.getName());
+
+            SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.US);
+            String from = e.getRegistrationOpen() == null ? "N/A" : sdf.format(e.getRegistrationOpen().toDate());
+            String to = e.getRegistrationClose() == null ? "N/A" : sdf.format(e.getRegistrationClose().toDate());
+            holder.tvDates.setText("Reg: " + from + " → " + to);
+
+            Integer cap = e.getWaitingListCapacity();
+            holder.tvCap.setText(cap == null
+                    ? "Waiting list cap: Unlimited"
+                    : "Waiting list cap: " + cap);
+        }
+
+        @Override
+        public int getItemCount() {
+            return data.size();
+        }
     }
 }

@@ -14,11 +14,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -47,24 +47,6 @@ public class OrganizeFragment extends Fragment {
                 ((MainActivity) requireActivity()).openSecondaryFragment(new CreateEventFragment())
         );
 
-        TextInputLayout til = view.findViewById(R.id.tilSearch);
-        til.setEndIconOnClickListener(v ->
-                Toast.makeText(requireContext(), "Notifications (TODO)", Toast.LENGTH_SHORT).show()
-        );
-
-        view.findViewById(R.id.btnScanQr).setOnClickListener(v -> {
-            View bottomNav = requireActivity().findViewById(R.id.bottom_navigation);
-
-            if (bottomNav == null) {
-                Toast.makeText(requireContext(), "Bottom navigation not found", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            Toast.makeText(requireContext(), "Scan QR screen not wired yet", Toast.LENGTH_SHORT).show();
-
-            // bottomNav.setSelectedItemId(R.id.nav_scan);
-        });
-
         view.findViewById(R.id.btnFilter).setOnClickListener(v ->
                 ((MainActivity) requireActivity()).openSecondaryFragment(new FilterFragment())
         );
@@ -77,7 +59,13 @@ public class OrganizeFragment extends Fragment {
     }
 
     private void loadEvents() {
-        EventDB.getInstance().getAllEvents(new EventDB.LoadEventsCallback() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Toast.makeText(requireContext(), "User not signed in", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        EventDB.getInstance().getEventsByOrganizerId(currentUser.getUid(), new EventDB.LoadEventsCallback() {
             @Override
             public void onSuccess(List<Event> loadedEvents) {
                 events.clear();
@@ -127,11 +115,11 @@ public class OrganizeFragment extends Fragment {
             holder.tvName.setText(e.getName());
 
             SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.US);
-            String from = sdf.format(new Date(e.getRegFromMillis()));
-            String to = sdf.format(new Date(e.getRegToMillis()));
+            String from = e.getRegistrationOpen() == null ? "N/A" : sdf.format(e.getRegistrationOpen().toDate());
+            String to = e.getRegistrationClose() == null ? "N/A" : sdf.format(e.getRegistrationClose().toDate());
             holder.tvDates.setText("Reg: " + from + " → " + to);
 
-            Integer cap = e.getWaitingListCap();
+            Integer cap = e.getWaitingListCapacity();
             holder.tvCap.setText(cap == null
                     ? "Waiting list cap: Unlimited"
                     : "Waiting list cap: " + cap);
