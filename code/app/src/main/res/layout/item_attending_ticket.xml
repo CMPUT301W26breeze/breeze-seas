@@ -1,37 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="10dp"
+    android:background="@drawable/bg_welcome_hero_shell"
     android:clickable="true"
-    android:focusable="true"
-    app:cardBackgroundColor="@color/white"
-    app:cardCornerRadius="26dp"
-    app:cardElevation="8dp"
-    app:strokeColor="@color/grey_border"
-    app:strokeWidth="1dp">
+    android:elevation="10dp"
+    android:focusable="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="20dp">
 
-        <com.google.android.material.chip.Chip
+        <TextView
             android:id="@+id/attending_ticket_status_chip"
             android:layout_width="wrap_content"
-            android:layout_height="32dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
+            android:background="@drawable/bg_ticket_status_solid"
             android:fontFamily="@font/inter_medium"
+            android:paddingStart="12dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="8dp"
             android:text="Confirmed"
             android:textColor="@android:color/white"
             android:textSize="12sp"
-            app:chipBackgroundColor="@android:color/black"
-            app:chipCornerRadius="16dp"
-            app:chipMinHeight="32dp"
-            app:chipStrokeWidth="0dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -106,4 +103,4 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</com.google.android.material.card.MaterialCardView>
+</FrameLayout>

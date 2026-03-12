@@ -1,26 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/ticket_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="8dp"
+    android:background="@drawable/bg_welcome_hero_shell"
     android:clickable="true"
-    android:focusable="true"
-    app:cardBackgroundColor="@color/white"
-    app:cardCornerRadius="22dp"
-    app:cardElevation="7dp"
-    app:strokeColor="@color/grey_border"
-    app:strokeWidth="1dp">
+    android:elevation="10dp"
+    android:focusable="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="184dp"
         android:orientation="vertical"
-        android:padding="18dp">
+        android:paddingStart="18dp"
+        android:paddingTop="18dp"
+        android:paddingEnd="18dp"
+        android:paddingBottom="18dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -55,23 +53,19 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="top">
 
-                <com.google.android.material.chip.Chip
+                <TextView
                     android:id="@+id/ticket_status_chip"
                     android:layout_width="wrap_content"
-                    android:layout_height="32dp"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_ticket_status_outline"
                     android:fontFamily="@font/inter_medium"
+                    android:paddingStart="12dp"
+                    android:paddingTop="8dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="8dp"
                     android:text="Pending"
                     android:textColor="@color/text_primary"
-                    android:textSize="12sp"
-                    app:chipBackgroundColor="@android:color/white"
-                    app:chipCornerRadius="16dp"
-                    app:chipMinHeight="32dp"
-                    app:chipStrokeColor="@color/grey_border"
-                    app:chipStrokeWidth="1dp"
-                    app:chipStartPadding="12dp"
-                    app:chipEndPadding="12dp"
-                    app:textEndPadding="0dp"
-                    app:textStartPadding="0dp" />
+                    android:textSize="12sp" />
 
                 <View
                     android:id="@+id/action_dot"
@@ -130,15 +124,4 @@
             android:textSize="12sp" />
 
     </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
-
-    <!--
-    Ticket history card layout for the Tickets screen.
-
-    Design inspiration based on Material Design 3 card and list item guidelines.
-    Source: Material Design 3 – Card Component Overview
-    https://m3.material.io/components/cards/overview
-
-    Additional styling choices were adapted to match the project’s Figma UI mockups
-    Accessed: 2026-03-03
-    -->
+</FrameLayout>

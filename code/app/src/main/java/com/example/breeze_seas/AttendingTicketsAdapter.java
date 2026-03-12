@@ -8,8 +8,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.chip.Chip;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,7 +63,7 @@ public class AttendingTicketsAdapter extends RecyclerView.Adapter<AttendingTicke
         final TextView date;
         final TextView location;
         final TextView ticketType;
-        final Chip statusChip;
+        final TextView statusChip;
 
         AttendingTicketViewHolder(@NonNull View itemView) {
             super(itemView);

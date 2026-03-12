@@ -9,8 +9,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.chip.Chip;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,7 +66,7 @@ public class PastTicketsAdapter extends RecyclerView.Adapter<PastTicketsAdapter.
         final TextView date;
         final TextView location;
         final TextView detail;
-        final Chip statusChip;
+        final TextView statusChip;
 
         PastTicketViewHolder(@NonNull View itemView) {
             super(itemView);

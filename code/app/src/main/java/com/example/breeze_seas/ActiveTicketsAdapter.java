@@ -10,8 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.chip.Chip;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,10 +71,8 @@ public class ActiveTicketsAdapter extends RecyclerView.Adapter<ActiveTicketsAdap
                 holder.supporting.setText("Your entry is in the waiting list. We will notify you when the organizer updates the draw outcome.");
                 holder.footer.setText("Awaiting selection outcome");
 
-                holder.chip.setChipBackgroundColor(ContextCompat.getColorStateList(holder.itemView.getContext(), android.R.color.white));
+                holder.chip.setBackgroundResource(R.drawable.bg_ticket_status_outline);
                 holder.chip.setTextColor(black);
-                holder.chip.setChipStrokeWidth(1f);
-                holder.chip.setChipStrokeColor(ContextCompat.getColorStateList(holder.itemView.getContext(), R.color.grey_border));
                 break;
 
             case BACKUP:
@@ -85,10 +81,8 @@ public class ActiveTicketsAdapter extends RecyclerView.Adapter<ActiveTicketsAdap
                 holder.supporting.setText("The first draw has finished. Your entry stays active in case any confirmed spots are released.");
                 holder.footer.setText("Tap to view backup pool details");
 
-                holder.chip.setChipBackgroundColor(ContextCompat.getColorStateList(holder.itemView.getContext(), android.R.color.white));
+                holder.chip.setBackgroundResource(R.drawable.bg_ticket_status_outline);
                 holder.chip.setTextColor(black);
-                holder.chip.setChipStrokeWidth(1f);
-                holder.chip.setChipStrokeColor(ContextCompat.getColorStateList(holder.itemView.getContext(), R.color.grey_border));
                 break;
 
             case ACTION_REQUIRED:
@@ -97,9 +91,8 @@ public class ActiveTicketsAdapter extends RecyclerView.Adapter<ActiveTicketsAdap
                 holder.supporting.setText("You were selected and your spot is waiting. Accept now to move this event into your attending tickets.");
                 holder.footer.setText("Tap to accept or decline");
 
-                holder.chip.setChipBackgroundColor(ContextCompat.getColorStateList(holder.itemView.getContext(), android.R.color.black));
+                holder.chip.setBackgroundResource(R.drawable.bg_ticket_status_solid);
                 holder.chip.setTextColor(white);
-                holder.chip.setChipStrokeWidth(0f);
                 holder.actionDot.setVisibility(View.VISIBLE);
                 break;
         }
@@ -122,7 +115,7 @@ public class ActiveTicketsAdapter extends RecyclerView.Adapter<ActiveTicketsAdap
         TextView date;
         TextView supporting;
         TextView footer;
-        Chip chip;
+        TextView chip;
         View actionDot;
 
         TicketViewHolder(@NonNull View itemView) {

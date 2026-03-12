@@ -1,17 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="8dp"
+    android:background="@drawable/bg_welcome_hero_shell"
     android:clickable="true"
-    android:focusable="true"
-    app:cardBackgroundColor="@color/surface_subtle"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="0dp"
-    app:strokeColor="@color/grey_border"
-    app:strokeWidth="1dp">
+    android:elevation="10dp"
+    android:focusable="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -46,19 +42,19 @@
                 android:layout_width="12dp"
                 android:layout_height="1dp" />
 
-            <com.google.android.material.chip.Chip
+            <TextView
                 android:id="@+id/past_event_status_chip"
                 android:layout_width="wrap_content"
-                android:layout_height="30dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_ticket_status_outline"
                 android:fontFamily="@font/inter_medium"
+                android:paddingStart="12dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="8dp"
                 android:text="Attended"
                 android:textColor="@color/text_primary"
-                android:textSize="11sp"
-                app:chipBackgroundColor="@android:color/white"
-                app:chipCornerRadius="15dp"
-                app:chipMinHeight="30dp"
-                app:chipStrokeColor="@color/grey_border"
-                app:chipStrokeWidth="1dp" />
+                android:textSize="11sp" />
         </LinearLayout>
 
         <TextView
@@ -104,4 +100,4 @@
 
     </LinearLayout>
 
-</com.google.android.material.card.MaterialCardView>
+</FrameLayout>
