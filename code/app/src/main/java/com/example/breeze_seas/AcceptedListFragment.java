@@ -40,7 +40,7 @@ public class AcceptedListFragment extends Fragment {
         Event currentEvent = sessionViewModel.getEventShown().getValue();
         if (currentEvent != null) {
             // Requires Event getter
-            //this.eventId = currentEvent.getEventId();
+            this.eventId = currentEvent.getId();
             this.capacity = currentEvent.getWaitingListCap();
         }
     }

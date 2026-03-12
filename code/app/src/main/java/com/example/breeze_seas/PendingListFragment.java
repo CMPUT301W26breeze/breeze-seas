@@ -32,7 +32,7 @@ public class PendingListFragment extends Fragment {
         Event currentEvent = sessionViewModel.getEventShown().getValue();
         if (currentEvent != null) {
             // requires Event getter
-           // this.eventId = currentEvent.getEventId();
+            this.eventId = currentEvent.getId();
             this.capacity = currentEvent.getWaitingListCap();
         }
     }

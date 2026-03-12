@@ -37,7 +37,7 @@ public class WaitingListFragment extends Fragment {
         if (currentEvent != null) {
 
             //getter required in the event class
-            //this.eventId = currentEvent.getEventId();
+            this.eventId = currentEvent.getId();
             this.capacity = currentEvent.getWaitingListCap();
         }
     }
