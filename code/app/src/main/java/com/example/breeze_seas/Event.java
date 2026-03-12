@@ -100,10 +100,10 @@ public class Event {
         this.eventStartDate = eventStartDate;
         this.eventEndDate = eventEndDate;
         this.geolocationEnforced = geolocationEnforced;
-        this.waitingList = new WaitingList(this.eventId, waitingListCapacity);
-        this.pendingList = new PendingList(this.eventId -1);
-        this.acceptedList = new AcceptedList(this.eventId, eventCapacity);
-        this.declinedList = new DeclinedList(this.eventId, -1);
+        this.waitingList = new WaitingList(this, waitingListCapacity);
+        this.pendingList = new PendingList(this, -1);
+        this.acceptedList = new AcceptedList(this, eventCapacity);
+        this.declinedList = new DeclinedList(this, -1);
     }
 
     // Bare minimum
@@ -125,10 +125,10 @@ public class Event {
         this.eventStartDate = null;
         this.eventEndDate = null;
         this.geolocationEnforced = false;
-        this.waitingList = new WaitingList(this.eventId, -1);
-        this.pendingList = new PendingList(this.eventId -1);
-        this.acceptedList = new AcceptedList(this.eventId, eventCapacity);
-        this.declinedList = new DeclinedList(this.eventId, -1);
+        this.waitingList = new WaitingList(this, -1);
+        this.pendingList = new PendingList(this, -1);
+        this.acceptedList = new AcceptedList(this, eventCapacity);
+        this.declinedList = new DeclinedList(this, -1);
     }
 
     public String getEventId() {

@@ -116,10 +116,9 @@ public class MainActivity extends AppCompatActivity {
 
 
         // TESTING
-        Event e = new Event(
-                user.getDeviceId(),
-                50,
-                );
+        Event e = new Event(user.getDeviceId(), 50);
+        e.setName("Bryant is not well");
+        EventDB.addEvent(e);
         return;
 
 
