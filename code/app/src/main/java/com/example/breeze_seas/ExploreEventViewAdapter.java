@@ -1,66 +1,70 @@
 package com.example.breeze_seas;
 
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.card.MaterialCardView;
-import com.google.android.material.imageview.ShapeableImageView;
-import com.google.android.material.textview.MaterialTextView;
-
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 public class ExploreEventViewAdapter extends RecyclerView.Adapter<ExploreEventViewAdapter.ExploreEventViewHolder> {
-    Context context;
-    private List<Event> eventList;
+    private final Context context;
+    private final List<Event> eventList;
     private static RecyclerViewClickListener itemListener;
 
     public ExploreEventViewAdapter(Context context, RecyclerViewClickListener itemListener, List<Event> eventList) {
         this.context = context;
         this.eventList = eventList;
-        this.itemListener = itemListener;
+        ExploreEventViewAdapter.itemListener = itemListener;
     }
 
     @NonNull
     @Override
-    public ExploreEventViewAdapter.ExploreEventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // inflating layouts, giving looks to rows
+    public ExploreEventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.item_explore_event_entry, parent, false);
-
-        return new ExploreEventViewAdapter.ExploreEventViewHolder(view);
+        return new ExploreEventViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ExploreEventViewAdapter.ExploreEventViewHolder holder, int position) {
-        // assigning values to the views we created in layout file
-        holder.eventTitle.setText(eventList.get(position).getName());
+    public void onBindViewHolder(@NonNull ExploreEventViewHolder holder, int position) {
+        Event event = eventList.get(position);
 
-        // TODO: helper function to calculate time remaining
-        //holder.eventTimeRemaining.setText(eventList.get(position).getRegToMillis())
-        holder.eventTimeRemaining.setText("Closes in 1 day");
+        holder.eventTitle.setText(event.getName());
+        holder.eventDescription.setText(event.getDetails().trim().isEmpty()
+                ? holder.itemView.getContext().getString(R.string.explore_card_no_description)
+                : event.getDetails());
+        holder.eventTimeRemaining.setText(holder.itemView.getContext().getString(
+                R.string.explore_card_registration_closes,
+                formatDate(event.getRegToMillis())
+        ));
+        holder.eventWaitingListCount.setText(R.string.explore_card_lottery);
+        holder.eventCapacity.setText(event.getWaitingListCap() == null
+                ? holder.itemView.getContext().getString(R.string.explore_card_cap_unlimited)
+                : holder.itemView.getContext().getString(R.string.explore_card_cap_limited, event.getWaitingListCap()));
+        holder.eventLuck.setText(event.isGeoRequired()
+                ? holder.itemView.getContext().getString(R.string.explore_card_geo_required)
+                : holder.itemView.getContext().getString(R.string.explore_card_geo_optional));
 
-        // TODO: helper function to calculate ppl in waiting list
-        //holder.eventWaitingListCount.setText(eventList.get(position).getWaitingList().count())
-        holder.eventWaitingListCount.setText("60%");
-
-        // TODO: helper function to calculate ppl in event capacity
-        //holder.eventCapacity.setText(eventList.get(position).getName());
-        holder.eventCapacity.setText("0");
-
-        // TODO: helper function to calculate chance of being drawn
-        //holder.eventCapacity.setText(chanceCalc(eventList.get(position).getTotalParticipants()));
-        holder.eventLuck.setText("100%");
-
-        // TODO: load images
-        //holder.eventImage.setImageDrawable(eventList.get(position).getPosterUriString());
         holder.eventImage.setImageResource(R.drawable.ic_image_placeholder);
-
+        if (event.getPosterUriString() != null && !event.getPosterUriString().trim().isEmpty()) {
+            try {
+                holder.eventImage.setImageURI(Uri.parse(event.getPosterUriString()));
+            } catch (Exception ignored) {
+                holder.eventImage.setImageResource(R.drawable.ic_image_placeholder);
+            }
+        }
     }
 
     @Override
@@ -68,30 +72,28 @@ public class ExploreEventViewAdapter extends RecyclerView.Adapter<ExploreEventVi
         return eventList.size();
     }
 
-    public static class ExploreEventViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-        MaterialTextView eventTitle;
-        MaterialTextView eventTimeRemaining;
-        MaterialTextView eventWaitingListCount;
-        MaterialTextView eventCapacity;
-        MaterialTextView eventLuck;
-        ShapeableImageView eventImage;
-        MaterialCardView eventCard;
+    static class ExploreEventViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        TextView eventTitle;
+        TextView eventDescription;
+        TextView eventTimeRemaining;
+        TextView eventWaitingListCount;
+        TextView eventCapacity;
+        TextView eventLuck;
+        ImageView eventImage;
+        LinearLayout eventCard;
 
-        public ExploreEventViewHolder(@NonNull View itemView) {
-            // setup for viewholder (item/row)
+        ExploreEventViewHolder(@NonNull View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
 
             eventTitle = itemView.findViewById(R.id.explore_event_entry_title);
+            eventDescription = itemView.findViewById(R.id.explore_event_entry_description);
             eventTimeRemaining = itemView.findViewById(R.id.explore_event_entry_time_renaming);
             eventWaitingListCount = itemView.findViewById(R.id.explore_event_entry_waiting_list_count);
             eventCapacity = itemView.findViewById(R.id.explore_event_entry_capacity);
             eventImage = itemView.findViewById(R.id.explore_event_entry_image);
             eventLuck = itemView.findViewById(R.id.explore_event_entry_luck_percent);
-
-            // Bind action upon clicking card
             eventCard = itemView.findViewById(R.id.explore_event_entry_card);
-
         }
 
         @Override
@@ -100,20 +102,13 @@ public class ExploreEventViewAdapter extends RecyclerView.Adapter<ExploreEventVi
         }
     }
 
-
-    /**
-     * Calculates and constructs a string representing the chance the user will win the lottery.
-     * @param total_participants Integer describing all participants pertaining to the event
-     * @return String that contains a percentage, describing chance of winning
-     */
-    private String chanceCalc(int total_participants) {
-        // Assuming user isn't part of event
-        total_participants = total_participants + 1;
-        float percent = ((float) 1 / total_participants) * 100;
-        if (percent < 10) {
-            return String.format(Locale.US, "%.2f", percent) + "%";
-        } else {  // no decimal precision for 10% or higher
-            return String.format(Locale.US, "%.0f", percent) + "%";
+    private String formatDate(long millis) {
+        if (millis <= 0L) {
+            return context.getString(R.string.organizer_event_preview_not_set);
         }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.US);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return sdf.format(new Date(millis));
     }
 }

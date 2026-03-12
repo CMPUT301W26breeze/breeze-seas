@@ -256,9 +256,8 @@ public class OrganizerEventPreviewFragment extends Fragment {
                 if (viewModel != null) {
                     viewModel.setEventShown(updatedEvent);
                 }
-                ((android.widget.TextView) requireView().findViewById(R.id.organizer_event_preview_title))
-                        .setText(updatedEvent.getName());
                 Toast.makeText(requireContext(), "Event updated", Toast.LENGTH_SHORT).show();
+                requireActivity().getSupportFragmentManager().popBackStack();
             }
 
             @Override

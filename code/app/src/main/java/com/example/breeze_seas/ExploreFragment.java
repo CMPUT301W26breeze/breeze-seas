@@ -1,11 +1,8 @@
 package com.example.breeze_seas;
 
-import static com.example.breeze_seas.DBConnector.getDb;
-
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,13 +11,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.android.material.textview.MaterialTextView;
-import com.google.firebase.Firebase;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /*** ExploreFragment is a top-level destination accessible via Bottom Navigation.
@@ -30,8 +20,8 @@ import java.util.List;
  */
 public class ExploreFragment extends Fragment implements RecyclerViewClickListener {
 
-    private MaterialTextView noEventsTest;
-    private ExtendedFloatingActionButton scanQRCodeBtn;
+    private TextView noEventsTest;
+    private View scanQRCodeBtn;
     private EventDB eventDBInstance;
     private List<Event> eventList;
     private SessionViewModel viewModel;
@@ -69,6 +59,7 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         // Bind views
         noEventsTest = view.findViewById(R.id.explore_no_events_found_text);
@@ -90,17 +81,18 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
             @Override
             public void onFailure(Exception e) {
                 eventList = null;
+                showNoEventsText(true);
             }
         });
     }
 
     private void loadEvents(View view, List<Event> events) {
         eventList = events;
-        // TODO: check for null value in events
+        showNoEventsText(events == null || events.isEmpty());
 
         RecyclerView eventsView = view.findViewById(R.id.explore_recycler_view_events);
         // Initiate adapter
-        ExploreEventViewAdapter adapter =  new ExploreEventViewAdapter(getContext(), this, eventList);
+        ExploreEventViewAdapter adapter =  new ExploreEventViewAdapter(getContext(), this, eventList == null ? java.util.Collections.emptyList() : eventList);
         eventsView.setAdapter(adapter);
         eventsView.setLayoutManager(new LinearLayoutManager(getContext()));
     }

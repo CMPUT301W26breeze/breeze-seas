@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/surface_subtle"
+    android:background="@color/white"
     android:clipToPadding="false"
     android:fillViewport="true"
     android:paddingStart="16dp"
@@ -70,22 +70,23 @@
                     </FrameLayout>
                 </FrameLayout>
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp">
+                    android:layout_marginTop="24dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
                     <FrameLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:background="@drawable/bg_profile_field_shell"
                         android:paddingStart="14dp"
                         android:paddingTop="6dp"
-                        android:paddingEnd="44dp"
+                        android:paddingEnd="14dp"
                         android:paddingBottom="2dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
+                        android:foregroundGravity="center_vertical">
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/first_name_filled_text_field"
@@ -110,34 +111,31 @@
                         android:id="@+id/edit_first_name_button"
                         android:layout_width="28dp"
                         android:layout_height="28dp"
-                        android:layout_marginEnd="14dp"
+                        android:layout_marginStart="12dp"
                         android:background="@null"
                         android:contentDescription="@string/edits_first_name"
                         android:padding="4dp"
                         android:src="@drawable/ic_edit"
-                        app:tint="@color/text_secondary"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="0.62" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                        app:tint="@color/text_secondary" />
+                </LinearLayout>
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp">
+                    android:layout_marginTop="14dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
                     <FrameLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:background="@drawable/bg_profile_field_shell"
                         android:paddingStart="14dp"
                         android:paddingTop="6dp"
-                        android:paddingEnd="44dp"
+                        android:paddingEnd="14dp"
                         android:paddingBottom="2dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
+                        android:foregroundGravity="center_vertical">
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/last_name_filled_text_field"
@@ -162,34 +160,31 @@
                         android:id="@+id/edit_last_name_button"
                         android:layout_width="28dp"
                         android:layout_height="28dp"
-                        android:layout_marginEnd="14dp"
+                        android:layout_marginStart="12dp"
                         android:background="@null"
                         android:contentDescription="@string/edits_name"
                         android:padding="4dp"
                         android:src="@drawable/ic_edit"
-                        app:tint="@color/text_secondary"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="0.62" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                        app:tint="@color/text_secondary" />
+                </LinearLayout>
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp">
+                    android:layout_marginTop="14dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
                     <FrameLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:background="@drawable/bg_profile_field_shell"
                         android:paddingStart="14dp"
                         android:paddingTop="6dp"
-                        android:paddingEnd="44dp"
+                        android:paddingEnd="14dp"
                         android:paddingBottom="2dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
+                        android:foregroundGravity="center_vertical">
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/user_name_filled_text_field"
@@ -214,34 +209,31 @@
                         android:id="@+id/edit_user_name_button"
                         android:layout_width="28dp"
                         android:layout_height="28dp"
-                        android:layout_marginEnd="14dp"
+                        android:layout_marginStart="12dp"
                         android:background="@null"
                         android:contentDescription="@string/edits_user_name"
                         android:padding="4dp"
                         android:src="@drawable/ic_edit"
-                        app:tint="@color/text_secondary"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="0.62" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                        app:tint="@color/text_secondary" />
+                </LinearLayout>
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp">
+                    android:layout_marginTop="14dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
                     <FrameLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:background="@drawable/bg_profile_field_shell"
                         android:paddingStart="14dp"
                         android:paddingTop="6dp"
-                        android:paddingEnd="44dp"
+                        android:paddingEnd="14dp"
                         android:paddingBottom="2dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
+                        android:foregroundGravity="center_vertical">
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/email_filled_text_field"
@@ -266,34 +258,31 @@
                         android:id="@+id/edit_email_button"
                         android:layout_width="28dp"
                         android:layout_height="28dp"
-                        android:layout_marginEnd="14dp"
+                        android:layout_marginStart="12dp"
                         android:background="@null"
                         android:contentDescription="@string/edits_email"
                         android:padding="4dp"
                         android:src="@drawable/ic_edit"
-                        app:tint="@color/text_secondary"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="0.62" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                        app:tint="@color/text_secondary" />
+                </LinearLayout>
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp">
+                    android:layout_marginTop="14dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
                     <FrameLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:background="@drawable/bg_profile_field_shell"
                         android:paddingStart="14dp"
                         android:paddingTop="6dp"
-                        android:paddingEnd="44dp"
+                        android:paddingEnd="14dp"
                         android:paddingBottom="2dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
+                        android:foregroundGravity="center_vertical">
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/phone_number_filled_text_field"
@@ -318,17 +307,13 @@
                         android:id="@+id/edit_phone_number_button"
                         android:layout_width="28dp"
                         android:layout_height="28dp"
-                        android:layout_marginEnd="14dp"
+                        android:layout_marginStart="12dp"
                         android:background="@null"
                         android:contentDescription="@string/edits_name"
                         android:padding="4dp"
                         android:src="@drawable/ic_edit"
-                        app:tint="@color/text_secondary"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="0.62" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                        app:tint="@color/text_secondary" />
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"

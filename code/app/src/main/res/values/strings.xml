@@ -63,6 +63,17 @@
     <string name="organize_create_event">Create Event</string>
     <string name="organize_event_no_description">No event description added yet.</string>
     <string name="organize_event_open_preview">Open Preview</string>
+    <string name="explore_title">Explore</string>
+    <string name="explore_subtitle">Browse local events and jump straight to a listing when you scan a QR code.</string>
+    <string name="explore_scan_qr">Scan QR</string>
+    <string name="explore_empty_state">No joinable events are available right now.</string>
+    <string name="explore_card_no_description">No event description added yet.</string>
+    <string name="explore_card_registration_closes">Registration closes %1$s</string>
+    <string name="explore_card_lottery">Lottery entry</string>
+    <string name="explore_card_cap_unlimited">Unlimited waitlist</string>
+    <string name="explore_card_cap_limited">Waitlist cap %1$d</string>
+    <string name="explore_card_geo_required">Geo required</string>
+    <string name="explore_card_geo_optional">Geo optional</string>
     <string name="create_event_title">Create Event</string>
     <string name="create_event_subtitle">Set up the essentials, choose a registration window, and publish a clean event page for entrants.</string>
     <string name="create_event_poster_label">Poster</string>
