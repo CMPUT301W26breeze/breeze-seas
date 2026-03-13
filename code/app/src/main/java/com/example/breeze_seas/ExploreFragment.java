@@ -11,7 +11,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /*** ExploreFragment is a top-level destination accessible via Bottom Navigation.
@@ -22,7 +21,6 @@ import java.util.List;
 public class ExploreFragment extends Fragment implements RecyclerViewClickListener {
 
     private TextView noEventsTest;
-    private View filterBtn;
     private View scanQRCodeBtn;
     private EventDB eventDBInstance;
     private List<Event> eventList;
@@ -65,11 +63,7 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
 
         // Bind views
         noEventsTest = view.findViewById(R.id.explore_no_events_found_text);
-        filterBtn = view.findViewById(R.id.explore_filter_button);
         scanQRCodeBtn = view.findViewById(R.id.explore_QRCode_floating_button);
-        filterBtn.setOnClickListener(v ->
-                ((MainActivity) requireActivity()).openSecondaryFragment(new FilterFragment())
-        );
         scanQRCodeBtn.setOnClickListener(v -> {
             // TODO: Bind QR Code Action
         });
@@ -94,21 +88,13 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
 
     private void loadEvents(View view, List<Event> events) {
         eventList = events;
-        // Guard against null
-        if (eventList == null) {
-            eventList = new ArrayList<Event>();
-        }
+        showNoEventsText(events == null || events.isEmpty());
 
-        // Initiate adapter
         RecyclerView eventsView = view.findViewById(R.id.explore_recycler_view_events);
-        ExploreEventViewAdapter adapter =  new ExploreEventViewAdapter(getContext(), this, eventList);
+        // Initiate adapter
+        ExploreEventViewAdapter adapter =  new ExploreEventViewAdapter(getContext(), this, eventList == null ? java.util.Collections.emptyList() : eventList);
         eventsView.setAdapter(adapter);
         eventsView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        // After initializing, check whether events are present or not
-        if (adapter.getItemCount() == 0) {
-            showNoEventsText(true);
-        }
     }
 
     /**
