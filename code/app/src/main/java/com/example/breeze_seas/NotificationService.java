@@ -19,6 +19,8 @@ import java.util.Map;
 
 /**
  * Handles sending and fetching of notifications to the database.
+ *
+ * TODO: Add push notifications
  */
 public class NotificationService {
 

@@ -20,6 +20,8 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.ArrayList;
+
 /**
  * A Fragment that provides the interface for organizers to send announcements.
  * It manages the tab selection for different audience types (Waitlist, Selected, Cancelled)
@@ -57,26 +59,48 @@ public class SendAnnouncementFragment extends Fragment {
         sendButton.setOnClickListener(v -> {
             SessionViewModel viewModel = new ViewModelProvider(requireActivity()).get(SessionViewModel.class);
 
+            // Get the current event and set the variables for the notification
             viewModel.getEventShown().observe(getViewLifecycleOwner(), eventShown -> {
                 if (eventShown != null) {
+                    ArrayList<User> userSentList = new ArrayList<>();
+                    String userSent = "";
+                    NotificationType type = ANNOUNCEMENT_WAITLIST;
                     String content = notificationTextBox.getEditText().getText().toString();
-                    String userId = "a35fff58c4cd24e1";
                     String eventId = eventShown.getEventId();
                     String eventName = eventShown.getName();
-                    NotificationType type = ANNOUNCEMENT_WAITLIST;
                     int selectedTabPosition = tabLayout.getSelectedTabPosition();
+
+                    // If announcement is sent to people in the waiting list
                     if (selectedTabPosition == 0) {
                         type = ANNOUNCEMENT_WAITLIST;
+                        userSentList = eventShown.getWaitingList().getUserList();
+
+                    // If announcement is sent to people in the pending list
                     } else if (selectedTabPosition == 1) {
                         type = ANNOUNCEMENT_SELECTED;
+                        userSentList = eventShown.getPendingList().getUserList();
+
+                    // If announcement is sent to people in the cancelled list
                     } else if (selectedTabPosition == 2) {
                         type = ANNOUNCEMENT_CANCELLED;
+                        userSentList = eventShown.getDeclinedList().getUserList();
                     }
 
-                    Notification notification = new Notification(type, content, eventId, eventName, userId);
-                    notificationService.sendNotification(notification);
+                    if (!userSentList.isEmpty()) {
+                        for (int i = 0; i < userSentList.size(); i++) {
+                            userSent = userSentList.get(i).getDeviceId();
+                            // Send the notification to the database
+                            Notification notification = new Notification(type, content, eventId, eventName, userSent);
+                            notificationService.sendNotification(notification);
+                        }
+                        Toast.makeText(getContext(), "Announcement Sent!",
+                                Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getContext(), "No users in this list!",
+                                Toast.LENGTH_SHORT).show();
+                    }
 
-                    Toast.makeText(getContext(), "Announcement Sent!", Toast.LENGTH_SHORT).show();
+
                 }
             });
         });
