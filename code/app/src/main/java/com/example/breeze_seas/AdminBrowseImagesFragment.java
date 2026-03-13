@@ -9,6 +9,10 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.appbar.MaterialToolbar;
 
+/**
+ * A fragment that will allow administrators to browse uploaded images.
+ * TODO: This will be implemented
+ */
 public class AdminBrowseImagesFragment extends Fragment {
     public AdminBrowseImagesFragment() { super(R.layout.fragment_admin_browse_images); }
 

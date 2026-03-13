@@ -11,13 +11,25 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Adapter for displaying list of all notifications sent to users.
+ * Binds {@link Notification} data to the corresponding UI layout.
+ */
 public class AdminBrowseLogsAdapter extends RecyclerView.Adapter<AdminBrowseLogsAdapter.LogViewHolder> {
     private final List<Notification> logList;
 
+    /**
+     * Constructor for the adapter
+     *
+     * @param logList The list of {@link Notification} objects to be displayed.
+     */
     public AdminBrowseLogsAdapter(List<Notification> logList) {
         this.logList = logList;
     }
 
+    /**
+     * Inflates the layout for individual log items in the RecyclerView.
+     */
     @NonNull
     @Override
     public LogViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -26,6 +38,10 @@ public class AdminBrowseLogsAdapter extends RecyclerView.Adapter<AdminBrowseLogs
         return new LogViewHolder(view);
     }
 
+    /**
+     * Binds the data from a {@link Notification} object to the views within the
+     * {@link LogViewHolder}.
+     */
     @Override
     public void onBindViewHolder(@NonNull LogViewHolder holder, int position) {
         Notification log = logList.get(position);
@@ -42,7 +58,7 @@ public class AdminBrowseLogsAdapter extends RecyclerView.Adapter<AdminBrowseLogs
         // Content
         holder.tvContent.setText("Message: \"" + log.getDisplayMessage() + "\"");
 
-        // Format and set Time (Year Month Day Time)
+        // Format time
         if (log.getSentAt() != null) {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy MMM dd h:mm a", Locale.getDefault());
             String formattedTime = sdf.format(log.getSentAt().toDate());
@@ -52,11 +68,17 @@ public class AdminBrowseLogsAdapter extends RecyclerView.Adapter<AdminBrowseLogs
         }
     }
 
+    /**
+     * Returns the total number of notifications/logs in the current data set.
+     */
     @Override
     public int getItemCount() {
         return logList.size();
     }
 
+    /**
+     * Holds references to the UI components for a single log/notification to avoid repeated findViewById calls.
+     */
     public static class LogViewHolder extends RecyclerView.ViewHolder {
         TextView tvEventName;
         TextView tvTime;

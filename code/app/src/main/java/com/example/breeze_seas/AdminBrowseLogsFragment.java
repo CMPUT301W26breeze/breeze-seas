@@ -16,6 +16,10 @@ import com.google.android.material.appbar.MaterialToolbar;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A fragment responsible for displaying a scrollable list of notifications.
+ * Uses a RecyclerView to present the data retrieved via NotificationService
+ */
 public class AdminBrowseLogsFragment extends Fragment {
 
     private AdminBrowseLogsAdapter adapter;
@@ -45,6 +49,11 @@ public class AdminBrowseLogsFragment extends Fragment {
         fetchLogs();
     }
 
+    /**
+     * Asynchronously retrieves all notifications/logs using NotificationService.
+     * Clears and repopulates the local list, then notifies the adapter to refresh the UI upon success.
+     * Logs the exception and displays an error message via a Toast if the retrieval fails.
+     */
     private void fetchLogs() {
         notificationService.getAllNotifications(new NotificationService.OnNotificationLoadedListener() {
             @Override

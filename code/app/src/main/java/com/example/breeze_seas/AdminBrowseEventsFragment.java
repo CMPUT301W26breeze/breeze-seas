@@ -47,10 +47,6 @@ public class AdminBrowseEventsFragment extends Fragment {
      * 3. Configures {@link AdminBrowseEventsAdapter} with a click listener that
      * passes the selected event's ID to {@link AdminEventDetailsFragment}.
      * 4. Fetches data to populate the list.
-     *
-     * @param view View returned by onCreateView.
-     * @param savedInstanceState If non-null, fragment is re-constructed
-     * from a previous saved state.
      */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
