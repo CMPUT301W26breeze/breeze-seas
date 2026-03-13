@@ -182,6 +182,32 @@ public class Event {
     }
 
     /**
+     * Serializes the current event into the Firestore map shape expected by {@link EventDB}.
+     *
+     * @return Firestore field map for this event.
+     */
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("eventId", getEventId());
+        map.put("organizerId", getOrganizerId());
+        map.put("name", getName());
+        map.put("description", getDescription());
+        map.put("image", getImage());
+        map.put("qrValue", getQrValue());
+        map.put("dateCreated", getDateCreated());
+        map.put("dateModified", getDateModified());
+        map.put("registrationStartDate", getRegistrationStartDate());
+        map.put("registrationEndDate", getRegistrationEndDate());
+        map.put("eventStartDate", getEventStartDate());
+        map.put("eventEndDate", getEventEndDate());
+        map.put("geolocationEnforced", isGeolocationEnforced());
+        map.put("eventCapacity", getEventCapacity());
+        map.put("waitingListCapacity", getWaitingListCapacity());
+        map.put("drawARound", getDrawARound());
+        return map;
+    }
+
+    /**
      * Returns the unique identifier for this event.
      *
      * @return Event identifier.
@@ -593,32 +619,6 @@ public class Event {
      */
     public boolean isGeoRequired() {
         return isGeolocationEnforced();
-    }
-
-    /**
-     * Serializes the current event into the Firestore map shape expected by {@link EventDB}.
-     *
-     * @return Firestore field map for this event.
-     */
-    public Map<String, Object> toMap() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("eventId", getEventId());
-        map.put("organizerId", getOrganizerId());
-        map.put("name", getName());
-        map.put("description", getDescription());
-        map.put("image", getImage());
-        map.put("qrValue", getQrValue());
-        map.put("dateCreated", getDateCreated());
-        map.put("dateModified", getDateModified());
-        map.put("registrationStartDate", getRegistrationStartDate());
-        map.put("registrationEndDate", getRegistrationEndDate());
-        map.put("eventStartDate", getEventStartDate());
-        map.put("eventEndDate", getEventEndDate());
-        map.put("geolocationEnforced", isGeolocationEnforced());
-        map.put("eventCapacity", getEventCapacity());
-        map.put("waitingListCapacity", getWaitingListCapacity());
-        map.put("drawARound", getDrawARound());
-        return map;
     }
 
     /**
