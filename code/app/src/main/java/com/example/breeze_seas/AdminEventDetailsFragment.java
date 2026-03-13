@@ -7,8 +7,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+/**
+ * Displays the event details when the admin clicks on one of the events in the browsing list
+ *
+ */
 public class AdminEventDetailsFragment extends Fragment {
-
+    // TODO: Complete this
     private String eventId;
 
     public AdminEventDetailsFragment() { super(R.layout.fragment_admin_event_details); }
@@ -17,7 +21,6 @@ public class AdminEventDetailsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Extract the ID that the Admin list passed to us
         if (getArguments() != null) {
             eventId = getArguments().getString("eventId");
         }

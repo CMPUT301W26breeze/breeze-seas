@@ -8,6 +8,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -15,6 +16,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Represents the "Browse Events" screen for an administrator.
@@ -26,7 +28,10 @@ import java.util.List;
 public class AdminBrowseEventsFragment extends Fragment {
 
     private AdminBrowseEventsAdapter adapter;
-    private final List<Event> eventsList = new ArrayList<>();
+    private final List<Event> eventList = new ArrayList<>();
+
+    private RecyclerView recyclerView;
+    private SessionViewModel sessionViewModel;
 
     /**
      * Constructor for the fragment.
@@ -51,6 +56,10 @@ public class AdminBrowseEventsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        sessionViewModel = new ViewModelProvider(requireActivity()).get(SessionViewModel.class);
+
+        recyclerView = view.findViewById(R.id.abe_rv_events_list);
+
         MaterialToolbar toolbar = view.findViewById(R.id.abe_topAppBar);
         toolbar.setNavigationOnClickListener(v -> {
             requireActivity().getSupportFragmentManager().beginTransaction()
@@ -58,19 +67,13 @@ public class AdminBrowseEventsFragment extends Fragment {
                     .commit();
         });
 
-        RecyclerView recyclerView = view.findViewById(R.id.abe_rv_events_list);
-
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        adapter = new AdminBrowseEventsAdapter(eventsList, event -> {
-            AdminEventDetailsFragment detailsFragment = new AdminEventDetailsFragment();
-
-            Bundle args = new Bundle();
-            args.putString("eventId", event.getEventId());
-            detailsFragment.setArguments(args);
+        adapter = new AdminBrowseEventsAdapter(eventList, event -> {
+            sessionViewModel.setEventShown(event);
 
             requireActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, detailsFragment)
+                    .replace(R.id.fragment_container, new EventDetailsFragment())
                     .addToBackStack(null)
                     .commit();
         });
@@ -90,15 +93,18 @@ public class AdminBrowseEventsFragment extends Fragment {
         EventDB.getAllEvents(new EventDB.LoadEventsCallback() {
             @Override
             public void onSuccess(ArrayList<Event> events) {
-                eventsList.clear();
-                eventsList.addAll(events);
+                eventList.clear();
+
+                if (events != null && !events.isEmpty()) {
+                    eventList.addAll(events);
+                }
+
                 adapter.notifyDataSetChanged();
             }
 
             @Override
             public void onFailure(Exception e) {
-                Log.e("AdminEvents", "Error loading events", e);
-                Toast.makeText(getContext(), "Failed to load events.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Failed to load events", Toast.LENGTH_SHORT).show();
             }
         });
     }
