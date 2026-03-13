@@ -2,6 +2,8 @@ package com.example.breeze_seas;
 
 import com.google.firebase.Timestamp;
 
+import java.util.Objects;
+
 /**
 * Primary model for the users of the app.
  * Stores user data.
@@ -156,5 +158,17 @@ public class User {
         }
 
         return fullName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof User)) return false;
+        User user = (User) o;
+        return Objects.equals(deviceId, user.deviceId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(deviceId);
     }
 }
