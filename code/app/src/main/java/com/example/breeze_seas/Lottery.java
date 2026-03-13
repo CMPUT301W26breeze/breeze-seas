@@ -73,7 +73,7 @@ public class Lottery {
                     pendingList.addUser(winner, new StatusList.ListUpdateListener() {
                         @Override
                         public void onUpdate() {
-                            waitingList.removeUserFromDB(winner, null);
+                            // waitingList.removeUserFromDB(winner, null);
                             counter(count,slots, finalListener);
                         }
                         @Override
@@ -82,6 +82,8 @@ public class Lottery {
                         }
                     });
                 }
+
+                event.setPendingList(pendingList);
             }
 
 
