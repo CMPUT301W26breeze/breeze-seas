@@ -36,6 +36,9 @@ public class AdminBrowseLogsAdapter extends RecyclerView.Adapter<AdminBrowseLogs
         // Notification Type
         holder.tvType.setText("Type: " + (log.getType() != null ? log.getType().toString() : "UNKNOWN"));
 
+        // Get username and ID
+        holder.tvSentTo.setText("Sent to: " + (log.getUserId() != null ? log.getUserId() : "Unknown User"));
+
         // Content
         holder.tvContent.setText("Message: \"" + log.getDisplayMessage() + "\"");
 
@@ -58,6 +61,7 @@ public class AdminBrowseLogsAdapter extends RecyclerView.Adapter<AdminBrowseLogs
         TextView tvEventName;
         TextView tvTime;
         TextView tvType;
+        TextView tvSentTo;
         TextView tvContent;
 
         public LogViewHolder(@NonNull View itemView) {
@@ -65,6 +69,7 @@ public class AdminBrowseLogsAdapter extends RecyclerView.Adapter<AdminBrowseLogs
             tvEventName = itemView.findViewById(R.id.ian_event_name_text);
             tvTime = itemView.findViewById(R.id.ian_notification_time_text);
             tvType = itemView.findViewById(R.id.ian_notification_type_text);
+            tvSentTo = itemView.findViewById(R.id.ian_notification_sent_to_text);
             tvContent = itemView.findViewById(R.id.ian_notification_content_text);
         }
     }

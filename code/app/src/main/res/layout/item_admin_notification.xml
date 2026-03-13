@@ -54,6 +54,18 @@
             app:layout_constraintTop_toBottomOf="@id/ian_event_name_text" />
 
         <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/ian_notification_sent_to_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Sent to: user123"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ian_notification_type_text" />
+
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/ian_notification_content_text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -64,8 +76,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ian_notification_type_text" />
-
+            app:layout_constraintTop_toBottomOf="@id/ian_notification_sent_to_text" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>
