@@ -12,6 +12,7 @@ import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,28 +35,10 @@ public class EventDB {
         }
     }
 
-    // Takes event object and returns a hashmap
-    private static Map<String, Object> getMap(Event event) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("eventId", event.getEventId());
-        map.put("organizerId", event.getOrganizerId());
-        map.put("name", event.getName());
-        map.put("description", event.getDescription());
-        map.put("image", event.getImage());
-        map.put("qrValue", event.getQrValue());
-        map.put("dateCreated", event.getDateCreated());
-        map.put("dateModified", event.getDateModified());
-        map.put("registrationStartDate", event.getRegistrationStartDate());
-        map.put("registrationEndDate", event.getRegistrationEndDate());
-        map.put("eventStartDate", event.getEventStartDate());
-        map.put("eventEndDate", event.getEventEndDate());
-        map.put("geolocationEnforced", event.isGeolocationEnforced());
-        map.put("eventCapacity", event.getEventCapacity());
-        map.put("waitingListCapacity", event.getWaitingListCapacity());
-        map.put("drawARound", event.getDrawARound());
-        return map;
-    }
-
+    /**
+     * Generate a new document ID from database.
+     * @return the new document ID
+     */
     public static String genNewEventId() {
         setup();
         return eventRef.document().getId();
@@ -68,9 +51,20 @@ public class EventDB {
     }
 
     /**
+     * Synonym method of addEvent
      *
-     * @param event
-     * @param callback
+     * @param event Event object to add to the database
+     * @param callback Callback method to run after firebase transaction
+     */
+    public static void createEvent(Event event, AddEventCallback callback) {
+        addEvent(event, callback);
+    }
+
+    /**
+     * Add an event collection to database
+     *
+     * @param event Event object to add to database
+     * @param callback Callback method to run after firebase transaction
      */
     public static void addEvent(Event event, AddEventCallback callback) {
         setup();
@@ -82,21 +76,23 @@ public class EventDB {
         }
 
         // Decompose event class
-        Map<String, Object> map = getMap(event);
+        Map<String, Object> map = event.toMap();
 
         // Add event details
-        // TODO: After adding event collection, need to add participants
         eventRef
                 .document(event.getEventId())
-                .set(map)
+                .set(map, SetOptions.merge())
                 .addOnSuccessListener(unused -> {
                     // Add
                     callback.onSuccess(event.getEventId());
                 })
                 .addOnFailureListener(callback::onFailure);
-
-
     }
+
+    /**
+     * helper method to add participants to database
+     * @param event event class that contains the participants
+     */
     private static void addParticipants(Event event) {
         // Mange all list classes
         WaitingList waitingList = event.getWaitingList();
@@ -111,11 +107,14 @@ public class EventDB {
         public void onSuccess(ArrayList<Event> events);
         public void onFailure(Exception e);
     }
+
+    /**
+     * Fetches all events from the database.
+     * @param callback Callback method to run after firebase transaction.
+     */
     public static void getAllEvents(LoadEventsCallback callback) {
         setup();
 
-        // TODO: Fetch all events
-        // TODO: For each event, grab event details, and reconstruct the the list classes from the participants sub-collection
         eventRef.orderBy("registrationStartDate").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     ArrayList<Event> events = new ArrayList<>();
@@ -136,6 +135,11 @@ public class EventDB {
         void onFailure(Exception e);
     }
 
+    /**
+     *
+     * @param eventId
+     * @param callback Callback method to run after firebase transaction.
+     */
     public static void getEventById(String eventId,LoadSingleEventCallback callback){
         setup();
         eventRef.document(eventId).get().
@@ -150,26 +154,41 @@ public class EventDB {
 
     }
 
-    // TODO: to implement
-    public void updateEvent(@NonNull Event event, @NonNull EventMutationCallback callback) {
-        db.collection("events")
-                .document(event.getId())
-                .set(event.toMap())
+    /**
+     * Modifies an event collection from the database.
+     *
+     * @param event The event object to modifiy.
+     * @param callback Callback method to run after firebase transaction.
+     */
+    public static void updateEvent(@NonNull Event event, @NonNull EventMutationCallback callback) {
+        eventRef
+                .document(event.getEventId())
+                .set(event.toMap(), SetOptions.merge())
                 .addOnSuccessListener(unused -> callback.onSuccess())
                 .addOnFailureListener(callback::onFailure);
     }
 
-    // TODO: to implement
-
-    public void deleteEvent(@NonNull String id, @NonNull EventMutationCallback callback) {
-        db.collection("events")
-                .document(id)
+    /**
+     * Deletes an event collection from the database.
+     *
+     * @param event The event object to delete
+     * @param callback Callback method to run after firebase transaction.
+     */
+    public static void deleteEvent(@NonNull Event event, @NonNull EventMutationCallback callback) {
+        eventRef
+                .document(event.getEventId())
                 .delete()
                 .addOnSuccessListener(unused -> callback.onSuccess())
                 .addOnFailureListener(callback::onFailure);
     }
 
-    public static Event fromDocument(DocumentSnapshot doc) {
+    /**
+     * Helper method that takes a document snapshot and converts it into an event object
+     *
+     * @param doc The document snapshot of event document
+     * @return The event object
+     */
+    private static Event fromDocument(DocumentSnapshot doc) {
         if (doc == null || !doc.exists()) return null;
 
         //Strings
