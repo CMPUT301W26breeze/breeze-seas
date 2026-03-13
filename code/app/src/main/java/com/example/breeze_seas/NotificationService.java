@@ -16,6 +16,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
+/**
+ * Handles sending and fetching of notifications to the database.
+ */
 public class NotificationService {
 
     private final FirebaseFirestore db;
@@ -26,6 +30,11 @@ public class NotificationService {
         this.notificationsRef = db.collection("notifications");
     }
 
+    /**
+     * Writes the notification to the database.
+     *
+     * @param notification the notification that is sent to the database.
+     * */
     public Task<Void> sendNotification(Notification notification) {
         String notificationId = notification.getNotificationId();
         Map<String, Object> notificationData = new HashMap<>();
@@ -58,6 +67,12 @@ public class NotificationService {
         void onError(Exception e);
     }
 
+    /**
+     * Gets the notifications that were meant for a specific user from the database.
+     *
+     * @param userId This user id is for filtering in the query.
+     * @param listener this makes sure that data is actually received by the program.
+     * */
     public void getNotifications(String userId, OnNotificationLoadedListener listener ) {
         notificationsRef
                 .whereEqualTo("userId", userId)

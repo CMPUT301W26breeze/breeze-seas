@@ -21,10 +21,7 @@ public class UserDB {
     private final FirebaseFirestore db;
     private final CollectionReference userRef;
 
-    /**
-     * Initializes a new UserDB instance.
-     * Connects to the shared Firestore instance via {@link DBConnector}.
-     */
+
     public UserDB() {
         this.db = DBConnector.getDb();
         this.userRef = db.collection("users");
@@ -136,6 +133,12 @@ public class UserDB {
                 });
     }
 
+    /**
+     * Uses the user data from the database to create a
+     * {@link User} instance.
+     *
+     * @param documentSnapshot User data fetched from the database
+     */
     private User parseUser(DocumentSnapshot documentSnapshot) {
         User user = new User();
 

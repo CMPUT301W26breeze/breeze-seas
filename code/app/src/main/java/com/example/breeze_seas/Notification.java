@@ -2,6 +2,9 @@ package com.example.breeze_seas;
 
 import com.google.firebase.Timestamp;
 
+/**
+ * Stores notification details.
+ */
 public class Notification {
 
     private String notificationId;
@@ -100,6 +103,10 @@ public class Notification {
         this.userId = userId;
     }
 
+    /**
+     * Create the final form of the notification text for
+     * different types of notifications.
+     */
     public String getDisplayMessage() {
         switch (type) {
             case WIN:
