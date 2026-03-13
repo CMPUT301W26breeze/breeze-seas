@@ -110,5 +110,7 @@ public class ExploreEventViewAdapter extends RecyclerView.Adapter<ExploreEventVi
         SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.US);
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         return sdf.format(new Date(millis));
+
+
     }
 }
