@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment;
 
 /**
  * Displays the event details when the admin clicks on one of the events in the browsing list
- *
+ * TODO: To be implemented
  */
 public class AdminEventDetailsFragment extends Fragment {
     // TODO: Complete this

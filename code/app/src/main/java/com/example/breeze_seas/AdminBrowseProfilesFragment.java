@@ -9,6 +9,10 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.appbar.MaterialToolbar;
 
+/**
+ * A fragment that will allow administrators to browse all profiles.
+ * TODO: This will be implemented
+ */
 public class AdminBrowseProfilesFragment extends Fragment {
     public AdminBrowseProfilesFragment() { super(R.layout.fragment_admin_browse_profiles); }
 
