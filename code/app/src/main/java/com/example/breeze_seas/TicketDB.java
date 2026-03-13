@@ -13,6 +13,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -28,7 +29,7 @@ import java.util.Locale;
  * TicketDB loads ticket-tab data and isolates Firestore access from the UI layer.
  *
  * <p>Current integration scope:
- * - uses the agreed device-based schema from {@code events/{eventId}/participants/{deviceId}}
+ * - uses the agreed device-based schema from {@code test_events/{eventId}/participants/{deviceId}}
  * - supports live Firestore loading for the agreed participant statuses
  *
  * <p>Outstanding:
@@ -47,7 +48,7 @@ public final class TicketDB {
     }
 
     private static final String TAG = "TicketDB";
-    private static final String EVENTS_COLLECTION = "events";
+    private static final String EVENTS_COLLECTION = "test_events";
     private static final String PARTICIPANTS_COLLECTION = "participants";
 
     private static final TicketDB INSTANCE = new TicketDB();
@@ -337,10 +338,14 @@ public final class TicketDB {
     @NonNull
     private Task<LoadedTicket> loadTicket(@NonNull QueryDocumentSnapshot participantEntry) {
         String eventId = participantEntry.getString("eventId");
-        if ((eventId == null || eventId.trim().isEmpty())
-                && participantEntry.getReference().getParent() != null
+        DocumentReference eventReference = null;
+        if (participantEntry.getReference().getParent() != null
                 && participantEntry.getReference().getParent().getParent() != null) {
-            eventId = participantEntry.getReference().getParent().getParent().getId();
+            eventReference = participantEntry.getReference().getParent().getParent();
+        }
+
+        if ((eventId == null || eventId.trim().isEmpty()) && eventReference != null) {
+            eventId = eventReference.getId();
         }
 
         if (eventId == null || eventId.trim().isEmpty()) {
@@ -350,8 +355,11 @@ public final class TicketDB {
         String status = normalizeStatus(participantEntry.getString("status"));
         Timestamp joinedAt = participantEntry.getTimestamp("joinedAt");
 
-        return db.collection(EVENTS_COLLECTION)
-                .document(eventId)
+        DocumentReference resolvedEventReference = eventReference != null
+                ? eventReference
+                : db.collection(EVENTS_COLLECTION).document(eventId);
+
+        return resolvedEventReference
                 .get()
                 .continueWith(new Continuation<DocumentSnapshot, LoadedTicket>() {
                     /**
@@ -412,9 +420,9 @@ public final class TicketDB {
         }
 
         String eventId = eventDocument.getId();
-        String title = fallback(eventDocument.getString("title"), "Untitled event");
+        String title = buildTitleLabel(eventDocument);
         String dateLabel = buildDateLabel(eventDocument, joinedAt);
-        String locationLabel = fallback(eventDocument.getString("location"), "Location details in event page");
+        String locationLabel = buildLocationLabel(eventDocument);
 
         if ("waiting".equals(status)) {
             return LoadedTicket.forActive(new TicketUIModel(
@@ -480,12 +488,24 @@ public final class TicketDB {
      */
     @NonNull
     private String buildDateLabel(@NonNull DocumentSnapshot eventDocument, @Nullable Timestamp joinedAt) {
-        Timestamp displayTimestamp = eventDocument.getTimestamp("eventStart");
+        Timestamp displayTimestamp = eventDocument.getTimestamp("eventStartDate");
+        if (displayTimestamp == null) {
+            displayTimestamp = eventDocument.getTimestamp("eventStart");
+        }
+        if (displayTimestamp == null) {
+            displayTimestamp = eventDocument.getTimestamp("eventEndDate");
+        }
         if (displayTimestamp == null) {
             displayTimestamp = eventDocument.getTimestamp("eventEnd");
         }
         if (displayTimestamp == null) {
+            displayTimestamp = eventDocument.getTimestamp("registrationEndDate");
+        }
+        if (displayTimestamp == null) {
             displayTimestamp = eventDocument.getTimestamp("registrationCloseAt");
+        }
+        if (displayTimestamp == null) {
+            displayTimestamp = eventDocument.getTimestamp("registrationStartDate");
         }
         if (displayTimestamp == null) {
             displayTimestamp = eventDocument.getTimestamp("registrationOpenAt");
@@ -500,6 +520,42 @@ public final class TicketDB {
 
         Date displayDate = displayTimestamp.toDate();
         return new SimpleDateFormat("EEE, MMM d • h:mm a", Locale.US).format(displayDate);
+    }
+
+    /**
+     * Builds the display title for an event document using the new EventDB field names first.
+     *
+     * @param eventDocument Event document used to source the display title.
+     * @return Best available event title for ticket cards.
+     */
+    @NonNull
+    private String buildTitleLabel(@NonNull DocumentSnapshot eventDocument) {
+        String currentTitle = fallback(eventDocument.getString("name"), "");
+        if (!currentTitle.isEmpty()) {
+            return currentTitle;
+        }
+
+        return fallback(eventDocument.getString("title"), "Untitled event");
+    }
+
+    /**
+     * Builds the secondary location/detail label for an event document.
+     *
+     * @param eventDocument Event document used to source the display label.
+     * @return Best available secondary detail label for ticket cards.
+     */
+    @NonNull
+    private String buildLocationLabel(@NonNull DocumentSnapshot eventDocument) {
+        String explicitLocation = fallback(eventDocument.getString("location"), "");
+        if (!explicitLocation.isEmpty()) {
+            return explicitLocation;
+        }
+
+        if (Boolean.TRUE.equals(eventDocument.getBoolean("geolocationEnforced"))) {
+            return "Geolocation required";
+        }
+
+        return "Event details available in app";
     }
 
     /**
