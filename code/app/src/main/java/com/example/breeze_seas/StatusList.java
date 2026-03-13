@@ -1,0 +1,163 @@
+package com.example.breeze_seas;
+
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+public abstract class StatusList {
+    protected ArrayList<User> userList;
+    protected int capacity;
+    protected Event event;
+
+
+    public interface ListUpdateListener {
+        void onUpdate();
+        void onError(Exception e);
+    }
+
+    public StatusList(Event event, int capacity){
+        this.event=event;
+        this.capacity=capacity;
+        this.userList=new ArrayList<>();
+    }
+    protected abstract String getStatusName();
+
+
+    public void addUser(User user, ListUpdateListener listener) {
+        if (user == null || user.getDeviceId() == null) return;
+        FirebaseFirestore db = DBConnector.getDb();
+        DocumentReference participantRef = db.collection("events")
+                .document(event.getEventId())
+                .collection("participants")
+                .document(user.getDeviceId());
+
+
+        String status = getStatusName();
+        Map<String, Object> update = new HashMap<>();
+        update.put("deviceId",user.getDeviceId());
+        update.put("status", status);
+        update.put("timeJoined", FieldValue.serverTimestamp());
+        update.put("location",null);
+
+
+        participantRef.set(update, SetOptions.merge()) //update field if doc exists
+                .addOnSuccessListener(aVoid -> {
+                    if (!userList.contains(user)) {
+                        userList.add(user);
+                    }
+                    if (listener != null) listener.onUpdate();
+                })
+                .addOnFailureListener(e -> {
+                    if (listener != null) listener.onError(e);
+                });
+    }
+
+
+    public void removeUserFromDB(User user, ListUpdateListener listener) {
+        if (user == null || user.getDeviceId() == null) return;
+        FirebaseFirestore db=DBConnector.getDb();
+
+
+        DocumentReference participantRef = db.collection("events")
+                .document(event.getEventId())
+                .collection("participants")
+                .document(user.getDeviceId());
+
+        participantRef.delete()
+                .addOnSuccessListener(aVoid -> {
+                    userList.removeIf(u -> u.getDeviceId().equals(user.getDeviceId()));
+                    if (listener != null) {
+                        listener.onUpdate();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (listener != null) {
+                        listener.onError(e);
+                    }
+                });
+    }
+
+
+    public void refresh(ListUpdateListener listener) {
+        FirebaseFirestore db = DBConnector.getDb();
+        db.collection("events")
+                .document(event.getEventId())
+                .collection("participants")
+                .whereEqualTo("status", getStatusName())
+                .orderBy("timeJoined", Query.Direction.ASCENDING)
+                .get()
+                .addOnSuccessListener(participantDocs -> {
+                    userList.clear();
+                    if (participantDocs.isEmpty()) {
+                        if (listener != null) listener.onUpdate();
+                        return;
+                    }
+                    fetchFullUserDetails(participantDocs, listener);
+                })
+                .addOnFailureListener(e -> {
+                    if (listener != null) listener.onError(e);
+                });
+    }
+
+
+    private void fetchFullUserDetails(QuerySnapshot participantDocs, ListUpdateListener listener) {
+        int total = participantDocs.size();
+        final int[] fetched = {0};
+        for (DocumentSnapshot participantDoc : participantDocs) {
+            String deviceId = participantDoc.getId();
+
+            DBConnector.getDb().collection("users")
+                    .document(deviceId)
+                    .get()
+                    .addOnSuccessListener(userDoc -> {
+                        if (userDoc.exists()) {
+                            User user = userDoc.toObject(User.class);
+                            if (user != null) {
+                                user.setDeviceId(userDoc.getId());
+                                userList.add(user);
+                            }
+                        }
+                        counter(fetched, total, listener);
+                    })
+                    .addOnFailureListener(e -> counter(fetched, total, listener));
+        }
+    }
+
+
+    private void counter(int[] count, int total, ListUpdateListener listener) {
+        count[0]++;
+        if (count[0] == total && listener != null) {
+            listener.onUpdate();
+        }
+    }
+
+
+    public Event getEvent() { return event; }
+    public int getCapacity() { return capacity; }
+    public void setCapacity(int capacity) { this.capacity = capacity; }
+    public void popUser(User user){
+        if (user == null) return;
+        userList.removeIf(u -> u.getDeviceId().equals(user.getDeviceId()));
+
+
+    }
+    public ArrayList<User> getUserList(){
+        return userList;
+    }
+
+
+    public int getSize(){
+        return userList.size();
+    }
+
+}
+
+

@@ -39,7 +39,7 @@ public class OrganizeFragment extends Fragment {
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new EventAdapter(events, event ->
                 ((MainActivity) requireActivity()).openSecondaryFragment(
-                        OrganizerEventPreviewFragment.newInstance(event.getId())
+                        new OrganizerEventPreviewFragment()
                 )
         );
         rv.setAdapter(adapter);
@@ -59,9 +59,9 @@ public class OrganizeFragment extends Fragment {
     }
 
     private void loadEvents() {
-        EventDB.getInstance().getAllEvents(new EventDB.LoadEventsCallback() {
+        EventDB.getAllEvents(new EventDB.LoadEventsCallback() {
             @Override
-            public void onSuccess(List<Event> loadedEvents) {
+            public void onSuccess(ArrayList<Event> loadedEvents) {
                 events.clear();
                 events.addAll(loadedEvents);
                 if (adapter != null) {
@@ -117,9 +117,9 @@ public class OrganizeFragment extends Fragment {
             Event e = data.get(position);
 
             holder.ivPoster.setImageResource(R.drawable.ic_image_placeholder);
-            if (e.getPosterUriString() != null && !e.getPosterUriString().trim().isEmpty()) {
+            if (e.getImage() != null && !e.getImage().trim().isEmpty()) {
                 try {
-                    holder.ivPoster.setImageURI(Uri.parse(e.getPosterUriString()));
+                    holder.ivPoster.setImageURI(Uri.parse(e.getImage()));
                 } catch (Exception ignored) {
                     holder.ivPoster.setImageResource(R.drawable.ic_image_placeholder);
                 }
@@ -129,17 +129,17 @@ public class OrganizeFragment extends Fragment {
 
             SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.US);
             sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-            String from = sdf.format(new Date(e.getRegFromMillis()));
-            String to = sdf.format(new Date(e.getRegToMillis()));
+            String from = sdf.format(new Date(e.getRegistrationStartDate()));  // TODO: returns Timestamp
+            String to = sdf.format(new Date(e.getRegistrationEndDate()));  // TODO: returns Timestamp
             holder.tvDates.setText("Reg: " + from + " → " + to);
 
-            Integer cap = e.getWaitingListCap();
+            Integer cap = e.getWaitingListCapacity();
             holder.tvCap.setText(cap == null
                     ? "Waiting list cap: Unlimited"
                     : "Waiting list cap: " + cap);
-            holder.tvDetails.setText(e.getDetails().trim().isEmpty()
+            holder.tvDetails.setText(e.getDescription().trim().isEmpty()
                     ? holder.itemView.getContext().getString(R.string.organize_event_no_description)
-                    : e.getDetails());
+                    : e.getDescription());
             holder.tvAction.setText(R.string.organize_event_open_preview);
             holder.itemView.setOnClickListener(v -> onEventClickListener.onEventClick(e));
         }

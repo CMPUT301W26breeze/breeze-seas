@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModel;
  */
 public class SessionViewModel extends ViewModel {
     private final MutableLiveData<String> androidID = new MutableLiveData<>();
-    private final MutableLiveData<UserDB> userDBInstance = new MutableLiveData<>();
     private final MutableLiveData<User> user = new MutableLiveData<>();
     private final MutableLiveData<Event> eventShown = new MutableLiveData<>();
 
@@ -28,22 +27,6 @@ public class SessionViewModel extends ViewModel {
      */
     public void setAndroidID(String id) {
         androidID.setValue(id);
-    }
-
-    /**
-     * Returns the UserDB object for query/update operations
-     * @return The UserDB instance
-     */
-    public MutableLiveData<UserDB> getUserDBInstance() {
-        return userDBInstance;
-    }
-
-    /**
-     * Set UserDB
-     * @param dbInstance The UserDB Object to be stored
-     */
-    public void setUserDBInstance(UserDB dbInstance) {
-        userDBInstance.setValue(dbInstance);
     }
 
     /**

@@ -27,7 +27,6 @@ import java.util.TimeZone;
 public class OrganizerEventPreviewFragment extends Fragment {
 
     private static final String ARG_EVENT_ID = "eventId";
-
     private SessionViewModel viewModel;
     private Event currentEvent;
 
@@ -59,13 +58,6 @@ public class OrganizerEventPreviewFragment extends Fragment {
         super(R.layout.fragment_organizer_event_preview);
     }
 
-    public static OrganizerEventPreviewFragment newInstance(@NonNull String eventId) {
-        OrganizerEventPreviewFragment fragment = new OrganizerEventPreviewFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_EVENT_ID, eventId);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -122,13 +114,10 @@ public class OrganizerEventPreviewFragment extends Fragment {
     }
 
     private void loadEvent(@NonNull String eventId) {
-        EventDB.getInstance().getEventById(eventId, new EventDB.LoadSingleEventCallback() {
+        EventDB.getEventById(eventId, new EventDB.LoadSingleEventCallback() {
             @Override
             public void onSuccess(Event event) {
-                if (!isAdded()) {
-                    return;
-                }
-
+                if (!isAdded()) return;
                 if (event == null) {
                     Toast.makeText(requireContext(), R.string.organizer_event_preview_not_found, Toast.LENGTH_SHORT).show();
                     requireActivity().getSupportFragmentManager().popBackStack();
@@ -141,7 +130,6 @@ public class OrganizerEventPreviewFragment extends Fragment {
                     viewModel.setEventShown(event);
                 }
             }
-
             @Override
             public void onFailure(Exception e) {
                 if (!isAdded()) {
@@ -159,6 +147,7 @@ public class OrganizerEventPreviewFragment extends Fragment {
         if (root == null) {
             return;
         }
+
 
         regFromMillis = event.getRegFromMillis();
         regToMillis = event.getRegToMillis();
@@ -331,12 +320,11 @@ public class OrganizerEventPreviewFragment extends Fragment {
                 viewModel.setEventShown(currentEvent);
             }
             ((MainActivity) requireActivity()).openSecondaryFragment(fragment);
-        } catch (Exception e) {
-            Toast.makeText(
-                    requireContext(),
-                    R.string.organizer_event_preview_manage_unavailable,
-                    Toast.LENGTH_SHORT
-            ).show();
+        } else {
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .addToBackStack(null)
+                    .commit();
         }
     }
 

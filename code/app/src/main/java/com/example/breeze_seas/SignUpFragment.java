@@ -72,8 +72,8 @@ public class SignUpFragment extends Fragment {
                         this.email, this.phoneNumber, false);
 
                 confirmButton.setEnabled(false);
-                // Grab userDBInstance from viewModel
-                UserDB userDBInstance = viewModel.getUserDBInstance().getValue();
+                // Grab UserDB
+                UserDB userDBInstance = new UserDB();
                 userDBInstance.createUser(user)
                         .addOnSuccessListener(unused -> {
                             if (!isAdded()) {

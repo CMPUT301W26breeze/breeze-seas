@@ -1,14 +1,11 @@
 package com.example.breeze_seas;
 
-
 import android.os.Bundle;
-
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,18 +14,15 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 
 
-public class AcceptedListFragment extends Fragment {
-    private AcceptedList acceptedList;
+public class DeclinedListFragment extends Fragment {
+    private DeclinedList declinedList;
     private OrganizerListAdapter adapter;
     private ListView listView;
     private ProgressBar waitingProgress;
     private SessionViewModel sessionViewModel;
     private Event currentEvent;
 
-
-    public AcceptedListFragment() {
-    }
-
+    public DeclinedListFragment() { }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -37,40 +31,34 @@ public class AcceptedListFragment extends Fragment {
         currentEvent = sessionViewModel.getEventShown().getValue();
     }
 
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_accepted_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_declined_list, container, false);
 
-
-        listView = view.findViewById(R.id.accept_frag_list_view);
-        waitingProgress = view.findViewById(R.id.accepted_list_spinner);
-
+        listView = view.findViewById(R.id.declined_frag_list_view);
+        waitingProgress = view.findViewById(R.id.declined_list_spinner);
 
         if (currentEvent != null) {
-            acceptedList = new AcceptedList(currentEvent, currentEvent.getEventCapacity());
-            adapter = new OrganizerListAdapter(getContext(), R.layout.item_organizer_list, acceptedList.getUserList());
+            declinedList = new DeclinedList(currentEvent, -1);
+            adapter = new OrganizerListAdapter(getContext(), R.layout.item_organizer_list, declinedList.getUserList());
             listView.setAdapter(adapter);
         }
-
 
         return view;
     }
 
-
     @Override
     public void onResume() {
         super.onResume();
-        refreshAcceptedList();
+        refreshDeclinedList();
     }
 
-
-    private void refreshAcceptedList() {
-        if (acceptedList == null) return;
+    private void refreshDeclinedList() {
+        if (declinedList == null) return;
         waitingProgress.setVisibility(View.VISIBLE);
 
-        acceptedList.refresh(new StatusList.ListUpdateListener() {
+        declinedList.refresh(new StatusList.ListUpdateListener() {
             @Override
             public void onUpdate() {
                 if (isAdded()) {
@@ -78,7 +66,6 @@ public class AcceptedListFragment extends Fragment {
                     adapter.notifyDataSetChanged();
                 }
             }
-
 
             @Override
             public void onError(Exception e) {

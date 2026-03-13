@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorSurface"
-    tools:context=".CancelledListFragment">
+    tools:context=".DeclinedListFragment">
 
 
 
@@ -26,7 +26,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:text="Cancelled List"
+                android:text="Declined List"
                 android:textAppearance="?attr/textAppearanceHeadlineMedium"
                 android:textColor="?attr/colorOnSurface" />
 
@@ -39,7 +39,7 @@
                 app:strokeWidth="0dp">
 
                 <ListView
-                    android:id="@+id/cancel_frag_list_view"
+                    android:id="@+id/declined_frag_list_view"
                     android:layout_width="match_parent"
                     android:layout_height="500dp"
                     android:divider="@android:color/transparent"
@@ -51,7 +51,7 @@
     </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
-        android:id="@+id/cancelled_list_spinner"
+        android:id="@+id/declined_list_spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

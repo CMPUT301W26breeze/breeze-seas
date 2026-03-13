@@ -11,6 +11,10 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.textview.MaterialTextView;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /*** ExploreFragment is a top-level destination accessible via Bottom Navigation.
@@ -68,13 +72,10 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
             // TODO: Bind QR Code Action
         });
 
-        // EventDB instance
-        eventDBInstance = EventDB.getInstance();
-
         // Get events from DB
-        eventDBInstance.getAllEvents(new EventDB.LoadEventsCallback() {
+        EventDB.getAllEvents(new EventDB.LoadEventsCallback() {
             @Override
-            public void onSuccess(List<Event> events) {
+            public void onSuccess(ArrayList<Event> events) {
                 loadEvents(view, events);
             }
 

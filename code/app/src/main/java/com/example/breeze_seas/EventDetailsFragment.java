@@ -6,9 +6,6 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentContainerView;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.button.MaterialButton;
@@ -142,7 +139,7 @@ public class EventDetailsFragment extends Fragment {
         //eventEndDate.setText();
         eventEndDate.setText(formatter("Ends:", "N/A"));
 
-        eventDescription.setText(event.getDetails());
+        eventDescription.setText(event.getDescription());
     }
 
     /**

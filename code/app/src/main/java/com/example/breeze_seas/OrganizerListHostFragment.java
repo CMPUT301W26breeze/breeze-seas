@@ -29,7 +29,7 @@ public class OrganizerListHostFragment extends Fragment {
                 case 0: tab.setText("Waiting"); break;
                 case 1: tab.setText("Pending"); break;
                 case 2: tab.setText("Accepted"); break;
-                case 3: tab.setText("Cancelled"); break;
+                case 3: tab.setText("Declined"); break;
             }
         }).attach();
         return view;

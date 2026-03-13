@@ -1,10 +1,14 @@
 package com.example.breeze_seas;
 
+
 import android.os.Bundle;
+
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,41 +18,72 @@ import android.widget.ProgressBar;
 
 
 public class PendingListFragment extends Fragment {
-    private InvitationList invitedList;
+    private PendingList pendingList;
     private OrganizerListAdapter adapter;
     private ListView listView;
     private ProgressBar waitingProgress;
-    private String event="test_event_1";
-    public void refreshData() {
-        if (invitedList != null && adapter != null) {
-            if (waitingProgress != null) waitingProgress.setVisibility(View.VISIBLE);
-            invitedList.fetchInvitedList(adapter, () -> {
-                if (waitingProgress != null) waitingProgress.setVisibility(View.GONE);
-            });
-        }
+    private SessionViewModel sessionViewModel;
+    private Event currentEvent;
+
+
+    public PendingListFragment() { }
+
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        sessionViewModel = new ViewModelProvider(requireActivity()).get(SessionViewModel.class);
+        currentEvent = sessionViewModel.getEventShown().getValue();
     }
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
         View view = inflater.inflate(R.layout.fragment_pending_list, container, false);
-        listView=view.findViewById(R.id.pending_frag_list_view);
+
+
+        listView = view.findViewById(R.id.pending_frag_list_view);
         waitingProgress = view.findViewById(R.id.pending_list_spinner);
-        invitedList=new InvitationList(event);
-        adapter=new OrganizerListAdapter(getContext(), R.layout.item_organizer_list,invitedList.getInvitedList());
-        listView.setAdapter(adapter);
+
+
+        if (currentEvent != null) {
+            pendingList = new PendingList(currentEvent, currentEvent.getEventCapacity());
+            adapter = new OrganizerListAdapter(getContext(), R.layout.item_organizer_list, pendingList.getUserList());
+            listView.setAdapter(adapter);
+        }
+
+
         return view;
     }
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState){
-        super.onViewCreated(view, savedInstanceState);
-    }
+
+
     @Override
     public void onResume() {
         super.onResume();
-        refreshData();
+        refreshPendingList();
     }
 
 
+    private void refreshPendingList() {
+        if (pendingList == null) return;
+        waitingProgress.setVisibility(View.VISIBLE);
 
 
+        pendingList.refresh(new StatusList.ListUpdateListener() {
+            @Override
+            public void onUpdate() {
+                if (isAdded()) {
+                    waitingProgress.setVisibility(View.GONE);
+                    adapter.notifyDataSetChanged();
+                }
+            }
+            @Override
+            public void onError(Exception e) {
+                if (isAdded()) {
+                    waitingProgress.setVisibility(View.GONE);
+                }
+            }
+        });
+    }
 }

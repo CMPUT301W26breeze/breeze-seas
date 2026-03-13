@@ -136,18 +136,20 @@ public class CreateEventFragment extends Fragment {
             }
         }
 
-        Event event = new Event(
-                "",
-                name,
-                details,
-                posterUri == null ? null : posterUri.toString(),
-                regFromMillis,
-                regToMillis,
-                cap,
-                swGeo.isChecked()
-        );
+        // TODO: USE NEW EVENT CONSTRUCTOR
+//        Event event = new Event(
+//                "",
+//                name,
+//                details,
+//                posterUri == null ? null : posterUri.toString(),
+//                regFromMillis,
+//                regToMillis,
+//                cap,
+//                swGeo.isChecked()
+//        );
 
-        EventDB.getInstance().addEvent(event, new EventDB.AddEventCallback() {
+        // TODO: FIX THIS
+        EventDB.addEvent(event, new EventDB.AddEventCallback() {
             @Override
             public void onSuccess(String eventId) {
                 Toast.makeText(requireContext(), "Event created", Toast.LENGTH_SHORT).show();

@@ -1,82 +1,102 @@
 package com.example.breeze_seas;
 
+
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.viewpager2.widget.ViewPager2;
+
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 
+
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 public class Lottery {
+    private final Event event;
+    private final WaitingList waitingList;
+    private final PendingList pendingList;
+    private final int capacity;
 
-    private final FirebaseFirestore db; //the database
-    private String event; //to uniquely identify the event
-    private ArrayList<User> entrantList; //need to fill this with eligible users (i.e still waiting)
-    public Lottery(String event){
-        this.event=event;
-        this.entrantList=null;
-        this.db=DBConnector.getDb();
+
+    public Lottery(Event event) {
+        this.event = event;
+        this.capacity = event.getEventCapacity();
+        this.waitingList = new WaitingList(event, event.getWaitingListCapacity());
+        this.pendingList = new PendingList(event, event.getEventCapacity());
+    }
+    public void onRunLottery(StatusList.ListUpdateListener finalListener) {
+
+
+        waitingList.refresh(new StatusList.ListUpdateListener() {
+            @Override
+            public void onUpdate() {
+                List<User> pool = waitingList.getUserList();
+                if (pool.isEmpty()) {
+                    if (finalListener != null){
+                        finalListener.onUpdate();
+                    }
+                    return;
+                }
+
+                FirebaseFirestore db = DBConnector.getDb();
+                db.collection("events").document(event.getEventId())
+                        .update("drawARound", FieldValue.increment(1))
+                        .addOnFailureListener(e -> {
+                            Log.e("Lottery", "Failed to increment draw round", e);
+                        });
+
+
+                Collections.shuffle(pool);
+                int slots= Math.min(capacity, pool.size());
+                final int[] count = {0};
+
+
+                for (int i = 0; i < slots; i++) {
+                    User winner= pool.get(i);
+                    pendingList.addUser(winner, new StatusList.ListUpdateListener() {
+                        @Override
+                        public void onUpdate() {
+                            waitingList.removeUserFromDB(winner, null);
+                            counter(count,slots, finalListener);
+                        }
+                        @Override
+                        public void onError(Exception e) {
+                            counter(count,slots,finalListener);
+                        }
+                    });
+                }
+            }
+
+
+            @Override
+            public void onError(Exception e) {
+                if (finalListener != null) finalListener.onError(e);
+            }
+        });
     }
 
-    public void runLottery(int size,Runnable onFinish){
 
-        if (size <= 0) {
-            return; //lottery should select at least one person
+    private void counter(int[] count, int total, StatusList.ListUpdateListener listener) {
+        count[0]++;
+        if (count[0]==total && listener!=null) {
+            listener.onUpdate();
         }
-
-        //navigate to WaitingList collection of the event
-        CollectionReference list=db.collection("Events").document(event)
-                .collection("WaitingList");
-
-        //send fetch data request
-        list.get().addOnCompleteListener(op->{
-            //on successful fetch
-            if (op.isSuccessful() && op.getResult()!=null){
-                this.entrantList=new ArrayList<User>();
-                int invited=0;
-                for(DocumentSnapshot doc: op.getResult()){
-                    String status = doc.getString("status");
-
-                    if("Waiting".equals(status)) {
-                        User entrant = doc.toObject(User.class);
-                        if (entrant != null) this.entrantList.add(entrant);
-                    }
-                    else if ("Pending".equals(status) || "Accepted".equals(status)) {
-                        // Only these two statuses occupy a spot in the event
-                        invited += 1;
-                    }
-                }
-
-                if (entrantList.isEmpty()) return; //no eligible user
-
-                int slots=size-invited;
-                int toFill=Math.min(slots,entrantList.size()); //number of users we can invite
-                WriteBatch batch = db.batch();
-                int batchCount=0; //500 at a time limit
-                java.util.Collections.shuffle(entrantList); //shuffle for randomness
-
-                //fill with shuffled list's first n number of users
-                for(int i=0;i<toFill;i++){
-                    User winner= entrantList.get(i);
-                    //pushing in batches
-                    batch.update(list.document(winner.getDeviceId()),"status", "Pending");
-                    batchCount++;
-                    if (batchCount >= 450) {
-                        batch.commit();
-                        batch=db.batch(); // Reset for the next 450
-                        batchCount=0;
-                    }
-                }
-                if (batchCount > 0) {
-                    batch.commit().addOnCompleteListener(task -> {
-                        if (onFinish != null) onFinish.run();
-                    });
-                } else {
-                    if (onFinish != null) onFinish.run();
-                }
-
-            }
-            else {if (onFinish != null) onFinish.run();}
-        });
     }
 }

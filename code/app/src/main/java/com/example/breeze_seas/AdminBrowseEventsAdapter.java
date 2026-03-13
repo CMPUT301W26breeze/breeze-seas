@@ -38,7 +38,7 @@ public class AdminBrowseEventsAdapter extends RecyclerView.Adapter<AdminBrowseEv
 
         holder.tvEventTitle.setText(event.getName());
 
-        holder.tvEventOrganizer.setText(event.getDetails().isEmpty() ? "Placeholder" : event.getDetails());
+        holder.tvEventOrganizer.setText(event.getDescription().isEmpty() ? "Placeholder" : event.getDescription());
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
