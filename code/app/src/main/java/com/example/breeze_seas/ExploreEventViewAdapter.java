@@ -12,11 +12,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.card.MaterialCardView;
-import com.google.android.material.imageview.ShapeableImageView;
-import com.google.android.material.textview.MaterialTextView;
-
-import java.util.Calendar;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -42,25 +38,24 @@ public class ExploreEventViewAdapter extends RecyclerView.Adapter<ExploreEventVi
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ExploreEventViewAdapter.ExploreEventViewHolder holder, int position) {
-        // assigning values to the views we created in layout file
-        holder.eventTitle.setText(eventList.get(position).getName());
+    public void onBindViewHolder(@NonNull ExploreEventViewHolder holder, int position) {
+        Event event = eventList.get(position);
 
-        // TODO: helper function to calculate time remaining
-        //holder.eventTimeRemaining.setText(endsIn(eventList.get(position).getRegToMillis()))
-        holder.eventTimeRemaining.setText("Closes in " + "1" + " day");
-
-        // TODO: helper function to calculate ppl in waiting list
-        //holder.eventWaitingListCount.setText(eventList.get(position).getWaitingList().count())
-        holder.eventWaitingListCount.setText("0");
-
-        // TODO: helper function to calculate ppl in event capacity
-        //holder.eventCapacity.setText(eventList.get(position).getName());
-        holder.eventCapacity.setText("60");
-
-        // TODO: helper function to calculate chance of being drawn
-        //holder.eventCapacity.setText(chanceCalc(eventList.get(position).getTotalParticipants()));
-        holder.eventLuck.setText("100%");
+        holder.eventTitle.setText(event.getName());
+        holder.eventDescription.setText(event.getDetails().trim().isEmpty()
+                ? holder.itemView.getContext().getString(R.string.explore_card_no_description)
+                : event.getDetails());
+        holder.eventTimeRemaining.setText(holder.itemView.getContext().getString(
+                R.string.explore_card_registration_closes,
+                formatDate(event.getRegToMillis())
+        ));
+        holder.eventWaitingListCount.setText(R.string.explore_card_lottery);
+        holder.eventCapacity.setText(event.getWaitingListCap() == null
+                ? holder.itemView.getContext().getString(R.string.explore_card_cap_unlimited)
+                : holder.itemView.getContext().getString(R.string.explore_card_cap_limited, event.getWaitingListCap()));
+        holder.eventLuck.setText(event.isGeoRequired()
+                ? holder.itemView.getContext().getString(R.string.explore_card_geo_required)
+                : holder.itemView.getContext().getString(R.string.explore_card_geo_optional));
 
         holder.eventImage.setImageResource(R.drawable.ic_image_placeholder);
         if (event.getPosterUriString() != null && !event.getPosterUriString().trim().isEmpty()) {
@@ -117,18 +112,5 @@ public class ExploreEventViewAdapter extends RecyclerView.Adapter<ExploreEventVi
         return sdf.format(new Date(millis));
 
 
-    }
-
-    /**
-     * Calculates the time remaining that the user has to join the event.
-     * Available
-     * @return String that describes how much time the user has before registration ends
-     */
-    private String endsIn(Date endTime) {
-        // Get current time
-        Date currentTime = Calendar.getInstance().getTime();
-
-        // TODO: Calculate time left
-        return "Closes in " + "1" + " day";
     }
 }
