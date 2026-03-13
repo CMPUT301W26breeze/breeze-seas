@@ -17,11 +17,19 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Handles admin authentication and routing to admin dashboard
+ */
 public class AdminAuthDialogFragment extends DialogFragment {
 
+    // Hardcoded password
+    // TODO: Explore other options for admin auth
     private static final String ADMIN_PASSWORD = "flyingfish";
     private final UserDB userDB = new UserDB();
 
+    /**
+     * Creates dialog with a password input field and handles button clicks.
+     */
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -51,7 +59,12 @@ public class AdminAuthDialogFragment extends DialogFragment {
                 .create();
     }
 
+    /**
+     * Updates user information in the DB (isAdmin set to true) based on their device ID,
+     * then shows the admin dashboard screen.
+     */
     private void grantAdminAccess() {
+        // Fetches android/user ID to identify user
         String currentDeviceId = Settings.Secure.getString(
                 requireContext().getContentResolver(),
                 Settings.Secure.ANDROID_ID
