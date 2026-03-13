@@ -16,13 +16,37 @@ import com.google.android.material.appbar.MaterialToolbar;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents the "Browse Events" screen for an administrator.
+ * This fragment is responsible for displaying a scrollable list of all events currently
+ * in the system. It handles UI setup, including a toolbar for navigation back to the
+ * dashboard, and a RecyclerView to display the event data. It also manages
+ * navigation to the event details screen when a specific event is selected.
+ */
 public class AdminBrowseEventsFragment extends Fragment {
 
     private AdminBrowseEventsAdapter adapter;
     private final List<Event> eventsList = new ArrayList<>();
 
+    /**
+     * Constructor for the fragment.
+     * Initializes the fragment.
+     */
     public AdminBrowseEventsFragment() { super(R.layout.fragment_admin_browse_events); }
 
+    /**
+     * Called immediately after the view has been created.
+     * This method initializes the UI components:
+     * 1. Sets up top app bar and back navigation.
+     * 2. Initializes RecyclerView and its LayoutManager.
+     * 3. Configures {@link AdminBrowseEventsAdapter} with a click listener that
+     * passes the selected event's ID to {@link AdminEventDetailsFragment}.
+     * 4. Fetches data to populate the list.
+     *
+     * @param view View returned by onCreateView.
+     * @param savedInstanceState If non-null, fragment is re-constructed
+     * from a previous saved state.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -56,6 +80,12 @@ public class AdminBrowseEventsFragment extends Fragment {
         fetchEvents();
     }
 
+    /**
+     * Fetches all events from the database with {@link EventDB}.
+     * Upon successful data load, it clears the current list, adds the newly fetched
+     * events, and notifies the adapter to refresh the RecyclerView. If it fails,
+     * it logs the error and displays a message.
+     */
     private void fetchEvents() {
         EventDB.getAllEvents(new EventDB.LoadEventsCallback() {
             @Override
