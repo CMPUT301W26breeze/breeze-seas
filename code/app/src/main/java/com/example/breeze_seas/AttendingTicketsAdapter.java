@@ -78,7 +78,13 @@ public class AttendingTicketsAdapter extends RecyclerView.Adapter<AttendingTicke
 
         holder.title.setText(ticket.getTitle());
         holder.date.setText(ticket.getDateLabel());
-        holder.location.setText(ticket.getLocationLabel());
+        String locationLabel = ticket.getLocationLabel();
+        if (locationLabel == null || locationLabel.trim().isEmpty()) {
+            holder.location.setVisibility(View.GONE);
+        } else {
+            holder.location.setVisibility(View.VISIBLE);
+            holder.location.setText(locationLabel);
+        }
         holder.ticketType.setText(ticket.getTicketTypeLabel());
         holder.statusChip.setText("Confirmed");
 
