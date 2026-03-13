@@ -15,102 +15,107 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
+import android.content.Context;
 import android.view.View;
 import android.widget.EditText;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+
+import com.google.firebase.FirebaseApp;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 @RunWith(AndroidJUnit4.class)
 public class ProfileFragmentTest {
 
     private View decorView;
 
-        @Rule
-        public ActivityScenarioRule<MainActivity> activityRule =
-                new ActivityScenarioRule<>(MainActivity.class);
+    @Mock
+    private UserDB mockUserDB;
 
-        /**
-         * Test if the Profile Fragment UI components are visible to the user.
-         */
-        @Test
-        public void testProfileComponentsVisibility() {
-            // Navigate to Profile (Assuming you use BottomNav)
-            onView(withId(R.id.nav_profile)).perform(click());
+    @Rule
+    public ActivityScenarioRule<MainActivity> activityRule =
+            new ActivityScenarioRule<>(MainActivity.class);
 
-            // Check if main layouts are displayed
-            onView(withId(R.id.profile_image)).check(matches(isDisplayed()));
-            onView(withId(R.id.first_name_filled_text_field)).check(matches(isDisplayed()));
-            onView(withId(R.id.save_button)).check(matches(isDisplayed()));
-        }
-
-        /**
-         * Test the "Edit" toggle logic. When the edit button is clicked,
-         * the EditText should become enabled.
-         */
-        @Test
-        public void testEditFieldToggle() {
-            onView(withId(R.id.first_name_filled_text_field)).perform(click());
-
-            // Click the edit icon for First Name
-            onView(withId(R.id.edit_first_name_button)).perform(click());
-
-            // Verify the internal EditText is now enabled
-            onView(allOf(isDescendantOfA(withId(R.id.first_name_filled_text_field)),
-                    isAssignableFrom(EditText.class)))
-                    .check(matches(isEnabled()));
-        }
 
     @Before
     public void setUp() {
+        // Initialize Mockito
+        MockitoAnnotations.openMocks(this);
+
+        // Inject the mock into the fragment
         activityRule.getScenario().onActivity(activity -> {
-            decorView = activity.getWindow().getDecorView();
+            ProfileFragment fragment = (ProfileFragment) activity.getSupportFragmentManager()
+                    .findFragmentById(R.id.fragment_container); // Use your actual ID
+            if (fragment != null) {
+                fragment.setUserDB(mockUserDB);
+            }
         });
     }
-    /**
-     * Test the Secret Tap functionality. Clicking the profile image 5 times
-     * should trigger the admin verification logic.
-     */
-    @Test
-    public void testSecretAdminAccess() {
-        onView(withId(R.id.nav_profile)).perform(click());
 
+    @Test
+    public void testProfileComponentsVisibility() throws InterruptedException {
+
+        // Wait for Firestore
+        Thread.sleep(6000);
+
+        onView(withId(R.id.nav_profile)).perform(click());
+        onView(withId(R.id.profile_image)).check(matches(isDisplayed()));
+        onView(withId(R.id.first_name_filled_text_field)).check(matches(isDisplayed()));
+        onView(withId(R.id.save_button)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testEditFieldToggle() throws InterruptedException {
+
+        // Wait for Firestore
+        Thread.sleep(6000);
+
+        onView(withId(R.id.nav_profile)).perform(click()); // Added navigation
+        onView(withId(R.id.edit_first_name_button)).perform(click());
+        onView(allOf(isDescendantOfA(withId(R.id.first_name_filled_text_field)),
+                isAssignableFrom(EditText.class)))
+                .check(matches(isEnabled()));
+    }
+
+    @Test
+    public void testSecretAdminAccess() throws InterruptedException{
+
+        // Wait for Firestore
+        Thread.sleep(6000);
+
+        onView(withId(R.id.nav_profile)).perform(click());
         for (int i = 0; i < 5; i++) {
             onView(withId(R.id.profile_image)).perform(click());
         }
-
-        // Now 'decorView' is a View object, which 'not()' and 'is()' understand!
         onView(withText("Successfully verified!"))
                 .inRoot(withDecorView(not(is(decorView))))
                 .check(matches(isDisplayed()));
     }
 
-        /**
-         * Test email validation logic.
-         */
-        @Test
-        public void testInvalidEmailToast() {
-            onView(withId(R.id.nav_profile)).perform(click());
+    @Test
+    public void testInvalidEmailToast() throws InterruptedException {
 
-            // Enable field and type invalid email
-            onView(withId(R.id.edit_email_button)).perform(click());
-            onView(withId(R.id.email_filled_text_field)).perform(replaceText("invalid-email"));
+        // Wait for Firestore
+        Thread.sleep(6000);
 
-            // Click Save -> Click "Yes" on Dialog
-            onView(withId(R.id.save_button)).perform(click());
-            onView(withText("Yes")).perform(click());
+        onView(withId(R.id.nav_profile)).perform(click());
+        onView(withId(R.id.edit_email_button)).perform(click());
+        onView(allOf(isDescendantOfA(withId(R.id.email_filled_text_field)),
+                isAssignableFrom(EditText.class))).perform(replaceText("invalid-email"));
 
-            // Check for the Toast
-            activityRule.getScenario().onActivity(activity -> {
-                onView(withText("Incorrect Email!"))
-                        .inRoot(withDecorView(not(activity.getWindow().getDecorView())))
-                        .check(matches(isDisplayed()));
-            });
-        }
+        onView(withId(R.id.save_button)).perform(click());
+        onView(withText("Yes")).perform(click());
 
+        onView(withText("Incorrect Email!"))
+                .inRoot(withDecorView(not(is(decorView))))
+                .check(matches(isDisplayed()));
+    }
 }

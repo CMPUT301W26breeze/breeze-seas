@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class ProfileFragment extends Fragment {
 
-    UserDB userDBInstance = new UserDB();
+    UserDB userDBInstance;
     User currentUser;
     private ShapeableImageView profileImageView;
     private TextInputLayout firstNameLayout, lastNameLayout,
@@ -44,6 +44,15 @@ public class ProfileFragment extends Fragment {
 
     // Stores tap count for profile pic
     private int secretTapCount = 0;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Only create a real one if a test hasn't provided a mock yet
+        if (userDBInstance == null) {
+            userDBInstance = new UserDB();
+        }
+    }
 
     @Nullable
     @Override
@@ -301,6 +310,10 @@ public class ProfileFragment extends Fragment {
                 .replace(R.id.fragment_container, new AdminDashboardFragment())
                 .addToBackStack(null)
                 .commit();
+    }
+
+    public void setUserDB(UserDB userDB) {
+        this.userDBInstance = userDB;
     }
 
 }
