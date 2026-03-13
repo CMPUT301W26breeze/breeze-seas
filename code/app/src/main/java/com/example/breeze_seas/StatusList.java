@@ -16,6 +16,7 @@ import java.util.Map;
  * A super class for participant lists. Creates an ArrayList
  * of users registering for events and manages their status in Firestore.
  */
+
 public abstract class StatusList {
     protected ArrayList<User> userList;
     protected int capacity;
@@ -24,24 +25,38 @@ public abstract class StatusList {
     /**
      * Interface to communicate result of asynchronous database tasks back to the UI.
      */
+
     public interface ListUpdateListener {
         void onUpdate();
         void onError(Exception e);
     }
+
+    /**
+     * Constructor for StatusList.
+     * @param event The {@link Event} object associated with this list.
+     * @param capacity The maximum number of users allowed in this specific list.
+     */
 
     public StatusList(Event event, int capacity){
         this.event=event;
         this.capacity=capacity;
         this.userList=new ArrayList<>();
     }
+
+    /**
+     * Returns the status string used for database queries.
+     * @return String representing the status (e.g., "waiting", "selected").
+     */
+
     protected abstract String getStatusName();
 
     /**
      * Adds a user to the event's participant sub-collection in Firestore.
      * Uses merge to preserve existing fields (like location) while updating status.
-     *
-     * @param
+     * @param user The {@link User} object to be added.
+     * @param listener Callback to handle success or failure of the DB operation.
      */
+
     public void addUser(User user, ListUpdateListener listener) {
         if (user == null || user.getDeviceId() == null) return;
         FirebaseFirestore db = DBConnector.getDb();
@@ -71,6 +86,11 @@ public abstract class StatusList {
                 });
     }
 
+    /**
+     * Removes a user from the event's participant sub-collection in Firestore.
+     * @param user The {@link User} object to be added.
+     * @param listener Callback to handle success or failure of the DB operation.
+     */
 
     public void removeUserFromDB(User user, ListUpdateListener listener) {
         if (user == null || user.getDeviceId() == null) return;
@@ -96,6 +116,11 @@ public abstract class StatusList {
                 });
     }
 
+    /**
+     * Fetches new updates (new addition/deletions) from the event's participant
+     * sub-collection in Firestore to update the local list object.
+     * @param listener Callback to handle success or failure of the DB operation.
+     */
 
     public void refresh(ListUpdateListener listener) {
         FirebaseFirestore db = DBConnector.getDb();
@@ -118,6 +143,11 @@ public abstract class StatusList {
                 });
     }
 
+    /**
+     * Fetches detailed User objects for each participant ID found.
+     * @param participantDocs The QuerySnapshot from the participants sub-collection.
+     * @param listener Callback to notify the UI when all users are fetched.
+     */
 
     private void fetchFullUserDetails(QuerySnapshot participantDocs, ListUpdateListener listener) {
         int total = participantDocs.size();
@@ -142,6 +172,12 @@ public abstract class StatusList {
         }
     }
 
+    /**
+     * Counter for synchronizing parallel Firestore calls.
+     * @param count Array containing the current completion count.
+     * @param total Total number of operations expected.
+     * @param listener The listener to trigger upon reaching the total.
+     */
 
     private void counter(int[] count, int total, ListUpdateListener listener) {
         count[0]++;

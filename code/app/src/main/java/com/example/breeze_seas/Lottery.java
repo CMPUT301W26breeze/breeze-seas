@@ -26,21 +26,39 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-
+ /**
+  * Handles entrant selection process of an event by running a lottery
+  * to pick random entrants.
+  */
+ 
 public class Lottery {
     private final Event event;
     private final WaitingList waitingList;
     private final PendingList pendingList;
     private final int capacity;
 
-
+     /**
+      * Lottery constructor
+      * @param event {@link Event} object
+      */
     public Lottery(Event event) {
         this.event = event;
         this.capacity = event.getEventCapacity();
         this.waitingList = new WaitingList(event, event.getWaitingListCapacity());
         this.pendingList = new PendingList(event, event.getEventCapacity());
     }
+
+    /**
+     * Executes the lottery selection process.
+     * <p>
+     * This method refreshes the {@code waitingList}, increments the {@code drawARound}
+     * counter in Firestore, shuffles the pool of users to ensure randomness, and
+     * moves a number of users (up to the {@code capacity}) into the {@code pendingList}.
+     * </p>
+     * @param finalListener The {@link StatusList.ListUpdateListener} to notify when the
+     * entire lottery process and all database changes are complete.
+     */
+
     public void onRunLottery(StatusList.ListUpdateListener finalListener) {
 
 
@@ -94,6 +112,12 @@ public class Lottery {
         });
     }
 
+    /**
+     * Synchronizes the asynchronous {@code addUser} calls during the lottery draw.
+     * @param count    A single-element integer array used as a mutable counter.
+     * @param total    The total number of winners being processed.
+     * @param listener The listener to trigger once {@code count} reaches {@code total}.
+     */
 
     private void counter(int[] count, int total, StatusList.ListUpdateListener listener) {
         count[0]++;

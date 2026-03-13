@@ -26,6 +26,14 @@ import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 
+/**
+ * A fragment that displays the list of users currently on the waiting list for an event.
+ * <p>
+ * This fragment allows organizers to view entrants, run the lottery selection process,
+ * and automatically sends out {@link NotificationType#WIN} and {@link NotificationType#LOSS}
+ * notifications to participants based on the lottery results.
+ * </p>
+ */
 
 public class WaitingListFragment extends Fragment {
 
@@ -153,6 +161,12 @@ public class WaitingListFragment extends Fragment {
         refreshWaitingList();
     }
 
+
+    /**
+     * Rebuilds the waiting list by fetching the latest participant data from Firestore.
+     * Toggles the visibility of the {@code waitingProgress} spinner during the update
+     * and refreshes the adapter upon success.
+     */
 
     private void refreshWaitingList() {
         if (waitingList == null) return;

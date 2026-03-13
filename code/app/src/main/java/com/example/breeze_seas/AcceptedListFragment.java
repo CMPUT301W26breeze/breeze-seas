@@ -16,6 +16,9 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+/**
+ * A fragment that displays the list of users currently on the accepted list for an event.
+ */
 
 public class AcceptedListFragment extends Fragment {
     private AcceptedList acceptedList;
@@ -65,6 +68,11 @@ public class AcceptedListFragment extends Fragment {
         refreshAcceptedList();
     }
 
+    /**
+     * Rebuilds the accepted list by fetching the latest participant data from Firestore.
+     * Toggles the visibility of the {@code waitingProgress} spinner during the update
+     * and refreshes the adapter upon success.
+     */
 
     private void refreshAcceptedList() {
         if (acceptedList == null) return;

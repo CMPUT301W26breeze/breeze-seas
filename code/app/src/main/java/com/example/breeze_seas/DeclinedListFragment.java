@@ -13,6 +13,9 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+/**
+ * A fragment that displays the list of users currently on the declined list for an event.
+ */
 
 public class DeclinedListFragment extends Fragment {
     private DeclinedList declinedList;
@@ -53,6 +56,12 @@ public class DeclinedListFragment extends Fragment {
         super.onResume();
         refreshDeclinedList();
     }
+
+    /**
+     * Rebuilds the declined list by fetching the latest participant data from Firestore.
+     * Toggles the visibility of the {@code waitingProgress} spinner during the update
+     * and refreshes the adapter upon success.
+     */
 
     private void refreshDeclinedList() {
         if (declinedList == null) return;

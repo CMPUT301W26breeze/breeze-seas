@@ -16,6 +16,9 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+/**
+ * A fragment that displays the list of users currently on the pending list for an event.
+ */
 
 public class PendingListFragment extends Fragment {
     private PendingList pendingList;
@@ -64,6 +67,12 @@ public class PendingListFragment extends Fragment {
         refreshPendingList();
     }
 
+
+    /**
+     * Rebuilds the pending list by fetching the latest participant data from Firestore.
+     * Toggles the visibility of the {@code waitingProgress} spinner during the update
+     * and refreshes the adapter upon success.
+     */
 
     private void refreshPendingList() {
         if (pendingList == null) return;
