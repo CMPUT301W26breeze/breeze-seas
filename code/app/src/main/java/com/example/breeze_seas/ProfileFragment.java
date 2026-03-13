@@ -25,9 +25,10 @@ import com.google.android.material.textfield.TextInputLayout;
 import java.util.HashMap;
 import java.util.Map;
 
-/*** ProfileFragment is a top-level destination accessed via Bottom Navigation.
- * <p>Current state:* - A placeholder screen was created to validate the navigation wiring and theme style.
- ** <p>Outstanding/Future Work:* - Set up entrant profile viewing/editing and notification choices.
+/**
+ * * ProfileFragment is a top-level destination accessed via Bottom Navigation.
+ * It is the fragment for users to view their account details and update them
+ * as needed.
  */
 public class ProfileFragment extends Fragment {
 
@@ -172,6 +173,11 @@ public class ProfileFragment extends Fragment {
         });
     }
 
+    /**
+     * This method handles the input process for a {@link TextInputLayout}
+     *
+     * @param layout the layout user is entering its input in.
+     */
     private void toggleEditField(TextInputLayout layout) {
 
         if (layout.getEditText() == null) {
@@ -193,6 +199,15 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Gets and returns the input written by the user inside a
+     * {@link com.google.android.material.textfield.TextInputEditText}
+     *
+     * @param layout the layout that
+     * {@link com.google.android.material.textfield.TextInputEditText} lives in.
+     *
+     * @return input
+     */
     public String getInput(TextInputLayout layout){
             String input;
             input = layout.getEditText().
@@ -200,6 +215,12 @@ public class ProfileFragment extends Fragment {
             return input;
     }
 
+    /**
+     * Fetches the data of the user from the database. Then fills the text
+     * fields and toggles on toggles off the notification switch.
+     *
+     * @param deviceId Used to fetch the logged-in user from the database.
+     */
     private void fetchUserData(String deviceId) {
         userDBInstance.getUser(deviceId, new UserDB.OnUserLoadedListener() {
             @Override
@@ -226,6 +247,11 @@ public class ProfileFragment extends Fragment {
         });
     }
 
+    /**
+     * Creates a hash map that stores the database updates that will be made to
+     * user details.
+     * @return updates
+     */
     private Map<String,Object> mapUpdates() {
 
         Map<String,Object> updates = new HashMap<String,Object>();
@@ -239,6 +265,10 @@ public class ProfileFragment extends Fragment {
         return updates;
     }
 
+    /**
+     * Verifies that the logged-in user is an admin and navigates them to admin
+     * dashboard.
+     */
     private void verifyAdminStatus() {
         String currentDeviceId = Settings.Secure.getString(
                 requireContext().getContentResolver(),
@@ -263,6 +293,9 @@ public class ProfileFragment extends Fragment {
         });
     }
 
+    /**
+     * Navigates the user to admin dashboard interface.
+     */
     private void navigateToAdminDashboard() {
         requireActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, new AdminDashboardFragment())

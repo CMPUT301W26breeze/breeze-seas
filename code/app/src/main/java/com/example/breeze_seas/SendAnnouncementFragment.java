@@ -56,6 +56,7 @@ public class SendAnnouncementFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Send button
         sendButton.setOnClickListener(v -> {
             SessionViewModel viewModel = new ViewModelProvider(requireActivity()).get(SessionViewModel.class);
 

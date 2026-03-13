@@ -21,7 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
+/**
+ * A fragment for users to see their notifications.
+ */
 public class NotificationFragment extends Fragment {
 
     private UserDB userDBInstance = new UserDB();
@@ -68,6 +70,11 @@ public class NotificationFragment extends Fragment {
 
     }
 
+    /**
+     * Fetches user data and displays the notifications.
+     *
+     * @param deviceId Device ID of the logged-in user.
+     */
     private void fetchUserData(String deviceId) {
         userDBInstance.getUser(deviceId, new UserDB.OnUserLoadedListener() {
             @Override

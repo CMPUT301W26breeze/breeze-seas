@@ -14,6 +14,7 @@ public class Notification {
     private String eventName;
     private String userId;
     private Timestamp sentAt;
+    private boolean isSeen;
 
     public Notification() {
         this.notificationId = null;
@@ -23,6 +24,7 @@ public class Notification {
         this.eventName = null;
         this.userId = null;
         this.sentAt = null;
+        this.isSeen = false;
     }
 
     public Notification( NotificationType type,
@@ -35,6 +37,7 @@ public class Notification {
         this.eventName = eventName;
         this.userId = userId;
         this.sentAt = null;
+        this.isSeen = false;
     }
 
     public Notification(NotificationType type, String content, Timestamp sentAt) {
@@ -45,6 +48,7 @@ public class Notification {
         this.eventName = null;
         this.userId = null;
         this.sentAt = null;
+        this.isSeen = false;
     }
 
     public String getNotificationId() {
@@ -101,6 +105,14 @@ public class Notification {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public boolean isSeen() {
+        return isSeen;
+    }
+
+    public void setSeen(boolean seen) {
+        isSeen = seen;
     }
 
     /**
