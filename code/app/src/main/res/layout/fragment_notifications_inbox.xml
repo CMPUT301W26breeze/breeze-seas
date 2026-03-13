@@ -4,9 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white"
-    android:paddingStart="16dp"
-    android:paddingTop="16dp"
-    android:paddingEnd="16dp">
+    android:paddingStart="20dp"
+    android:paddingTop="20dp"
+    android:paddingEnd="20dp">
 
     <TextView
         android:id="@+id/notificationTitle"
@@ -15,7 +15,7 @@
         android:fontFamily="@font/inter_bold"
         android:text="Notifications"
         android:textColor="@color/text_primary"
-        android:textSize="30sp"
+        android:textSize="34sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -23,11 +23,11 @@
         android:id="@+id/notificationSubtitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="8dp"
         android:fontFamily="@font/inter_regular"
         android:text="Recent updates from your events, invitations, and lotteries."
         android:textColor="@color/text_secondary"
-        android:textSize="14sp"
+        android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/notificationTitle" />
@@ -37,8 +37,8 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:clipToPadding="false"
-        android:paddingTop="14dp"
-        android:paddingBottom="20dp"
+        android:layout_marginTop="18dp"
+        android:paddingBottom="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -48,8 +48,11 @@
         android:id="@+id/notifications_opt_out_state"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="4dp"
+        android:background="@drawable/bg_tickets_tab_shell"
         android:gravity="center_horizontal"
         android:orientation="vertical"
+        android:padding="28dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -59,7 +62,7 @@
         <FrameLayout
             android:layout_width="72dp"
             android:layout_height="72dp"
-            android:background="@drawable/bg_soft_surface">
+            android:background="@drawable/bg_profile_field_shell">
 
             <ImageView
                 android:layout_width="28dp"
@@ -74,12 +77,13 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:fontFamily="@font/inter_bold"
+            android:gravity="center"
             android:text="Your notifications are turned off"
             android:textColor="@color/text_primary"
             android:textSize="22sp" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:fontFamily="@font/inter_regular"
@@ -94,8 +98,11 @@
         android:id="@+id/notifications_empty_state"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="4dp"
+        android:background="@drawable/bg_tickets_tab_shell"
         android:gravity="center_horizontal"
         android:orientation="vertical"
+        android:padding="28dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -105,7 +112,7 @@
         <FrameLayout
             android:layout_width="72dp"
             android:layout_height="72dp"
-            android:background="@drawable/bg_soft_surface">
+            android:background="@drawable/bg_profile_field_shell">
 
             <ImageView
                 android:layout_width="28dp"
@@ -120,12 +127,13 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:fontFamily="@font/inter_bold"
+            android:gravity="center"
             android:text="No notifications for you right now."
             android:textColor="@color/text_primary"
             android:textSize="22sp" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:fontFamily="@font/inter_regular"

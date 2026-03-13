@@ -1,17 +1,18 @@
 package com.example.breeze_seas;
 
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 /**
  * InvitationActionDialogFragment shows the "You won!" flow when an entrant is selected.
@@ -66,13 +67,19 @@ public class InvitationActionDialogFragment extends DialogFragment {
 
         TicketUIModel ticket = new TicketUIModel(id, title, date, TicketUIModel.Status.ACTION_REQUIRED);
 
+        TextView titleView = content.findViewById(R.id.dialog_title);
+        TextView subtitleView = content.findViewById(R.id.dialog_subtitle);
         TextView eventTitle = content.findViewById(R.id.dialog_event_title);
         TextView eventDate = content.findViewById(R.id.dialog_event_date);
-        MaterialButton accept = content.findViewById(R.id.btn_accept);
-        MaterialButton decline = content.findViewById(R.id.btn_decline);
+        Button accept = content.findViewById(R.id.dialog_primary_button);
+        Button decline = content.findViewById(R.id.dialog_secondary_button);
 
+        titleView.setText("Action required");
+        subtitleView.setText("You were selected for this event. Accept to confirm your spot, or decline to release it to the backup pool.");
         eventTitle.setText(title);
         eventDate.setText(date);
+        accept.setText("Accept Invitation");
+        decline.setText("Decline");
 
         accept.setOnClickListener(v -> {
             dismiss();
@@ -84,8 +91,14 @@ public class InvitationActionDialogFragment extends DialogFragment {
             if (listener != null) listener.onDecline(ticket);
         });
 
-        return new MaterialAlertDialogBuilder(requireContext())
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
                 .setView(content)
                 .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        return dialog;
     }
 }

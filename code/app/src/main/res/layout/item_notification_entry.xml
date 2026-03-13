@@ -1,48 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="72dp"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/notification_entry_card"
-    android:layout_marginStart="16dp"
-    android:layout_marginTop="6dp"
-    android:layout_marginEnd="16dp"
-    android:layout_marginBottom="6dp"
-    app:cardElevation="@dimen/cardview_default_elevation"
-    app:cardCornerRadius="12dp"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent"
-    app:strokeColor="@color/black"
-    app:strokeWidth="1dp">
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/bg_tickets_tab_shell"
+    android:foreground="?attr/selectableItemBackground"
+    android:minHeight="108dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="5dp">
+        android:layout_height="wrap_content"
+        android:padding="18dp">
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/notification_entry_text"
+        <FrameLayout
+            android:id="@+id/notification_entry_icon_shell"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:background="@drawable/bg_profile_field_shell"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/notification_entry_icon"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_notification"
+                android:tint="@color/text_primary" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/notification_entry_type_chip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Notification 1"
-            app:layout_constraintStart_toStartOf="parent"
+            android:background="@drawable/bg_ticket_status_outline"
+            android:fontFamily="@font/inter_medium"
+            android:paddingStart="10dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="6dp"
+            android:text="Update"
+            android:textColor="@color/text_primary"
+            android:textSize="12sp"
+            app:layout_constraintStart_toEndOf="@id/notification_entry_icon_shell"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            android:layout_marginStart="14dp" />
 
-        <com.google.android.material.textview.MaterialTextView
+        <TextView
+            android:id="@+id/notification_entry_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/inter_medium"
+            android:lineSpacingExtra="2dp"
+            android:text="Notification 1"
+            android:textColor="@color/text_primary"
+            android:textSize="15sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/notification_entry_icon_shell"
+            app:layout_constraintTop_toBottomOf="@id/notification_entry_type_chip"
+            android:layout_marginStart="14dp" />
+
+        <TextView
             android:id="@+id/notification_time_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/inter_regular"
             android:text="00:00 PM"
             android:textSize="12sp"
-            android:textColor="@color/material_dynamic_neutral40"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            android:textColor="@color/text_secondary"
+            app:layout_constraintStart_toEndOf="@id/notification_entry_icon_shell"
+            app:layout_constraintTop_toBottomOf="@id/notification_entry_text"
+            android:layout_marginStart="14dp"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</com.google.android.material.card.MaterialCardView>
+</FrameLayout>
