@@ -550,12 +550,7 @@ public final class TicketDB {
         if (!explicitLocation.isEmpty()) {
             return explicitLocation;
         }
-
-        if (Boolean.TRUE.equals(eventDocument.getBoolean("geolocationEnforced"))) {
-            return "Geolocation required";
-        }
-
-        return "Location to be announced";
+        return "";
     }
 
     /**
