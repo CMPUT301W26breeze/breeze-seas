@@ -95,21 +95,30 @@ public class EventDetailsFragment extends Fragment {
         joinWaitingListButton.setOnClickListener(v -> {
             // Add user to waitlist logic
             // First check waiting list capacity
-            int waitingListCapacity = waitingList.getCapacity();
-            int waitingListSize = waitingList.getSize();
-            if ((waitingListCapacity != -1) && (waitingListSize>= waitingListCapacity)) {
-                return; // TODO: implement unable to join msg
-            }
-            waitingList.addUser(user, new StatusList.ListUpdateListener() {
+            waitingList.refresh(new StatusList.ListUpdateListener() {
                 @Override
                 public void onUpdate() {
-                    showWaiting();
-                    updateView();
-                }
+                    int waitingListCapacity = waitingList.getCapacity();
+                    int waitingListSize = waitingList.getSize();
+                    if ((waitingListCapacity != -1) && (waitingListSize>= waitingListCapacity)) {
+                        return; // TODO: implement unable to join msg
+                    }
+                    waitingList.addUser(user, new StatusList.ListUpdateListener() {
+                        @Override
+                        public void onUpdate() {
+                            showWaiting();
+                            updateView();
+                        }
 
+                        @Override
+                        public void onError(Exception e) {
+                            Log.e("waitingList DB Call", "Unable to add user to DB", e);
+                        }
+                    });
+                }
                 @Override
                 public void onError(Exception e) {
-                    Log.e("waitingList DB Call", "Unable to add user to DB", e);
+                    Log.e("waitingList DB Call", "Unable to refresh users", e);
                 }
             });
         });
@@ -117,16 +126,25 @@ public class EventDetailsFragment extends Fragment {
         leaveWaitingListButton = view.findViewById(R.id.event_details_leave_waitlist_button);
         leaveWaitingListButton.setOnClickListener(v -> {
             // Remove user from waitlist logic
-            waitingList.removeUserFromDB(user, new StatusList.ListUpdateListener() {
+            waitingList.refresh(new StatusList.ListUpdateListener() {
                 @Override
                 public void onUpdate() {
-                    waitingList.popUser(user);
-                    showJoin();
-                    updateView();
+                    waitingList.removeUserFromDB(user, new StatusList.ListUpdateListener() {
+                        @Override
+                        public void onUpdate() {
+                            waitingList.popUser(user);
+                            showJoin();
+                            updateView();
+                        }
+                        @Override
+                        public void onError(Exception e) {
+                            Log.e("waitingList DB Call", "Unable to delete user from DB", e);
+                        }
+                    });
                 }
                 @Override
                 public void onError(Exception e) {
-                    Log.e("waitingList DB Call", "Unable to delete user from DB", e);
+                    Log.e("waitingList DB Call", "Unable to refresh users", e);
                 }
             });
         });
@@ -134,23 +152,32 @@ public class EventDetailsFragment extends Fragment {
         acceptInviteButton = view.findViewById(R.id.event_details_accept_invite_button);
         acceptInviteButton.setOnClickListener(v -> {
             // Add user to accepted list
-            // First check waiting list capacity
-            int acceptedListCapacity = acceptedList.getCapacity();
-            int acceptedListSize = waitingList.getSize();
-            if (acceptedListSize >= acceptedListCapacity) {
-                return; // TODO: implement unable to join msg
-            }
-            acceptedList.addUser(user, new StatusList.ListUpdateListener() {
+            acceptedList.refresh(new StatusList.ListUpdateListener() {
                 @Override
                 public void onUpdate() {
-                    // remove from waiting list (in memory)
-                    waitingList.popUser(user);
-                    showAccepted();
-                    updateView();
+                    // First check waiting list capacity
+                    int acceptedListCapacity = acceptedList.getCapacity();
+                    int acceptedListSize = waitingList.getSize();
+                    if (acceptedListSize >= acceptedListCapacity) {
+                        return; // TODO: implement unable to join msg
+                    }
+                    acceptedList.addUser(user, new StatusList.ListUpdateListener() {
+                        @Override
+                        public void onUpdate() {
+                            // remove from waiting list (in memory)
+                            waitingList.popUser(user);
+                            showAccepted();
+                            updateView();
+                        }
+                        @Override
+                        public void onError(Exception e) {
+                            Log.e("acceptedList DB Call", "Unable to add user to DB", e);
+                        }
+                    });
                 }
                 @Override
                 public void onError(Exception e) {
-                    Log.e("acceptedList DB Call", "Unable to add user to DB", e);
+                    Log.e("acceptedList DB Call", "Unable to refresh users", e);
                 }
             });
         });
@@ -158,19 +185,30 @@ public class EventDetailsFragment extends Fragment {
         declineInviteButton = view.findViewById(R.id.event_details_decline_invite_button);
         declineInviteButton.setOnClickListener(v -> {
             // Add user to declined list
-            declinedList.addUser(user, new StatusList.ListUpdateListener() {
+            declinedList.refresh(new StatusList.ListUpdateListener() {
                 @Override
                 public void onUpdate() {
-                    // remove from waiting list (in memory)
-                    waitingList.popUser(user);
-                    showDeclined();
-                    updateView();
+                    declinedList.addUser(user, new StatusList.ListUpdateListener() {
+                        @Override
+                        public void onUpdate() {
+                            // remove from waiting list (in memory)
+                            waitingList.popUser(user);
+                            showDeclined();
+                            updateView();
+                        }
+                        @Override
+                        public void onError(Exception e) {
+                            Log.e("pendingList DB Call", "Unable to add user to DB", e);
+                        }
+                    });
                 }
+
                 @Override
                 public void onError(Exception e) {
-                    Log.e("pendingList DB Call", "Unable to add user to DB", e);
+                    Log.e("pendingList DB Call", "Unable to refresh users", e);
                 }
             });
+
         });
 
         // Update event details
