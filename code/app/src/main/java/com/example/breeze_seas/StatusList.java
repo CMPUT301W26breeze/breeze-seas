@@ -12,12 +12,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A super class for participant lists. Creates an ArrayList
+ * of users registering for events and manages their status in Firestore.
+ */
 public abstract class StatusList {
     protected ArrayList<User> userList;
     protected int capacity;
     protected Event event;
 
-
+    /**
+     * Interface to communicate result of asynchronous database tasks back to the UI.
+     */
     public interface ListUpdateListener {
         void onUpdate();
         void onError(Exception e);
@@ -30,7 +36,12 @@ public abstract class StatusList {
     }
     protected abstract String getStatusName();
 
-
+    /**
+     * Adds a user to the event's participant sub-collection in Firestore.
+     * Uses merge to preserve existing fields (like location) while updating status.
+     *
+     * @param
+     */
     public void addUser(User user, ListUpdateListener listener) {
         if (user == null || user.getDeviceId() == null) return;
         FirebaseFirestore db = DBConnector.getDb();
