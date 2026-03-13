@@ -15,7 +15,7 @@
         android:layout_marginTop="20dp"
         android:layout_marginEnd="12dp"
         android:orientation="vertical"
-        app:layout_constraintEnd_toStartOf="@id/explore_actions_container"
+        app:layout_constraintEnd_toStartOf="@id/explore_QRCode_floating_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -73,79 +73,39 @@
         app:layout_constraintTop_toBottomOf="@id/explore_header_container" />
 
     <LinearLayout
-        android:id="@+id/explore_actions_container"
+        android:id="@+id/explore_QRCode_floating_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
+        android:background="@drawable/bg_ticket_status_outline"
+        android:clickable="true"
+        android:focusable="true"
         android:gravity="center"
         android:orientation="horizontal"
-        android:showDividers="middle"
-        android:divider="@android:color/transparent"
+        android:paddingStart="14dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/explore_no_events_found_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="No joinable events found.\nTry refreshing at a later time."
-            android:textSize="18dp"
-            android:visibility="gone"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/explore_top_menu_wrapper"/>
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:contentDescription="@string/explore_scan_qr"
+            android:src="@drawable/ic_qr_code"
+            app:tint="@color/text_primary" />
 
         <TextView
-            android:id="@+id/explore_filter_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_ticket_status_outline"
-            android:clickable="true"
-            android:focusable="true"
+            android:layout_marginStart="8dp"
             android:fontFamily="@font/inter_medium"
-            android:paddingStart="14dp"
-            android:paddingTop="10dp"
-            android:paddingEnd="14dp"
-            android:paddingBottom="10dp"
-            android:text="@string/explore_filter"
+            android:text="@string/explore_scan_qr"
             android:textColor="@color/text_primary"
             android:textSize="14sp" />
 
-        <LinearLayout
-            android:id="@+id/explore_QRCode_floating_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:background="@drawable/bg_ticket_status_outline"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:paddingStart="14dp"
-            android:paddingTop="10dp"
-            android:paddingEnd="14dp"
-            android:paddingBottom="10dp">
-
-            <ImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:contentDescription="@string/explore_scan_qr"
-                android:src="@drawable/ic_qr_code"
-                app:tint="@color/text_primary" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:fontFamily="@font/inter_medium"
-                android:text="@string/explore_scan_qr"
-                android:textColor="@color/text_primary"
-                android:textSize="14sp" />
-
-        </LinearLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
