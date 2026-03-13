@@ -1,12 +1,19 @@
 package com.example.breeze_seas;
 
+import static androidx.core.content.ContentProviderCompat.requireContext;
+
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.os.Build;
 import android.util.Log;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.SetOptions;
@@ -48,6 +55,7 @@ public class NotificationService {
         notificationData.put("eventName", notification.getEventName());
         notificationData.put("userId", notification.getUserId());
         notificationData.put("sentAt", FieldValue.serverTimestamp());
+        notificationData.put("isSeen", notification.isSeen());
 
         Task<Void> writeTask = notificationsRef.document()
                 .set(notificationData, SetOptions.merge());
@@ -78,12 +86,14 @@ public class NotificationService {
     public void getNotifications(String userId, OnNotificationLoadedListener listener ) {
         notificationsRef
                 .whereEqualTo("userId", userId)
+                // .whereEqualTo("isSeen", false)
                 .orderBy("sentAt", Query.Direction.DESCENDING)
                 .limit(50)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<Notification> notifications = new ArrayList<>();
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        // doc.getReference().update("isSeen", true);
                         notifications.add(doc.toObject(Notification.class));
                     }
                     listener.onNotificationLoaded(notifications);
