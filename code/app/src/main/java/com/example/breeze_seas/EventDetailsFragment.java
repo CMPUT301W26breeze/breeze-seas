@@ -3,6 +3,9 @@ package com.example.breeze_seas;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -10,31 +13,27 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.imageview.ShapeableImageView;
-import com.google.android.material.textview.MaterialTextView;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
 public class EventDetailsFragment extends Fragment {
-    private ShapeableImageView returnButton;
-    private MaterialTextView eventTitle;
-    private ShapeableImageView eventPoster;
-    private MaterialButton viewQRCodeButton;
-    private MaterialTextView eventCapacity;
-    private MaterialTextView eventWaitingListCount;
-    private MaterialTextView eventStartDate;
-    private MaterialTextView eventEndDate;
-    private MaterialTextView eventDescription;
-    private MaterialButton joinWaitingListButton;
-    private MaterialButton leaveWaitingListButton;
-    private MaterialTextView eventInviteText;
-    private MaterialButton acceptInviteButton;
-    private MaterialButton declineInviteButton;
-    private MaterialTextView eventInviteAcceptedText;
-    private MaterialTextView eventInviteDeclinedText;
+    private ImageView returnButton;
+    private TextView eventTitle;
+    private ImageView eventPoster;
+    private Button viewQRCodeButton;
+    private TextView eventCapacity;
+    private TextView eventWaitingListCount;
+    private TextView eventStartDate;
+    private TextView eventEndDate;
+    private TextView eventDescription;
+    private Button joinWaitingListButton;
+    private Button leaveWaitingListButton;
+    private TextView eventInviteText;
+    private Button acceptInviteButton;
+    private Button declineInviteButton;
+    private TextView eventInviteAcceptedText;
+    private TextView eventInviteDeclinedText;
 
     private SessionViewModel viewModel;
     private Event eventShown;
