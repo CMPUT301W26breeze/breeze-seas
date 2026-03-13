@@ -3,13 +3,11 @@ package com.example.breeze_seas;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.card.MaterialCardView;
-import com.google.android.material.textview.MaterialTextView;
-import com.google.firebase.Timestamp;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -37,16 +35,16 @@ public class NotificationEntryAdapter extends RecyclerView.Adapter<NotificationE
     public void onBindViewHolder(@NonNull NotificationViewHolder holder, int position) {
         Notification notification = notificationList.get(position);
 
-        // Set the message
         holder.messageText.setText(notification.getDisplayMessage());
+        bindTypePresentation(holder, notification);
 
-        // Format and set the time
         if (notification.getSentAt() != null) {
-            // Convert Firestore Timestamp to milliseconds (long)
             long timestampMillis = notification.getSentAt().toDate().getTime();
 
             String timeString = formatTimestamp(timestampMillis);
             holder.timeText.setText(timeString);
+        } else {
+            holder.timeText.setText("");
         }
 
     }
@@ -57,15 +55,43 @@ public class NotificationEntryAdapter extends RecyclerView.Adapter<NotificationE
     }
 
     public static class NotificationViewHolder extends RecyclerView.ViewHolder {
-        MaterialTextView messageText, timeText;
-        MaterialCardView card;
+        TextView messageText, timeText, typeChip;
+        ImageView icon;
+        View card;
 
         public NotificationViewHolder(@NonNull View itemView) {
             super(itemView);
             messageText = itemView.findViewById(R.id.notification_entry_text);
             timeText = itemView.findViewById(R.id.notification_time_text);
+            typeChip = itemView.findViewById(R.id.notification_entry_type_chip);
+            icon = itemView.findViewById(R.id.notification_entry_icon);
             card = itemView.findViewById(R.id.notification_entry_card);
         }
+    }
+
+    private void bindTypePresentation(@NonNull NotificationViewHolder holder, @NonNull Notification notification) {
+        NotificationType type = notification.getType();
+
+        if (type == NotificationType.WIN) {
+            holder.typeChip.setText("Selected");
+            holder.typeChip.setBackgroundResource(R.drawable.bg_ticket_status_solid);
+            holder.typeChip.setTextColor(holder.itemView.getContext().getColor(android.R.color.white));
+            holder.icon.setImageResource(R.drawable.ic_star);
+            return;
+        }
+
+        if (type == NotificationType.LOSS) {
+            holder.typeChip.setText("Lottery");
+            holder.typeChip.setBackgroundResource(R.drawable.bg_ticket_status_outline);
+            holder.typeChip.setTextColor(holder.itemView.getContext().getColor(android.R.color.black));
+            holder.icon.setImageResource(R.drawable.ic_clock);
+            return;
+        }
+
+        holder.typeChip.setText("Announcement");
+        holder.typeChip.setBackgroundResource(R.drawable.bg_ticket_status_outline);
+        holder.typeChip.setTextColor(holder.itemView.getContext().getColor(android.R.color.black));
+        holder.icon.setImageResource(R.drawable.ic_notification);
     }
 
     private String formatTimestamp(long timestamp) {

@@ -1,19 +1,22 @@
 package com.example.breeze_seas;
 
-import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 /**
@@ -154,36 +157,46 @@ public class ActiveTicketsFragment extends Fragment {
      */
     private void showBackupPoolDialog(@NonNull View rootView, @NonNull TicketUIModel ticket) {
         if (!isAdded()) return;
+        View dialogView = LayoutInflater.from(requireContext())
+                .inflate(R.layout.dialog_ticket_action, null, false);
+        bindEventDialogContent(
+                dialogView,
+                "You're on the Waitlist",
+                "The first draw is complete. You are currently in the backup pool. If any spots open up, we will run another draw and notify you.",
+                ticket,
+                "Okay",
+                "Leave Waitlist"
+        );
 
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("You're on the Waitlist")
-                .setMessage("The first draw is complete. You are currently in the backup pool. If any tickets are declined, we will run another draw and notify you.")
-                .setNegativeButton("Leave Waitlist", new DialogInterface.OnClickListener() {
-                    /**
-                     * Opens a confirmation dialog before removing the entrant from the backup pool.
-                     *
-                     * @param dialog The informational dialog shown to the entrant.
-                     * @param which The pressed button identifier.
-                     */
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        showLeaveWaitlistConfirmDialog(rootView, ticket);
-                    }
-                })
-                .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-                    /**
-                     * Dismisses the informational dialog once the entrant acknowledges it.
-                     *
-                     * @param dialog The displayed dialog instance.
-                     * @param which The pressed button identifier.
-                     */
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                })
-                .show();
+        AlertDialog dialog = createStyledDialog(dialogView);
+        Button primaryButton = dialogView.findViewById(R.id.dialog_primary_button);
+        Button secondaryButton = dialogView.findViewById(R.id.dialog_secondary_button);
+
+        primaryButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Dismisses the informational dialog once the entrant acknowledges it.
+             *
+             * @param v The pressed primary action view.
+             */
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        secondaryButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Opens a confirmation dialog before removing the entrant from the backup pool.
+             *
+             * @param v The pressed secondary action view.
+             */
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                showLeaveWaitlistConfirmDialog(rootView, ticket);
+            }
+        });
+
+        dialog.show();
     }
 
     /**
@@ -194,42 +207,46 @@ public class ActiveTicketsFragment extends Fragment {
      */
     private void showLeaveWaitlistDialog(@NonNull View rootView, @NonNull TicketUIModel ticket) {
         if (!isAdded()) return;
+        View dialogView = LayoutInflater.from(requireContext())
+                .inflate(R.layout.dialog_ticket_action, null, false);
+        bindEventDialogContent(
+                dialogView,
+                "Leave waitlist?",
+                "If you leave now, your entry will be removed from the draw for this event.",
+                ticket,
+                "Leave Waitlist",
+                "Stay"
+        );
 
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Leave waitlist?")
-                .setMessage(
-                        "You are currently waiting for:\n\n"
-                                + ticket.getTitle()
-                                + "\n"
-                                + ticket.getDateLabel()
-                                + "\n\nIf you leave now, your entry will be removed from the draw."
-                )
-                .setPositiveButton("Leave Waitlist", new DialogInterface.OnClickListener() {
-                    /**
-                     * Opens the final confirmation step before deleting the waitlist entry.
-                     *
-                     * @param dialog The waitlist dialog shown to the entrant.
-                     * @param which The pressed button identifier.
-                     */
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        showLeaveWaitlistConfirmDialog(rootView, ticket);
-                    }
-                })
-                .setNegativeButton("Stay", new DialogInterface.OnClickListener() {
-                    /**
-                     * Keeps the entrant on the waitlist and closes the dialog.
-                     *
-                     * @param dialog The waitlist dialog shown to the entrant.
-                     * @param which The pressed button identifier.
-                     */
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                })
-                .show();
+        AlertDialog dialog = createStyledDialog(dialogView);
+        Button primaryButton = dialogView.findViewById(R.id.dialog_primary_button);
+        Button secondaryButton = dialogView.findViewById(R.id.dialog_secondary_button);
+
+        primaryButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Opens the final confirmation step before deleting the waitlist entry.
+             *
+             * @param v The pressed primary action view.
+             */
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                showLeaveWaitlistConfirmDialog(rootView, ticket);
+            }
+        });
+        secondaryButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Keeps the entrant on the waitlist and closes the dialog.
+             *
+             * @param v The pressed secondary action view.
+             */
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
     }
 
     /**
@@ -240,37 +257,46 @@ public class ActiveTicketsFragment extends Fragment {
      */
     private void showLeaveWaitlistConfirmDialog(@NonNull View rootView, @NonNull TicketUIModel ticket) {
         if (!isAdded()) return;
+        View dialogView = LayoutInflater.from(requireContext())
+                .inflate(R.layout.dialog_ticket_confirmation, null, false);
+        bindConfirmationDialogContent(
+                dialogView,
+                "Confirm leave?",
+                "This will remove your entry from the waitlist for this event.",
+                "Yes, leave",
+                "Cancel"
+        );
 
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Confirm leave?")
-                .setMessage("This will remove your entry from the waitlist for this event.")
-                .setPositiveButton("Yes, leave", new DialogInterface.OnClickListener() {
-                    /**
-                     * Removes the entrant from the waitlist and refreshes the Active tab.
-                     *
-                     * @param dialog The confirmation dialog shown to the entrant.
-                     * @param which The pressed button identifier.
-                     */
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        ticketDb.leaveWaitlist(ticket);
-                        Snackbar.make(rootView, "You left the waitlist.", Snackbar.LENGTH_SHORT).show();
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    /**
-                     * Cancels the leave-waitlist flow and dismisses the dialog.
-                     *
-                     * @param dialog The confirmation dialog shown to the entrant.
-                     * @param which The pressed button identifier.
-                     */
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                })
-                .show();
+        AlertDialog dialog = createStyledDialog(dialogView);
+        Button primaryButton = dialogView.findViewById(R.id.dialog_primary_button);
+        Button secondaryButton = dialogView.findViewById(R.id.dialog_secondary_button);
+
+        primaryButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Removes the entrant from the waitlist and refreshes the Active tab.
+             *
+             * @param v The pressed primary action view.
+             */
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                ticketDb.leaveWaitlist(ticket);
+                Snackbar.make(rootView, "You left the waitlist.", Snackbar.LENGTH_SHORT).show();
+            }
+        });
+        secondaryButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Cancels the leave-waitlist flow and dismisses the dialog.
+             *
+             * @param v The pressed secondary action view.
+             */
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
     }
 
     /**
@@ -289,45 +315,48 @@ public class ActiveTicketsFragment extends Fragment {
      */
     private void showInvitationActionDialog(@NonNull View rootView, @NonNull TicketUIModel ticket) {
         if (!isAdded()) return;
+        View dialogView = LayoutInflater.from(requireContext())
+                .inflate(R.layout.dialog_ticket_action, null, false);
+        bindEventDialogContent(
+                dialogView,
+                "Action required",
+                "You were selected for this event. Accept to confirm your spot, or decline to release it to the backup pool.",
+                ticket,
+                "Accept Invitation",
+                "Decline"
+        );
 
-        String title = "You won!";
-        String message =
-                "You've been selected for:\n\n" +
-                        ticket.getTitle() + "\n" +
-                        ticket.getDateLabel() + "\n\n" +
-                        "Accept to confirm your spot, or decline to release it to the backup pool.";
+        AlertDialog dialog = createStyledDialog(dialogView);
+        Button primaryButton = dialogView.findViewById(R.id.dialog_primary_button);
+        Button secondaryButton = dialogView.findViewById(R.id.dialog_secondary_button);
 
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle(title)
-                .setMessage(message)
-                .setPositiveButton("Accept Invitation", new DialogInterface.OnClickListener() {
-                    /**
-                     * Accepts the invitation and moves the ticket into the attending state.
-                     *
-                     * @param dialog The action dialog shown to the entrant.
-                     * @param which The pressed button identifier.
-                     */
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        ticketDb.acceptInvitation(ticket);
-                        Snackbar.make(rootView, "Invitation accepted. Ticket moved to Attending.", Snackbar.LENGTH_SHORT).show();
-                    }
-                })
-                .setNegativeButton("Decline", new DialogInterface.OnClickListener() {
-                    /**
-                     * Opens the confirmation dialog before declining the invitation.
-                     *
-                     * @param dialog The action dialog shown to the entrant.
-                     * @param which The pressed button identifier.
-                     */
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        showDeclineConfirmDialog(rootView, ticket);
-                    }
-                })
-                .show();
+        primaryButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Accepts the invitation and moves the ticket into the attending state.
+             *
+             * @param v The pressed primary action view.
+             */
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                ticketDb.acceptInvitation(ticket);
+                Snackbar.make(rootView, "Invitation accepted. Ticket moved to Attending.", Snackbar.LENGTH_SHORT).show();
+            }
+        });
+        secondaryButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Opens the confirmation dialog before declining the invitation.
+             *
+             * @param v The pressed secondary action view.
+             */
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                showDeclineConfirmDialog(rootView, ticket);
+            }
+        });
+
+        dialog.show();
     }
 
     /**
@@ -338,36 +367,124 @@ public class ActiveTicketsFragment extends Fragment {
      */
     private void showDeclineConfirmDialog(@NonNull View rootView, @NonNull TicketUIModel ticket) {
         if (!isAdded()) return;
+        View dialogView = LayoutInflater.from(requireContext())
+                .inflate(R.layout.dialog_ticket_confirmation, null, false);
+        bindConfirmationDialogContent(
+                dialogView,
+                "Decline invitation?",
+                "If you decline, your spot will be offered to someone in the backup pool.",
+                "Yes, decline",
+                "Cancel"
+        );
 
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Decline invitation?")
-                .setMessage("If you decline, your spot will be offered to someone in the backup pool.")
-                .setPositiveButton("Yes, decline", new DialogInterface.OnClickListener() {
-                    /**
-                     * Confirms the decline and updates the participant status.
-                     *
-                     * @param dialog The confirmation dialog shown to the entrant.
-                     * @param which The pressed button identifier.
-                     */
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        ticketDb.declineInvitation(ticket);
-                        Snackbar.make(rootView, "Invitation declined", Snackbar.LENGTH_SHORT).show();
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    /**
-                     * Cancels the decline flow and dismisses the confirmation dialog.
-                     *
-                     * @param dialog The confirmation dialog shown to the entrant.
-                     * @param which The pressed button identifier.
-                     */
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                })
-                .show();
+        AlertDialog dialog = createStyledDialog(dialogView);
+        Button primaryButton = dialogView.findViewById(R.id.dialog_primary_button);
+        Button secondaryButton = dialogView.findViewById(R.id.dialog_secondary_button);
+
+        primaryButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Confirms the decline and updates the participant status.
+             *
+             * @param v The pressed primary action view.
+             */
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                ticketDb.declineInvitation(ticket);
+                Snackbar.make(rootView, "Invitation declined", Snackbar.LENGTH_SHORT).show();
+            }
+        });
+        secondaryButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Cancels the decline flow and dismisses the confirmation dialog.
+             *
+             * @param v The pressed secondary action view.
+             */
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+    }
+
+    /**
+     * Creates a dialog window with the app's custom white shell and a transparent system frame.
+     *
+     * @param dialogView Fully configured custom dialog view.
+     * @return A styled dialog ready to be shown.
+     */
+    @NonNull
+    private AlertDialog createStyledDialog(@NonNull View dialogView) {
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        return dialog;
+    }
+
+    /**
+     * Populates the shared event-action dialog layout for waiting, backup, and invitation states.
+     *
+     * @param dialogView Inflated dialog layout that contains the event shell and action buttons.
+     * @param title Dialog headline text.
+     * @param subtitle Supporting copy shown below the headline.
+     * @param ticket Ticket whose event information should be shown in the dialog.
+     * @param primaryLabel Label for the primary action button.
+     * @param secondaryLabel Label for the secondary action button.
+     */
+    private void bindEventDialogContent(
+            @NonNull View dialogView,
+            @NonNull String title,
+            @NonNull String subtitle,
+            @NonNull TicketUIModel ticket,
+            @NonNull String primaryLabel,
+            @NonNull String secondaryLabel
+    ) {
+        TextView titleView = dialogView.findViewById(R.id.dialog_title);
+        TextView subtitleView = dialogView.findViewById(R.id.dialog_subtitle);
+        TextView eventTitleView = dialogView.findViewById(R.id.dialog_event_title);
+        TextView eventDateView = dialogView.findViewById(R.id.dialog_event_date);
+        Button primaryButton = dialogView.findViewById(R.id.dialog_primary_button);
+        Button secondaryButton = dialogView.findViewById(R.id.dialog_secondary_button);
+
+        titleView.setText(title);
+        subtitleView.setText(subtitle);
+        eventTitleView.setText(ticket.getTitle());
+        eventDateView.setText(ticket.getDateLabel());
+        primaryButton.setText(primaryLabel);
+        secondaryButton.setText(secondaryLabel);
+    }
+
+    /**
+     * Populates the compact confirmation dialog layout used before destructive ticket actions.
+     *
+     * @param dialogView Inflated confirmation dialog layout.
+     * @param title Dialog headline text.
+     * @param message Supporting confirmation message.
+     * @param primaryLabel Label for the primary action button.
+     * @param secondaryLabel Label for the secondary action button.
+     */
+    private void bindConfirmationDialogContent(
+            @NonNull View dialogView,
+            @NonNull String title,
+            @NonNull String message,
+            @NonNull String primaryLabel,
+            @NonNull String secondaryLabel
+    ) {
+        TextView titleView = dialogView.findViewById(R.id.dialog_title);
+        TextView messageView = dialogView.findViewById(R.id.dialog_message);
+        Button primaryButton = dialogView.findViewById(R.id.dialog_primary_button);
+        Button secondaryButton = dialogView.findViewById(R.id.dialog_secondary_button);
+
+        titleView.setText(title);
+        messageView.setText(message);
+        primaryButton.setText(primaryLabel);
+        secondaryButton.setText(secondaryLabel);
     }
 }
