@@ -31,6 +31,7 @@ public class WaitingListFragment extends Fragment {
 
 
     private WaitingList waitingList;
+    ArrayList<User> waitingListUserList = new ArrayList<>();
     private OrganizerListAdapter adapter;
     private ListView listView;
     private ProgressBar waitingProgress;
@@ -58,6 +59,7 @@ public class WaitingListFragment extends Fragment {
         waitingProgress = view.findViewById(R.id.waiting_list_spinner);
         if (currentEvent != null) {
             waitingList = new WaitingList(currentEvent, currentEvent.getWaitingListCapacity());
+            waitingListUserList = waitingList.getUserList();
             adapter = new OrganizerListAdapter(getContext(), R.layout.item_organizer_list, waitingList.getUserList());
             listView.setAdapter(adapter);
         }
@@ -87,9 +89,7 @@ public class WaitingListFragment extends Fragment {
                 @Override
                 public void onUpdate() {
                     if (isAdded()) {
-                        refreshWaitingList();
-
-                        ArrayList<User> waitingListUserList = waitingList.getUserList();
+                        // Notifications to winners and losers of the lottery
                         ArrayList<User> winnerList = currentEvent.getPendingList().getUserList();
                         ArrayList<User> loserList = new ArrayList<>(waitingListUserList);
                         loserList.removeAll(winnerList);
@@ -129,8 +129,7 @@ public class WaitingListFragment extends Fragment {
                                     Toast.LENGTH_SHORT).show();
                         }
 
-
-
+                        refreshWaitingList();
                         runLotteryBtn.setEnabled(true);
 
 
