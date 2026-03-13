@@ -50,7 +50,7 @@ public class AcceptedListFragment extends Fragment {
 
         if (currentEvent != null) {
             acceptedList = new AcceptedList(currentEvent, currentEvent.getEventCapacity());
-            adapter = new OrganizerListAdapter(getContext(), R.layout.item_organizer_list, acceptedList.getUserList());
+            adapter = new OrganizerListAdapter(getContext(), R.layout.item_organizer_list, acceptedList.getUserList(), "Accepted", false);
             listView.setAdapter(adapter);
         }
 

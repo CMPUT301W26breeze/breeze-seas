@@ -49,7 +49,7 @@ public class PendingListFragment extends Fragment {
 
         if (currentEvent != null) {
             pendingList = new PendingList(currentEvent, currentEvent.getEventCapacity());
-            adapter = new OrganizerListAdapter(getContext(), R.layout.item_organizer_list, pendingList.getUserList());
+            adapter = new OrganizerListAdapter(getContext(), R.layout.item_organizer_list, pendingList.getUserList(), "Pending", true);
             listView.setAdapter(adapter);
         }
 

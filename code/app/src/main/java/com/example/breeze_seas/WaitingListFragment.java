@@ -17,12 +17,10 @@ import androidx.lifecycle.ViewModelProvider;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
-
-import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 
@@ -60,7 +58,7 @@ public class WaitingListFragment extends Fragment {
         if (currentEvent != null) {
             waitingList = new WaitingList(currentEvent, currentEvent.getWaitingListCapacity());
             waitingListUserList = waitingList.getUserList();
-            adapter = new OrganizerListAdapter(getContext(), R.layout.item_organizer_list, waitingList.getUserList());
+            adapter = new OrganizerListAdapter(getContext(), R.layout.item_organizer_list, waitingList.getUserList(), "Waiting", false);
             listView.setAdapter(adapter);
         }
         return view;
@@ -70,7 +68,7 @@ public class WaitingListFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        MaterialButton runLotteryBtn = view.findViewById(R.id.btn_run_lottery);
+        Button runLotteryBtn = view.findViewById(R.id.btn_run_lottery);
 
         view.findViewById(R.id.back_btn).setOnClickListener(v -> {
             if (getActivity() != null) {
@@ -176,4 +174,3 @@ public class WaitingListFragment extends Fragment {
         });
     }
 }
-

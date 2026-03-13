@@ -41,7 +41,7 @@ public class DeclinedListFragment extends Fragment {
 
         if (currentEvent != null) {
             declinedList = new DeclinedList(currentEvent, -1);
-            adapter = new OrganizerListAdapter(getContext(), R.layout.item_organizer_list, declinedList.getUserList());
+            adapter = new OrganizerListAdapter(getContext(), R.layout.item_organizer_list, declinedList.getUserList(), "Declined", false);
             listView.setAdapter(adapter);
         }
 
