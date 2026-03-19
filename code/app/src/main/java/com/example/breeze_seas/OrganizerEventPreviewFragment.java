@@ -2,7 +2,6 @@ package com.example.breeze_seas;
 
 import android.app.AlertDialog;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -271,8 +270,8 @@ public class OrganizerEventPreviewFragment extends Fragment {
         }
 
 
-        regStartDate = event.getRegistrationStartDate();
-        regEndDate = event.getRegistrationEndDate();
+        regStartDate = event.getRegistrationStartTimestamp();
+        regEndDate = event.getRegistrationEndTimestamp();
         posterUriString = event.getImage();
 
         ((android.widget.TextView) root.findViewById(R.id.organizer_event_preview_title)).setText(event.getName());

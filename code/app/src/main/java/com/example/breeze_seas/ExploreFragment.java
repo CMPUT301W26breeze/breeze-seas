@@ -74,7 +74,7 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
         });
 
         // Get events from DB
-        EventDB.getAllEvents(new EventDB.LoadEventsCallback() {
+        EventDB.getAllJoinableEvents(user, new EventDB.LoadEventsCallback() {
             @Override
             public void onSuccess(ArrayList<Event> events) {
                 loadEvents(view, events);
@@ -94,14 +94,7 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
      * @param events ArrayList of events
      */
     private void loadEvents(View view, ArrayList<Event> events) {
-        // filter for events not owned by you
-        ArrayList<Event> tmp = new ArrayList<>();
-        for (Event e : events) {
-            if (!e.getOrganizerId().equals(user.getDeviceId())) {
-                tmp.add(e);
-            }
-        }
-        eventList = tmp;
+        eventList = events;
         showNoEventsText(eventList == null || eventList.isEmpty());
 
         RecyclerView eventsView = view.findViewById(R.id.explore_recycler_view_events);

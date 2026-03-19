@@ -244,8 +244,8 @@ public class EventDetailsFragment extends Fragment {
         eventPoster.setImageResource(R.drawable.ic_image_placeholder);
         eventCapacity.setText(fmt("Capacity:", String.valueOf(eventShown.getEventCapacity())));
         eventWaitingListCount.setText(fmt("Currently in Waiting List:", String.valueOf(waitingList.getSize())));
-        eventStartDate.setText(fmt("Starts:", formatTimestamp(eventShown.getRegistrationStartDate())));
-        eventEndDate.setText(fmt("Ends:", formatTimestamp(eventShown.getRegistrationEndDate())));
+        eventStartDate.setText(fmt("Starts:", formatTimestamp(eventShown.getRegistrationStartTimestamp())));
+        eventEndDate.setText(fmt("Ends:", formatTimestamp(eventShown.getRegistrationEndTimestamp())));
         eventDescription.setText(eventShown.getDescription());
     }
 

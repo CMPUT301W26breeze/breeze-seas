@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
 
 /**
  * OrganizeFragment displays the active organizer's events and routes into organizer-specific
@@ -265,8 +264,8 @@ public class OrganizeFragment extends Fragment {
 
             SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.US);
             //sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-            String from = formatTimestamp(sdf, e.getRegistrationStartDate());
-            String to = formatTimestamp(sdf, e.getRegistrationEndDate());
+            String from = formatTimestamp(sdf, e.getRegistrationStartTimestamp());
+            String to = formatTimestamp(sdf, e.getRegistrationEndTimestamp());
             holder.tvDates.setText("Reg: " + from + " → " + to);
 
             Integer cap = e.getWaitingListCapacity();

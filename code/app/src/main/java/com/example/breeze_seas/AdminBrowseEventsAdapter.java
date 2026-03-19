@@ -73,11 +73,11 @@ public class AdminBrowseEventsAdapter extends RecyclerView.Adapter<AdminBrowseEv
 
         // Format and show reg dates
         SimpleDateFormat sdf = new SimpleDateFormat("MMM d", Locale.getDefault());
-        String startDate = (event.getRegistrationStartDate() != null)
-                ? sdf.format(event.getRegistrationStartDate().toDate())
+        String startDate = (event.getRegistrationStartTimestamp() != null)
+                ? sdf.format(event.getRegistrationStartTimestamp().toDate())
                 : "TBD";
-        String endDate = (event.getRegistrationEndDate() != null)
-                ? sdf.format(event.getRegistrationEndDate().toDate())
+        String endDate = (event.getRegistrationEndTimestamp() != null)
+                ? sdf.format(event.getRegistrationEndTimestamp().toDate())
                 : "TBD";
 
         holder.tvEventDates.setText("Reg: " + startDate + " → " + endDate);

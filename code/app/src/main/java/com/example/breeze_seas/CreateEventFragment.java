@@ -238,6 +238,7 @@ public class CreateEventFragment extends Fragment {
         int normalizedCapacity = eventCap == null ? -1 : eventCap;
         int normalizedEventWaitingListCapacity = eventWaitingListCap == null ? -1 : eventWaitingListCap;
         Event event = new Event(
+                false,
                 organizerId,
                 name,
                 details,

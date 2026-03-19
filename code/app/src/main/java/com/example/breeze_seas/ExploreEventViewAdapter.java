@@ -18,7 +18,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
 
 public class ExploreEventViewAdapter extends RecyclerView.Adapter<ExploreEventViewAdapter.ExploreEventViewHolder> {
     private final Context context;
@@ -44,25 +43,25 @@ public class ExploreEventViewAdapter extends RecyclerView.Adapter<ExploreEventVi
         Event event = eventList.get(position);
 
         holder.eventTitle.setText(event.getName());
-        holder.eventDescription.setText(event.getDetails().trim().isEmpty()
+        holder.eventDescription.setText(event.getDescription().trim().isEmpty()
                 ? holder.itemView.getContext().getString(R.string.explore_card_no_description)
-                : event.getDetails());
+                : event.getDescription());
         holder.eventTimeRemaining.setText(holder.itemView.getContext().getString(
                 R.string.explore_card_registration_closes,
-                formatDate(event.getRegistrationEndDate())
+                formatDate(event.getRegistrationEndTimestamp())
         ));
         holder.eventWaitingListCount.setText(R.string.explore_card_lottery);
         holder.eventCapacity.setText(event.getWaitingListCap() == null
                 ? holder.itemView.getContext().getString(R.string.explore_card_cap_unlimited)
                 : holder.itemView.getContext().getString(R.string.explore_card_cap_limited, event.getWaitingListCap()));
-        holder.eventLuck.setText(event.isGeoRequired()
+        holder.eventLuck.setText(event.isGeolocationEnforced()
                 ? holder.itemView.getContext().getString(R.string.explore_card_geo_required)
                 : holder.itemView.getContext().getString(R.string.explore_card_geo_optional));
 
         holder.eventImage.setImageResource(R.drawable.ic_image_placeholder);
-        if (event.getPosterUriString() != null && !event.getPosterUriString().trim().isEmpty()) {
+        if (event.getImage() != null && !event.getImage().trim().isEmpty()) {
             try {
-                holder.eventImage.setImageURI(Uri.parse(event.getPosterUriString()));
+                holder.eventImage.setImageURI(Uri.parse(event.getImage()));
             } catch (Exception ignored) {
                 holder.eventImage.setImageResource(R.drawable.ic_image_placeholder);
             }

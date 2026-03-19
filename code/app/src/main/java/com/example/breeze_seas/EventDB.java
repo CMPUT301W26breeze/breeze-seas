@@ -3,20 +3,15 @@ package com.example.breeze_seas;
 import android.util.Log;
 
 
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class EventDB {
@@ -50,6 +45,24 @@ public class EventDB {
         void onFailure(Exception e);
     }
 
+    // Get event by id
+    public interface LoadSingleEventCallback {
+        void onSuccess(Event event);
+        void onFailure(Exception e);
+    }
+
+    // Get all events
+    public interface LoadEventsCallback {
+        void onSuccess(ArrayList<Event> events);
+        void onFailure(Exception e);
+    }
+
+    // Modify / Delete events
+    public interface EventMutationCallback {
+        void onSuccess();
+        void onFailure(Exception e);
+    }
+
     /**
      * Synonym method of addEvent
      *
@@ -68,24 +81,39 @@ public class EventDB {
      */
     public static void addEvent(Event event, AddEventCallback callback) {
         setup();
-
-        // Safety
-        if (event.getEventId() == null) {
-            Log.e("DB_ERROR", "Cannot add Event to DB, eventID already exists.");
-            throw new IllegalArgumentException("EventID already exists");
-        }
-
-        // Decompose event class
-        Map<String, Object> map = event.toMap();
-
         // Add event details
-        eventRef
-                .document(event.getEventId())
-                .set(map, SetOptions.merge())
+        eventRef.document(event.getEventId())
+                .set(event.toMap(), SetOptions.merge())
                 .addOnSuccessListener(unused -> {
-                    // Add
                     callback.onSuccess(event.getEventId());
                 })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Modifies an event collection from the database.
+     *
+     * @param event The event object to modifiy.
+     * @param callback Callback method to run after firebase transaction.
+     */
+    public static void updateEvent(Event event, EventMutationCallback callback) {
+        setup();
+        eventRef.document(event.getEventId())
+                .set(event.toMap(), SetOptions.merge())
+                .addOnSuccessListener(unused -> callback.onSuccess())
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Deletes an event collection from the database.
+     * @param event The event object to delete
+     * @param callback Callback method to run after firebase transaction.
+     */
+    public static void deleteEvent(Event event, EventMutationCallback callback) {
+        setup();
+        eventRef.document(event.getEventId())
+                .delete()
+                .addOnSuccessListener(unused -> callback.onSuccess())
                 .addOnFailureListener(callback::onFailure);
     }
 
@@ -102,10 +130,21 @@ public class EventDB {
 
     }
 
-    // Get all events
-    public interface LoadEventsCallback {
-        public void onSuccess(ArrayList<Event> events);
-        public void onFailure(Exception e);
+    /**
+     * Fetches an event based on documentID
+     * @param eventId The event document to fetch for.
+     * @param callback Callback method to run after firebase transaction.
+     */
+    public static void getEventById(String eventId,LoadSingleEventCallback callback){
+        setup();
+        eventRef.document(eventId).get().
+                addOnSuccessListener(documentSnapshot ->{
+                    if (documentSnapshot.exists()) {
+                        callback.onSuccess(fromSingle(documentSnapshot));
+                    } else {
+                        callback.onSuccess(null);
+                    }
+                } ).addOnFailureListener(callback::onFailure);
     }
 
     /**
@@ -114,102 +153,97 @@ public class EventDB {
      */
     public static void getAllEvents(LoadEventsCallback callback) {
         setup();
-
-        eventRef.orderBy("registrationStartDate").get()
+        eventRef.orderBy("createdTimestamp")
+                .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    ArrayList<Event> events = new ArrayList<>();
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        Event event = EventDB.fromDocument(doc);
-                        if (event != null) {
-                            events.add(event);
-                        }
-                    }
-                    callback.onSuccess(events);
+                    callback.onSuccess(fromMultiple(queryDocumentSnapshots));
                 })
                 .addOnFailureListener(callback::onFailure);
     }
 
-    // Get event by id
-    public interface LoadSingleEventCallback {
-        void onSuccess(Event event);
-        void onFailure(Exception e);
-    }
-
     /**
-     *
-     * @param eventId
+     * Fetch all events that the current user is able to join. Registration is open and is not the organizer for event
+     * @param user User to find joinable events fr
      * @param callback Callback method to run after firebase transaction.
      */
-    public static void getEventById(String eventId,LoadSingleEventCallback callback){
+    public static void getAllJoinableEvents(User user, LoadEventsCallback callback) {
         setup();
-        eventRef.document(eventId).get().
-                addOnSuccessListener(documentSnapshot ->{
-                    if(documentSnapshot.exists()){
-                        callback.onSuccess(EventDB.fromDocument(documentSnapshot));
-                    }
-                    else{
-                        callback.onSuccess(null);
-                    }
-                } ).addOnFailureListener(callback::onFailure);
+        // Get userID
+        String userId = user.getDeviceId();
 
-    }
-
-    /**
-     * Modifies an event collection from the database.
-     *
-     * @param event The event object to modifiy.
-     * @param callback Callback method to run after firebase transaction.
-     */
-    public static void updateEvent(@NonNull Event event, @NonNull EventMutationCallback callback) {
-        eventRef
-                .document(event.getEventId())
-                .set(event.toMap(), SetOptions.merge())
-                .addOnSuccessListener(unused -> callback.onSuccess())
+        eventRef.whereGreaterThan("registrationStartTimestamp", Timestamp.now())
+                .whereLessThan("registrationEndTimestamp", Timestamp.now())
+                .whereNotEqualTo("organizerId", userId)
+                .orderBy("registrationEndTimestamp")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    callback.onSuccess(fromMultiple(queryDocumentSnapshots));
+                })
                 .addOnFailureListener(callback::onFailure);
     }
 
     /**
-     * Deletes an event collection from the database.
-     *
-     * @param event The event object to delete
+     * Fetch all events that the user is organizing
+     * @param user User to check the id of organizers.
      * @param callback Callback method to run after firebase transaction.
      */
-    public static void deleteEvent(@NonNull Event event, @NonNull EventMutationCallback callback) {
-        eventRef
-                .document(event.getEventId())
-                .delete()
-                .addOnSuccessListener(unused -> callback.onSuccess())
+    public static void getAllEventsOrganizedByUser(User user, LoadEventsCallback callback) {
+        setup();
+        // Get userID
+        String userId = user.getDeviceId();
+
+        eventRef.whereEqualTo("organizerId", userId)
+                .orderBy("registrationStartTimestamp")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    callback.onSuccess(fromMultiple(queryDocumentSnapshots));
+                })
                 .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Helper method to generate arraylist of events.
+     * @param documentSnapshots The querySnapshot to generate events from
+     * @return ArrayList of events
+     */
+    private static ArrayList<Event> fromMultiple(QuerySnapshot documentSnapshots) {
+        ArrayList<Event> events = new ArrayList<>();
+        for (QueryDocumentSnapshot doc : documentSnapshots) {
+            Event event = EventDB.fromSingle(doc);
+            if (event != null) {
+                events.add(event);
+            }
+        }
+        return events;
     }
 
     /**
      * Helper method that takes a document snapshot and converts it into an event object
-     *
      * @param doc The document snapshot of event document
      * @return The event object
      */
-    private static Event fromDocument(DocumentSnapshot doc) {
+    private static Event fromSingle(DocumentSnapshot doc) {
         if (doc == null || !doc.exists()) return null;
 
-        //Strings
+        //Values
         String eventId = doc.getId();
+        boolean isPrivate = Boolean.TRUE.equals(doc.getBoolean("isPrivate"));
         String organizerId = doc.getString("organizerId");
+        ArrayList<String> coOrganizerId = new ArrayList<String>();
         String name = doc.getString("name");
         String description = doc.getString("description")!=null ? doc.getString("description") : "";
         String image = doc.getString("image") != null ? doc.getString("image") : "";
         String qrValue = doc.getString("qrValue") != null ? doc.getString("qrValue") : "";
 
-        boolean geo = Boolean.TRUE.equals(doc.getBoolean("geolocationEnforced")); // false if null
-
         //timestamps
-        Timestamp dateCreated = doc.getTimestamp("dateCreated");
-        Timestamp dateModified = doc.getTimestamp("dateModified");
-        Timestamp regStart = doc.getTimestamp("registrationStartDate");
-        Timestamp regEnd = doc.getTimestamp("registrationEndDate");
-        Timestamp eventStart = doc.getTimestamp("eventStartDate");
-        Timestamp eventEnd = doc.getTimestamp("eventEndDate");
+        Timestamp created = doc.getTimestamp("createdTimestamp");
+        Timestamp modified = doc.getTimestamp("modifiedTimestamp");
+        Timestamp regStart = doc.getTimestamp("registrationStartTimestamp");
+        Timestamp regEnd = doc.getTimestamp("registrationEndTimestamp");
+        Timestamp eventStart = doc.getTimestamp("eventStartTimestamp");
+        Timestamp eventEnd = doc.getTimestamp("eventEndTimestamp");
 
-
+        boolean geo = Boolean.TRUE.equals(doc.getBoolean("geolocationEnforced")); // false if null
         //int vals
         int eventCap = doc.getLong("eventCapacity").intValue();
         int waitCap = doc.getLong("waitingListCapacity") != null ? doc.getLong("waitingListCapacity").intValue() : -1;
@@ -217,8 +251,8 @@ public class EventDB {
 
 
         Event newEvent = new Event(
-                eventId, organizerId, name, description, image, qrValue,
-                dateCreated, dateModified, regStart, regEnd, eventStart, eventEnd,
+                eventId, isPrivate, organizerId, coOrganizerId, name, description, image, qrValue,
+                created, modified, regStart, regEnd, eventStart, eventEnd,
                 geo, eventCap, waitCap, drawRound,
                 null, null, null, null
         );
@@ -231,5 +265,4 @@ public class EventDB {
 
         return newEvent;
     }
-
 }
