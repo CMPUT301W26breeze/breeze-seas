@@ -171,8 +171,8 @@ public class EventDB {
         // Get userID
         String userId = user.getDeviceId();
 
-        eventRef.whereGreaterThan("registrationStartTimestamp", Timestamp.now())
-                .whereLessThan("registrationEndTimestamp", Timestamp.now())
+        eventRef.whereLessThan("registrationStartTimestamp", Timestamp.now())
+                .whereGreaterThan("registrationEndTimestamp", Timestamp.now())
                 .whereNotEqualTo("organizerId", userId)
                 .orderBy("registrationEndTimestamp")
                 .get()

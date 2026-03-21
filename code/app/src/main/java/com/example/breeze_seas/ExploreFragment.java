@@ -1,6 +1,7 @@
 package com.example.breeze_seas;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -82,6 +83,7 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
 
             @Override
             public void onFailure(Exception e) {
+                Log.e("ExploreFragment", "database query failed", e);
                 eventList = null;
                 showNoEventsText(true);
             }
