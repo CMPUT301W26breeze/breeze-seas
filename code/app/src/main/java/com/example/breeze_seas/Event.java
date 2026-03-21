@@ -333,6 +333,22 @@ public class Event {
     }
 
     /**
+     * Returns the event poster stored as a Base64 string.
+     * @return Base64 poster string.
+     */
+    public String getPosterBase64() {
+        return image;
+    }
+
+    /**
+     * Updates the event poster stored as a Base64 string.
+     8 @param posterBase64 Base64 poster string to store.
+     */
+    public void setPosterBase64(String posterBase64) {
+        this.image = posterBase64;
+    }
+
+    /**
      * Returns the QR payload associated with the event.
      * @return QR payload string.
      */
