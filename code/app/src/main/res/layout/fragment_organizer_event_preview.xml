@@ -413,6 +413,20 @@
                 android:textAllCaps="false"
                 android:textColor="@color/white"
                 android:textSize="15sp" />
+
+            <Button
+                android:id="@+id/organizer_event_preview_map_button"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_welcome_primary_button"
+                android:backgroundTint="@null"
+                app:backgroundTint="@null"
+                android:fontFamily="@font/inter_semibold"
+                android:text="@string/view_map"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="15sp" />
         </LinearLayout>
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

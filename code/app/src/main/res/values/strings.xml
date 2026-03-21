@@ -96,4 +96,5 @@
     <string name="create_event_geo_hint">Ask entrants to join from their device location.</string>
     <string name="send">Send</string>
     <string name="notification_text">Enter your announcement here</string>
+    <string name="view_map">View Map</string>
 </resources>

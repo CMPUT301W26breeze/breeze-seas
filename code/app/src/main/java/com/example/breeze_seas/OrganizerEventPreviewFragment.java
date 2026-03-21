@@ -173,6 +173,15 @@ public class OrganizerEventPreviewFragment extends Fragment {
                 openAnnouncementFragment();
             }
         });
+        view.findViewById(R.id.organizer_event_preview_map_button).setOnClickListener(new View.OnClickListener(){
+            /**
+             * Opens the map to view where entrants are joining from
+             *
+             * @param v View Map button that was tapped
+             */
+            @Override
+            public void onClick(View v){openMapFragment();}
+        });
 
         resolveAndLoadEvent();
     }
@@ -435,6 +444,40 @@ public class OrganizerEventPreviewFragment extends Fragment {
             ).show();
         }
     }
+
+    /**
+     * Opens the map view fragment
+     */
+
+    private void openMapFragment(){
+
+        if (currentEvent == null) {
+            Toast.makeText(requireContext(), "Event not loaded yet", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            Class<?> fragmentClass = Class.forName("com.example.breeze_seas.MapsFragment");
+            Object instance = fragmentClass.getDeclaredConstructor().newInstance();
+            if (!(instance instanceof Fragment)) {
+                throw new IllegalStateException("MapsFragment is not a Fragment");
+            }
+
+            Fragment fragment = (Fragment) instance;
+            if (viewModel != null) {
+                viewModel.setEventShown(currentEvent);
+            }
+            ((MainActivity) requireActivity()).openSecondaryFragment(fragment);
+        } catch (Exception e) {
+            Toast.makeText(
+                    requireContext(),
+                    R.string.organizer_event_preview_announcement_unavailable,
+                    Toast.LENGTH_SHORT
+            ).show();
+        }
+
+    }
+
 
     /**
      * Displays the current event poster or falls back to the placeholder artwork.
