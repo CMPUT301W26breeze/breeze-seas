@@ -1,6 +1,7 @@
 package com.example.breeze_seas;
 
 import android.app.AlertDialog;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -19,8 +20,8 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.Timestamp;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.Date;
 import java.util.Locale;
 
@@ -31,6 +32,7 @@ import java.util.Locale;
 public class OrganizerEventPreviewFragment extends Fragment {
 
     private static final String ARG_EVENT_ID = "eventId";
+
     private SessionViewModel viewModel;
     private Event currentEvent;
 
@@ -45,41 +47,20 @@ public class OrganizerEventPreviewFragment extends Fragment {
 
     private Timestamp regStartDate;
     private Timestamp regEndDate;
-    private String posterUriString;
+    private String posterBase64 = "";
 
     private final ActivityResultLauncher<String> pickImage =
-            registerForActivityResult(new ActivityResultContracts.GetContent(), new androidx.activity.result.ActivityResultCallback<Uri>() {
-                /**
-                 * Stores the selected poster image and updates the preview if a result was picked.
-                 *
-                 * @param uri Uri returned by the system picker, or {@code null} when cancelled.
-                 */
-                @Override
-                public void onActivityResult(Uri uri) {
-                    if (uri == null) {
-                        return;
-                    }
-
-                    posterUriString = uri.toString();
-                    if (posterImageView != null) {
-                        posterImageView.setImageURI(uri);
-                    }
+            registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
+                if (uri == null) {
+                    return;
                 }
+                handleSelectedPoster(uri);
             });
 
-    /**
-     * Creates the organizer event preview fragment using the shared organizer detail layout.
-     */
     public OrganizerEventPreviewFragment() {
         super(R.layout.fragment_organizer_event_preview);
     }
 
-    /**
-     * Binds organizer preview views, wires actions, and starts loading the selected event.
-     *
-     * @param view Inflated organizer-preview root view.
-     * @param savedInstanceState Previously saved instance state, or {@code null}.
-     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -88,109 +69,27 @@ public class OrganizerEventPreviewFragment extends Fragment {
 
         bindViews(view);
 
-        view.findViewById(R.id.organizer_event_preview_back).setOnClickListener(new View.OnClickListener() {
-            /**
-             * Returns to the previous organizer screen.
-             *
-             * @param v Back button view that was tapped.
-             */
-            @Override
-            public void onClick(View v) {
-                requireActivity().getSupportFragmentManager().popBackStack();
-            }
-        });
+        view.findViewById(R.id.organizer_event_preview_back).setOnClickListener(v ->
+                requireActivity().getSupportFragmentManager().popBackStack());
 
-        View.OnClickListener posterClickListener = new View.OnClickListener() {
-            /**
-             * Opens the system image picker so the organizer can choose a poster image.
-             *
-             * @param v Poster-related view that was tapped.
-             */
-            @Override
-            public void onClick(View v) {
-                pickImage.launch("image/*");
-            }
-        };
+        View.OnClickListener posterClickListener = v -> pickImage.launch("image/*");
         view.findViewById(R.id.organizer_event_preview_poster_card).setOnClickListener(posterClickListener);
         view.findViewById(R.id.organizer_event_preview_update_poster_button).setOnClickListener(posterClickListener);
 
-        View.OnClickListener dateClickListener = new View.OnClickListener() {
-            /**
-             * Opens the registration-range picker for the organizer.
-             *
-             * @param v Date-related view that was tapped.
-             */
-            @Override
-            public void onClick(View v) {
-                openDateRangePicker();
-            }
-        };
+        View.OnClickListener dateClickListener = v -> openDateRangePicker();
         view.findViewById(R.id.organizer_event_preview_reg_period_button).setOnClickListener(dateClickListener);
         regFromInput.setOnClickListener(dateClickListener);
         regToInput.setOnClickListener(dateClickListener);
 
-        view.findViewById(R.id.organizer_event_preview_save_button).setOnClickListener(new View.OnClickListener() {
-            /**
-             * Starts the organizer save flow for the current event.
-             *
-             * @param v Save button that was tapped.
-             */
-            @Override
-            public void onClick(View v) {
-                saveChanges();
-            }
-        });
-        view.findViewById(R.id.organizer_event_preview_delete_button).setOnClickListener(new View.OnClickListener() {
-            /**
-             * Opens a confirmation dialog before deleting the current event.
-             *
-             * @param v Delete button that was tapped.
-             */
-            @Override
-            public void onClick(View v) {
-                confirmDelete();
-            }
-        });
-        view.findViewById(R.id.organizer_event_preview_manage_button).setOnClickListener(new View.OnClickListener() {
-            /**
-             * Opens the manage-entrants flow for the current event.
-             *
-             * @param v Manage button that was tapped.
-             */
-            @Override
-            public void onClick(View v) {
-                openManageEntrantsFragment();
-            }
-        });
-        view.findViewById(R.id.organizer_event_preview_announcement_button).setOnClickListener(new View.OnClickListener() {
-            /**
-             * Opens the organizer announcement flow for the current event.
-             *
-             * @param v Announcement button that was tapped.
-             */
-            @Override
-            public void onClick(View v) {
-                openAnnouncementFragment();
-            }
-        });
-        view.findViewById(R.id.organizer_event_preview_map_button).setOnClickListener(new View.OnClickListener(){
-            /**
-             * Opens the map to view where entrants are joining from
-             *
-             * @param v View Map button that was tapped
-             */
-            @Override
-            public void onClick(View v){openMapFragment();}
-        });
+        view.findViewById(R.id.organizer_event_preview_save_button).setOnClickListener(v -> saveChanges());
+        view.findViewById(R.id.organizer_event_preview_delete_button).setOnClickListener(v -> confirmDelete());
+        view.findViewById(R.id.organizer_event_preview_manage_button).setOnClickListener(v -> openManageEntrantsFragment());
+        view.findViewById(R.id.organizer_event_preview_announcement_button).setOnClickListener(v -> openAnnouncementFragment());
+        view.findViewById(R.id.organizer_event_preview_map_button).setOnClickListener(v -> openMapFragment());
 
         resolveAndLoadEvent();
     }
 
-    /**
-     * Binds view references used by the organizer preview screen.
-     *
-     * @param view Inflated organizer-preview root view.
-     */
     private void bindViews(@NonNull View view) {
         posterImageView = view.findViewById(R.id.organizer_event_preview_poster);
         nameInput = view.findViewById(R.id.organizer_event_preview_name_input);
@@ -202,9 +101,6 @@ public class OrganizerEventPreviewFragment extends Fragment {
         geoSwitch = view.findViewById(R.id.organizer_event_preview_geo_switch);
     }
 
-    /**
-     * Resolves the event identifier from fragment arguments or shared session state.
-     */
     private void resolveAndLoadEvent() {
         String eventId = getArguments() == null ? null : getArguments().getString(ARG_EVENT_ID);
         if (eventId == null || eventId.trim().isEmpty()) {
@@ -223,21 +119,13 @@ public class OrganizerEventPreviewFragment extends Fragment {
         loadEvent(eventId);
     }
 
-    /**
-     * Loads the selected event from {@link EventDB}.
-     *
-     * @param eventId Identifier of the event to display.
-     */
     private void loadEvent(@NonNull String eventId) {
         EventDB.getEventById(eventId, new EventDB.LoadSingleEventCallback() {
-            /**
-             * Populates the organizer preview with the loaded event.
-             *
-             * @param event Event loaded from the database, or {@code null} if not found.
-             */
             @Override
             public void onSuccess(Event event) {
-                if (!isAdded()) return;
+                if (!isAdded()) {
+                    return;
+                }
                 if (event == null) {
                     Toast.makeText(requireContext(), R.string.organizer_event_preview_not_found, Toast.LENGTH_SHORT).show();
                     requireActivity().getSupportFragmentManager().popBackStack();
@@ -250,11 +138,7 @@ public class OrganizerEventPreviewFragment extends Fragment {
                     viewModel.setEventShown(event);
                 }
             }
-            /**
-             * Reports a user-visible error if the event cannot be loaded.
-             *
-             * @param e Failure returned by the event lookup.
-             */
+
             @Override
             public void onFailure(Exception e) {
                 if (!isAdded()) {
@@ -267,21 +151,15 @@ public class OrganizerEventPreviewFragment extends Fragment {
         });
     }
 
-    /**
-     * Copies event data into the organizer preview form fields.
-     *
-     * @param event Loaded event whose data should be displayed.
-     */
     private void populateFields(@NonNull Event event) {
         View root = getView();
         if (root == null) {
             return;
         }
 
-
         regStartDate = event.getRegistrationStartTimestamp();
         regEndDate = event.getRegistrationEndTimestamp();
-        posterUriString = event.getImage();
+        posterBase64 = event.getImage() == null ? "" : event.getImage();
 
         ((android.widget.TextView) root.findViewById(R.id.organizer_event_preview_title)).setText(event.getName());
         ((android.widget.TextView) root.findViewById(R.id.organizer_event_preview_subtitle))
@@ -295,12 +173,18 @@ public class OrganizerEventPreviewFragment extends Fragment {
         detailsInput.setText(event.getDescription());
         geoSwitch.setChecked(event.isGeolocationEnforced());
 
-        bindPoster(posterUriString);
+        bindPoster(posterBase64);
     }
 
-    /**
-     * Opens the registration-range picker and updates the displayed range when confirmed.
-     */
+    private void handleSelectedPoster(@NonNull Uri uri) {
+        try {
+            posterBase64 = ImageUtils.uriToCompressedBase64(requireContext(), uri);
+            bindPoster(posterBase64);
+        } catch (IOException e) {
+            Toast.makeText(requireContext(), "Failed to process image", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void openDateRangePicker() {
         MaterialDatePicker.Builder<androidx.core.util.Pair<Long, Long>> builder =
                 MaterialDatePicker.Builder.dateRangePicker()
@@ -308,38 +192,28 @@ public class OrganizerEventPreviewFragment extends Fragment {
                         .setTitleText("Select registration period");
 
         if (regStartDate != null && regEndDate != null) {
-            builder.setSelection(new androidx.core.util.Pair<>(regStartDate.toDate().getTime(), regEndDate.toDate().getTime()));
+            builder.setSelection(new androidx.core.util.Pair<>(
+                    regStartDate.toDate().getTime(),
+                    regEndDate.toDate().getTime()
+            ));
         }
 
         MaterialDatePicker<androidx.core.util.Pair<Long, Long>> picker = builder.build();
-        picker.addOnPositiveButtonClickListener(new com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener<androidx.core.util.Pair<Long, Long>>() {
-            /**
-             * Stores the selected registration range and updates the visible date fields.
-             *
-             * @param selection Selected registration start and end dates.
-             */
-            @Override
-            public void onPositiveButtonClick(androidx.core.util.Pair<Long, Long> selection) {
-                if (selection == null) {
-                    return;
-                }
-
-                // TODO: Fix API in the future
-                regStartDate = new Timestamp(Instant.ofEpochSecond(selection.first));
-                regEndDate = new Timestamp(Instant.ofEpochSecond(selection.second));
-
-
-                regFromInput.setText(formatDate(regStartDate));
-                regToInput.setText(formatDate(regEndDate));
+        picker.addOnPositiveButtonClickListener(selection -> {
+            if (selection == null) {
+                return;
             }
+
+            regStartDate = new Timestamp(new Date(selection.first));
+            regEndDate = new Timestamp(new Date(selection.second));
+
+            regFromInput.setText(formatDate(regStartDate));
+            regToInput.setText(formatDate(regEndDate));
         });
 
         picker.show(getParentFragmentManager(), "organizer_reg_range");
     }
 
-    /**
-     * Starts the save flow for organizer edits.
-     */
     private void saveChanges() {
         if (currentEvent == null) {
             Toast.makeText(requireContext(), "Event not loaded yet", Toast.LENGTH_SHORT).show();
@@ -348,9 +222,6 @@ public class OrganizerEventPreviewFragment extends Fragment {
         Toast.makeText(requireContext(), "Editing events is coming soon.", Toast.LENGTH_SHORT).show();
     }
 
-    /**
-     * Opens a confirmation dialog before deleting the current event.
-     */
     private void confirmDelete() {
         if (currentEvent == null) {
             return;
@@ -360,24 +231,11 @@ public class OrganizerEventPreviewFragment extends Fragment {
                 .setTitle(R.string.organizer_event_preview_delete_title)
                 .setMessage(R.string.organizer_event_preview_delete_message)
                 .setNegativeButton(android.R.string.cancel, null)
-                .setPositiveButton(R.string.organizer_event_preview_delete_confirm, new android.content.DialogInterface.OnClickListener() {
-                    /**
-                     * Deletes the current event after the organizer confirms the action.
-                     *
-                     * @param dialog Dialog that collected the delete confirmation.
-                     * @param which Button identifier chosen by the user.
-                     */
-                    @Override
-                    public void onClick(android.content.DialogInterface dialog, int which) {
-                        deleteCurrentEvent();
-                    }
-                })
+                .setPositiveButton(R.string.organizer_event_preview_delete_confirm,
+                        (dialog, which) -> deleteCurrentEvent())
                 .show();
     }
 
-    /**
-     * Starts the delete flow for the current organizer event.
-     */
     private void deleteCurrentEvent() {
         if (currentEvent == null) {
             return;
@@ -385,9 +243,6 @@ public class OrganizerEventPreviewFragment extends Fragment {
         Toast.makeText(requireContext(), "Deleting events is coming soon.", Toast.LENGTH_SHORT).show();
     }
 
-    /**
-     * Opens the teammate-owned manage-entrants fragment for the current event.
-     */
     private void openManageEntrantsFragment() {
         if (currentEvent == null) {
             Toast.makeText(requireContext(), "Event not loaded yet", Toast.LENGTH_SHORT).show();
@@ -415,9 +270,6 @@ public class OrganizerEventPreviewFragment extends Fragment {
         }
     }
 
-    /**
-     * Opens the teammate-owned announcement fragment for the current event.
-     */
     private void openAnnouncementFragment() {
         if (currentEvent == null) {
             Toast.makeText(requireContext(), "Event not loaded yet", Toast.LENGTH_SHORT).show();
@@ -445,12 +297,7 @@ public class OrganizerEventPreviewFragment extends Fragment {
         }
     }
 
-    /**
-     * Opens the map view fragment
-     */
-
-    private void openMapFragment(){
-
+    private void openMapFragment() {
         if (currentEvent == null) {
             Toast.makeText(requireContext(), "Event not loaded yet", Toast.LENGTH_SHORT).show();
             return;
@@ -475,35 +322,26 @@ public class OrganizerEventPreviewFragment extends Fragment {
                     Toast.LENGTH_SHORT
             ).show();
         }
-
     }
 
-
-    /**
-     * Displays the current event poster or falls back to the placeholder artwork.
-     *
-     * @param uriString Poster URI string to display, or {@code null} if unavailable.
-     */
-    private void bindPoster(@Nullable String uriString) {
+    private void bindPoster(@Nullable String base64String) {
         posterImageView.setImageResource(R.drawable.ic_image_placeholder);
-        if (uriString == null || uriString.trim().isEmpty()) {
+        if (base64String == null || base64String.trim().isEmpty()) {
             return;
         }
 
-        try {
-            posterImageView.setImageURI(Uri.parse(uriString));
-        } catch (Exception ignored) {
+        Bitmap bitmap = ImageUtils.base64ToBitmap(base64String);
+        if (bitmap != null) {
+            posterImageView.setImageBitmap(bitmap);
+        } else {
             posterImageView.setImageResource(R.drawable.ic_image_placeholder);
         }
     }
 
-    /**
-     * Formats a timestamp into the organizer preview date label.
-     *
-     * @param timestamp The timestamp to format.
-     * @return Display-ready date string.
-     */
-    private String formatDate(Timestamp timestamp) {
+    private String formatDate(@Nullable Timestamp timestamp) {
+        if (timestamp == null) {
+            return "";
+        }
         SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.US);
         return sdf.format(new Date(timestamp.toDate().getTime()));
     }

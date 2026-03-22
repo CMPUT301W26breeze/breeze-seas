@@ -1,6 +1,6 @@
 package com.example.breeze_seas;
 
-import android.net.Uri;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,11 +55,6 @@ public class OrganizeFragment extends Fragment {
         RecyclerView rv = view.findViewById(R.id.rvMyEvents);
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new EventAdapter(events, new EventAdapter.OnEventClickListener() {
-            /**
-             * Opens the organizer preview for the selected event row.
-             *
-             * @param event Event selected from the organizer list.
-             */
             @Override
             public void onEventClick(Event event) {
                 openEventPreview(event);
@@ -71,11 +66,6 @@ public class OrganizeFragment extends Fragment {
 
         View createButton = view.findViewById(R.id.fabCreateEvent);
         createButton.setOnClickListener(new View.OnClickListener() {
-            /**
-             * Opens the organizer create-event flow when the primary action is pressed.
-             *
-             * @param v Organizer create button that was tapped.
-             */
             @Override
             public void onClick(View v) {
                 ((MainActivity) requireActivity()).openSecondaryFragment(new CreateEventFragment());
@@ -98,11 +88,6 @@ public class OrganizeFragment extends Fragment {
      */
     private void loadEvents() {
         EventDB.getAllEvents(new EventDB.LoadEventsCallback() {
-            /**
-             * Replaces the visible organizer event list with the freshly loaded results.
-             *
-             * @param loadedEvents Events returned by {@link EventDB}.
-             */
             @Override
             public void onSuccess(ArrayList<Event> loadedEvents) {
                 events.clear();
@@ -112,11 +97,6 @@ public class OrganizeFragment extends Fragment {
                 }
             }
 
-            /**
-             * Reports a user-visible error if organizer events cannot be loaded.
-             *
-             * @param e Failure returned by the event-loading request.
-             */
             @Override
             public void onFailure(Exception e) {
                 Toast.makeText(requireContext(), "Failed to load events", Toast.LENGTH_SHORT).show();
@@ -177,44 +157,26 @@ public class OrganizeFragment extends Fragment {
      */
     static class EventAdapter extends RecyclerView.Adapter<EventAdapter.VH> {
 
-        /**
-         * Listener notified when an organizer selects an event card from the list.
-         */
         interface OnEventClickListener {
-            /**
-             * Opens the selected organizer event.
-             *
-             * @param event Event selected from the organizer list.
-             */
             void onEventClick(Event event);
         }
 
         private final List<Event> data;
         private final OnEventClickListener onEventClickListener;
 
-        /**
-         * Creates an adapter for organizer event cards.
-         *
-         * @param data Event list rendered by the adapter.
-         * @param onEventClickListener Click listener invoked when an event card is tapped.
-         */
         EventAdapter(List<Event> data, OnEventClickListener onEventClickListener) {
             this.data = data;
             this.onEventClickListener = onEventClickListener;
         }
 
-        /**
-         * ViewHolder that caches the views used by a single organizer event row.
-         */
         static class VH extends RecyclerView.ViewHolder {
             ImageView ivPoster;
-            TextView tvName, tvDates, tvCap, tvDetails, tvAction;
+            TextView tvName;
+            TextView tvDates;
+            TextView tvCap;
+            TextView tvDetails;
+            TextView tvAction;
 
-            /**
-             * Creates a ViewHolder for one organizer event row.
-             *
-             * @param itemView Inflated row view associated with this holder.
-             */
             VH(@NonNull View itemView) {
                 super(itemView);
                 ivPoster = itemView.findViewById(R.id.ivEventPoster);
@@ -226,13 +188,6 @@ public class OrganizeFragment extends Fragment {
             }
         }
 
-        /**
-         * Inflates one organizer event row.
-         *
-         * @param parent RecyclerView that will host the new row.
-         * @param viewType Adapter view type for the requested row.
-         * @return ViewHolder bound to the inflated organizer event view.
-         */
         @NonNull
         @Override
         public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -241,29 +196,21 @@ public class OrganizeFragment extends Fragment {
             return new VH(v);
         }
 
-        /**
-         * Binds organizer event data into a visible row.
-         *
-         * @param holder ViewHolder receiving the event data.
-         * @param position Adapter position being bound.
-         */
         @Override
         public void onBindViewHolder(@NonNull VH holder, int position) {
             Event e = data.get(position);
 
             holder.ivPoster.setImageResource(R.drawable.ic_image_placeholder);
-            if (e.getImage() != null && !e.getImage().trim().isEmpty()) {
-                try {
-                    holder.ivPoster.setImageURI(Uri.parse(e.getImage()));
-                } catch (Exception ignored) {
-                    holder.ivPoster.setImageResource(R.drawable.ic_image_placeholder);
-                }
+            Bitmap posterBitmap = ImageUtils.base64ToBitmap(e.getImage());
+            if (posterBitmap != null) {
+                holder.ivPoster.setImageBitmap(posterBitmap);
+            } else {
+                holder.ivPoster.setImageResource(R.drawable.ic_image_placeholder);
             }
 
             holder.tvName.setText(e.getName());
 
             SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.US);
-            //sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
             String from = formatTimestamp(sdf, e.getRegistrationStartTimestamp());
             String to = formatTimestamp(sdf, e.getRegistrationEndTimestamp());
             holder.tvDates.setText("Reg: " + from + " → " + to);
@@ -272,16 +219,13 @@ public class OrganizeFragment extends Fragment {
             holder.tvCap.setText(cap == null || cap < 0
                     ? "Waiting list cap: Unlimited"
                     : "Waiting list cap: " + cap);
+
             holder.tvDetails.setText(e.getDescription().trim().isEmpty()
                     ? holder.itemView.getContext().getString(R.string.organize_event_no_description)
                     : e.getDescription());
+
             holder.tvAction.setText(R.string.organize_event_open_preview);
             holder.itemView.setOnClickListener(new View.OnClickListener() {
-                /**
-                 * Opens the organizer preview for the tapped event card.
-                 *
-                 * @param v Event row view that was tapped.
-                 */
                 @Override
                 public void onClick(View v) {
                     onEventClickListener.onEventClick(e);
@@ -289,25 +233,16 @@ public class OrganizeFragment extends Fragment {
             });
         }
 
-        /**
-         * Returns the number of organizer events currently available to the adapter.
-         *
-         * @return Adapter item count.
-         */
         @Override
         public int getItemCount() {
             return data.size();
         }
 
-        /**
-         * Formats a Firestore timestamp for organizer list display.
-         *
-         * @param sdf Date formatter configured for organizer display.
-         * @param timestamp Firestore timestamp to format.
-         * @return Display-ready date string, or {@code "Not set"} when the timestamp is absent.
-         */
         @NonNull
         private String formatTimestamp(@NonNull SimpleDateFormat sdf, @Nullable Timestamp timestamp) {
+            if (timestamp == null) {
+                return "Not set";
+            }
             return sdf.format(new Date(timestamp.toDate().getTime()));
         }
     }
