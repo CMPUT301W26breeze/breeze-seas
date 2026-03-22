@@ -266,5 +266,3 @@ public class EventDB {
         return newEvent;
     }
 }
-
-
