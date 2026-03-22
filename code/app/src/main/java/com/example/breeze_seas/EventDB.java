@@ -2,12 +2,10 @@ package com.example.breeze_seas;
 
 import android.util.Log;
 
-
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
@@ -81,13 +79,44 @@ public class EventDB {
      */
     public static void addEvent(Event event, AddEventCallback callback) {
         setup();
-        // Add event details
-        eventRef.document(event.getEventId())
-                .set(event.toMap(), SetOptions.merge())
-                .addOnSuccessListener(unused -> {
-                    callback.onSuccess(event.getEventId());
-                })
-                .addOnFailureListener(callback::onFailure);
+
+        if (event.getEventId() == null || event.getEventId().trim().isEmpty()) {
+            event.setEventId(genNewEventId());
+        }
+
+        String imageBase64 = event.getImage() == null ? "" : event.getImage().trim();
+        Map<String, Object> eventMap = event.toMap();
+        eventMap.remove("image");
+
+        if (!imageBase64.isEmpty()) {
+            String imageDocId = event.getEventId();
+            eventMap.put("imageDocId", imageDocId);
+
+            ImageDB.saveImage(imageDocId, imageBase64, new ImageDB.ImageMutationCallback() {
+                @Override
+                public void onSuccess() {
+                    eventRef.document(event.getEventId())
+                            .set(eventMap, SetOptions.merge())
+                            .addOnSuccessListener(unused -> {
+                                callback.onSuccess(event.getEventId());
+                            })
+                            .addOnFailureListener(callback::onFailure);
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    callback.onFailure(e);
+                }
+            });
+        } else {
+            eventMap.put("imageDocId", "");
+            eventRef.document(event.getEventId())
+                    .set(eventMap, SetOptions.merge())
+                    .addOnSuccessListener(unused -> {
+                        callback.onSuccess(event.getEventId());
+                    })
+                    .addOnFailureListener(callback::onFailure);
+        }
     }
 
     /**
@@ -98,10 +127,48 @@ public class EventDB {
      */
     public static void updateEvent(Event event, EventMutationCallback callback) {
         setup();
-        eventRef.document(event.getEventId())
-                .set(event.toMap(), SetOptions.merge())
-                .addOnSuccessListener(unused -> callback.onSuccess())
-                .addOnFailureListener(callback::onFailure);
+        event.setModifiedTimestamp(Timestamp.now());
+
+        String imageBase64 = event.getImage() == null ? "" : event.getImage().trim();
+        Map<String, Object> eventMap = event.toMap();
+        eventMap.remove("image");
+
+        if (!imageBase64.isEmpty()) {
+            String imageDocId = event.getEventId();
+            eventMap.put("imageDocId", imageDocId);
+
+            ImageDB.saveImage(imageDocId, imageBase64, new ImageDB.ImageMutationCallback() {
+                @Override
+                public void onSuccess() {
+                    eventRef.document(event.getEventId())
+                            .set(eventMap, SetOptions.merge())
+                            .addOnSuccessListener(unused -> callback.onSuccess())
+                            .addOnFailureListener(callback::onFailure);
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    callback.onFailure(e);
+                }
+            });
+        } else {
+            eventMap.put("imageDocId", "");
+
+            ImageDB.deleteImage(event.getEventId(), new ImageDB.ImageMutationCallback() {
+                @Override
+                public void onSuccess() {
+                    eventRef.document(event.getEventId())
+                            .set(eventMap, SetOptions.merge())
+                            .addOnSuccessListener(unused -> callback.onSuccess())
+                            .addOnFailureListener(callback::onFailure);
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    callback.onFailure(e);
+                }
+            });
+        }
     }
 
     /**
@@ -111,10 +178,21 @@ public class EventDB {
      */
     public static void deleteEvent(Event event, EventMutationCallback callback) {
         setup();
-        eventRef.document(event.getEventId())
-                .delete()
-                .addOnSuccessListener(unused -> callback.onSuccess())
-                .addOnFailureListener(callback::onFailure);
+
+        ImageDB.deleteImage(event.getEventId(), new ImageDB.ImageMutationCallback() {
+            @Override
+            public void onSuccess() {
+                eventRef.document(event.getEventId())
+                        .delete()
+                        .addOnSuccessListener(unused -> callback.onSuccess())
+                        .addOnFailureListener(callback::onFailure);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(e);
+            }
+        });
     }
 
     /**
@@ -127,7 +205,6 @@ public class EventDB {
         PendingList pendingList = event.getPendingList();
         AcceptedList acceptedList = event.getAcceptedList();
         DeclinedList declinedList = event.getDeclinedList();
-
     }
 
     /**
@@ -135,16 +212,17 @@ public class EventDB {
      * @param eventId The event document to fetch for.
      * @param callback Callback method to run after firebase transaction.
      */
-    public static void getEventById(String eventId,LoadSingleEventCallback callback){
+    public static void getEventById(String eventId, LoadSingleEventCallback callback) {
         setup();
-        eventRef.document(eventId).get().
-                addOnSuccessListener(documentSnapshot ->{
+        eventRef.document(eventId).get()
+                .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        callback.onSuccess(fromSingle(documentSnapshot));
+                        loadEventWithImage(documentSnapshot, callback);
                     } else {
                         callback.onSuccess(null);
                     }
-                } ).addOnFailureListener(callback::onFailure);
+                })
+                .addOnFailureListener(callback::onFailure);
     }
 
     /**
@@ -156,7 +234,7 @@ public class EventDB {
         eventRef.orderBy("createdTimestamp")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    callback.onSuccess(fromMultiple(queryDocumentSnapshots));
+                    hydrateMultiple(queryDocumentSnapshots, callback);
                 })
                 .addOnFailureListener(callback::onFailure);
     }
@@ -177,7 +255,7 @@ public class EventDB {
                 .orderBy("registrationEndTimestamp")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    callback.onSuccess(fromMultiple(queryDocumentSnapshots));
+                    hydrateMultiple(queryDocumentSnapshots, callback);
                 })
                 .addOnFailureListener(callback::onFailure);
     }
@@ -196,7 +274,7 @@ public class EventDB {
                 .orderBy("registrationStartTimestamp")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    callback.onSuccess(fromMultiple(queryDocumentSnapshots));
+                    hydrateMultiple(queryDocumentSnapshots, callback);
                 })
                 .addOnFailureListener(callback::onFailure);
     }
@@ -208,7 +286,7 @@ public class EventDB {
      */
     private static ArrayList<Event> fromMultiple(QuerySnapshot documentSnapshots) {
         ArrayList<Event> events = new ArrayList<>();
-        for (QueryDocumentSnapshot doc : documentSnapshots) {
+        for (DocumentSnapshot doc : documentSnapshots.getDocuments()) {
             Event event = EventDB.fromSingle(doc);
             if (event != null) {
                 events.add(event);
@@ -231,8 +309,8 @@ public class EventDB {
         String organizerId = doc.getString("organizerId");
         ArrayList<String> coOrganizerId = new ArrayList<String>();
         String name = doc.getString("name");
-        String description = doc.getString("description")!=null ? doc.getString("description") : "";
-        String image = doc.getString("image") != null ? doc.getString("image") : "";
+        String description = doc.getString("description") != null ? doc.getString("description") : "";
+        String image = "";
         String qrValue = doc.getString("qrValue") != null ? doc.getString("qrValue") : "";
 
         //timestamps
@@ -244,11 +322,17 @@ public class EventDB {
         Timestamp eventEnd = doc.getTimestamp("eventEndTimestamp");
 
         boolean geo = Boolean.TRUE.equals(doc.getBoolean("geolocationEnforced")); // false if null
-        //int vals
-        int eventCap = doc.getLong("eventCapacity").intValue();
-        int waitCap = doc.getLong("waitingListCapacity") != null ? doc.getLong("waitingListCapacity").intValue() : -1;
-        int drawRound = doc.getLong("drawARound") != null ? doc.getLong("drawARound").intValue() : 0;
 
+        //int vals
+        int eventCap = doc.getLong("eventCapacity") != null
+                ? doc.getLong("eventCapacity").intValue()
+                : -1;
+        int waitCap = doc.getLong("waitingListCapacity") != null
+                ? doc.getLong("waitingListCapacity").intValue()
+                : -1;
+        int drawRound = doc.getLong("drawARound") != null
+                ? doc.getLong("drawARound").intValue()
+                : 0;
 
         Event newEvent = new Event(
                 eventId, isPrivate, organizerId, coOrganizerId, name, description, image, qrValue,
@@ -261,8 +345,94 @@ public class EventDB {
         newEvent.setPendingList(new PendingList(newEvent, eventCap));
         newEvent.setAcceptedList(new AcceptedList(newEvent, eventCap));
         newEvent.setDeclinedList(new DeclinedList(newEvent, -1));
-        newEvent.refreshListsFromDB();
 
         return newEvent;
+    }
+
+    /**
+     * Loads the Base64 image string from ImageDB and then attaches it back to the event object.
+     * Falls back to legacy inline image if imageDocId is missing.
+     *
+     * @param doc The event document snapshot
+     * @param callback Callback returning a hydrated event object
+     */
+    private static void loadEventWithImage(DocumentSnapshot doc, LoadSingleEventCallback callback) {
+        Event event = fromSingle(doc);
+        if (event == null) {
+            callback.onSuccess(null);
+            return;
+        }
+
+        String imageDocId = doc.getString("imageDocId");
+        String legacyInlineImage = doc.getString("image") != null ? doc.getString("image") : "";
+
+        if (imageDocId == null || imageDocId.trim().isEmpty()) {
+            event.setImage(legacyInlineImage);
+            event.refreshListsFromDB();
+            callback.onSuccess(event);
+            return;
+        }
+
+        ImageDB.loadImage(imageDocId, new ImageDB.LoadImageCallback() {
+            @Override
+            public void onSuccess(String base64) {
+                if (base64 == null || base64.trim().isEmpty()) {
+                    event.setImage(legacyInlineImage);
+                } else {
+                    event.setImage(base64);
+                }
+                event.refreshListsFromDB();
+                callback.onSuccess(event);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(e);
+            }
+        });
+    }
+
+    /**
+     * Hydrates all events from a query result and preserves the original query order.
+     *
+     * @param documentSnapshots Query results from Firestore
+     * @param callback Callback returning hydrated events
+     */
+    private static void hydrateMultiple(QuerySnapshot documentSnapshots, LoadEventsCallback callback) {
+        ArrayList<DocumentSnapshot> docs = new ArrayList<>(documentSnapshots.getDocuments());
+        hydrateMultipleRecursive(docs, 0, new ArrayList<>(), callback);
+    }
+
+    /**
+     * Recursive helper used by hydrateMultiple to load image data for each event.
+     *
+     * @param docs Event document snapshots
+     * @param index Current index
+     * @param events Hydrated events collected so far
+     * @param callback Callback returning hydrated events
+     */
+    private static void hydrateMultipleRecursive(ArrayList<? extends DocumentSnapshot> docs,
+                                                 int index,
+                                                 ArrayList<Event> events,
+                                                 LoadEventsCallback callback) {
+        if (index >= docs.size()) {
+            callback.onSuccess(events);
+            return;
+        }
+
+        loadEventWithImage(docs.get(index), new LoadSingleEventCallback() {
+            @Override
+            public void onSuccess(Event event) {
+                if (event != null) {
+                    events.add(event);
+                }
+                hydrateMultipleRecursive(docs, index + 1, events, callback);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(e);
+            }
+        });
     }
 }
