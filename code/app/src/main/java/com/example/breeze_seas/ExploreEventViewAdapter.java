@@ -1,7 +1,7 @@
 package com.example.breeze_seas;
 
 import android.content.Context;
-import android.net.Uri;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,9 +60,10 @@ public class ExploreEventViewAdapter extends RecyclerView.Adapter<ExploreEventVi
 
         holder.eventImage.setImageResource(R.drawable.ic_image_placeholder);
         if (event.getImage() != null && !event.getImage().trim().isEmpty()) {
-            try {
-                holder.eventImage.setImageURI(Uri.parse(event.getImage()));
-            } catch (Exception ignored) {
+            Bitmap posterBitmap = ImageUtils.base64ToBitmap(event.getImage());
+            if (posterBitmap != null) {
+                holder.eventImage.setImageBitmap(posterBitmap);
+            } else {
                 holder.eventImage.setImageResource(R.drawable.ic_image_placeholder);
             }
         }
@@ -106,7 +107,5 @@ public class ExploreEventViewAdapter extends RecyclerView.Adapter<ExploreEventVi
     private String formatDate(Timestamp timestamp) {
         SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.US);
         return sdf.format(new Date(timestamp.toDate().getTime()));
-
-
     }
 }
