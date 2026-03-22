@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -100,8 +101,12 @@ public class EventDetailsFragment extends Fragment {
             // TODO: implement logic to show QRCode
         });
 
+        ProgressBar progressBar=view.findViewById(R.id.event_details_loading_progress_bar);
         joinWaitingListButton = view.findViewById(R.id.event_details_join_waitlist_button);
         joinWaitingListButton.setOnClickListener(v -> {
+            progressBar.setVisibility(View.VISIBLE);
+            joinWaitingListButton.setEnabled(false);
+            joinWaitingListButton.setVisibility(View.INVISIBLE);
             // Add user to waitlist logic
             // First check waiting list capacity
             waitingList.refresh(new StatusList.ListUpdateListener() {
@@ -110,6 +115,9 @@ public class EventDetailsFragment extends Fragment {
                     int waitingListCapacity = waitingList.getCapacity();
                     int waitingListSize = waitingList.getSize();
                     if ((waitingListCapacity != -1) && (waitingListSize>= waitingListCapacity)) {
+                        progressBar.setVisibility(View.GONE);
+                        joinWaitingListButton.setVisibility(View.VISIBLE);
+                        joinWaitingListButton.setEnabled(true);
                         Log.w("waitingList DB Call", "Waiting list capacity reached for event " + eventShown.getEventId());
                         Toast.makeText(requireContext(), "The waiting list is full for this event.", Toast.LENGTH_SHORT).show();
                         return; // TODO: implement unable to join msg
@@ -121,22 +129,34 @@ public class EventDetailsFragment extends Fragment {
                         waitingList.determineLocation(requireContext(), user, new StatusList.ListUpdateListener() {
                             @Override
                             public void onUpdate() {
+                                progressBar.setVisibility(View.GONE);
+                                joinWaitingListButton.setVisibility(View.VISIBLE);
+                                joinWaitingListButton.setEnabled(true);
                                 showWaiting();
                                 updateView();
                                 refreshTickets();
                             }
                             @Override
                             public void onError(Exception e) {
+                                progressBar.setVisibility(View.GONE);
+                                joinWaitingListButton.setVisibility(View.VISIBLE);
+                                joinWaitingListButton.setEnabled(true);
                                 Log.e("waitingList DB Call", "Unable to add user", e);
                             }
                         });
 
                     } else {
+                        progressBar.setVisibility(View.GONE);
+                        joinWaitingListButton.setVisibility(View.VISIBLE);
+                        joinWaitingListButton.setEnabled(true);
                         requestPermissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION);
                     }
                 }
                 @Override
                 public void onError(Exception e) {
+                    progressBar.setVisibility(View.GONE);
+                    joinWaitingListButton.setVisibility(View.VISIBLE);
+                    joinWaitingListButton.setEnabled(true);
                     Log.e("waitingList DB Call", "Unable to refresh users", e);
                 }
             });

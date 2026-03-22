@@ -62,7 +62,7 @@ public abstract class StatusList {
 
             if (androidx.core.app.ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION)
                     == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                client.getLastLocation().addOnSuccessListener(location -> {
+                client.getCurrentLocation(com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener(location -> {
                     if (location != null) {
                         this.tempLocation = new com.google.firebase.firestore.GeoPoint(
                                 location.getLatitude(), location.getLongitude());
