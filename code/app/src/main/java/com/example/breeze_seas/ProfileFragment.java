@@ -15,6 +15,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.button.MaterialButton;
@@ -176,7 +177,29 @@ public class ProfileFragment extends Fragment {
                     .show();
         });
 
+        // Delete profile button
         deleteBtn.setOnClickListener(v -> {
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Delete Profile")
+                    .setMessage("Are you sure you want to delete your profile?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        userDBInstance.deleteUser(currentUser.getDeviceId());
+                        ((MainActivity) getActivity()).showBottomNav(false);
+                        WelcomeScreenFragment welcomeScreenFragment = new WelcomeScreenFragment();
+                        getActivity().getSupportFragmentManager()
+                                .popBackStackImmediate(null,
+                                        FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                        getActivity().getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.fragment_container, welcomeScreenFragment)
+                                .commit();
+                    })
+                    .setNegativeButton("No", (dialog, which) -> {
+                        dialog.dismiss();
+                    })
+                    .show();
+
+
             Toast.makeText(getContext(), "Delete Profile (TODO)", Toast.LENGTH_SHORT).show();
 
         });
