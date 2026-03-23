@@ -104,7 +104,9 @@ public abstract class StatusList {
         update.put("deviceId",user.getDeviceId());
         update.put("status", status);
         update.put("timeJoined", FieldValue.serverTimestamp());
-        update.put("location",tempLocation);
+        if (tempLocation != null) {
+            update.put("location", tempLocation);
+        }
 
 
         participantRef.set(update, SetOptions.merge()) //update field if doc exists
@@ -112,6 +114,7 @@ public abstract class StatusList {
                     if (!userList.contains(user)) {
                         userList.add(user);
                     }
+                    tempLocation = null;
                     if (listener != null) listener.onUpdate();
                 })
                 .addOnFailureListener(e -> {
