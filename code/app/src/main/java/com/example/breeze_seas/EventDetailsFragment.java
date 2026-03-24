@@ -45,6 +45,7 @@ public class EventDetailsFragment extends Fragment {
     private User user;
     private final androidx.activity.result.ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new androidx.activity.result.contract.ActivityResultContracts.RequestPermission(), isGranted -> {
+                joinWaitingListButton.setEnabled(true);
                 if (isGranted) {
 
                     joinWaitingListButton.performClick();
@@ -116,6 +117,7 @@ public class EventDetailsFragment extends Fragment {
                     if ((waitingListCapacity != -1) && (waitingListSize>= waitingListCapacity)) {
                         progressBar.setVisibility(View.GONE);
                         showJoin();
+                        joinWaitingListButton.setEnabled(true);
                         Log.w("waitingList DB Call", "Waiting list capacity reached for event " + eventShown.getEventId());
                         Toast.makeText(requireContext(), "The waiting list is full for this event.", Toast.LENGTH_SHORT).show();
                         return; // TODO: implement unable to join msg
@@ -135,6 +137,7 @@ public class EventDetailsFragment extends Fragment {
                             public void onError(Exception e) {
                                 progressBar.setVisibility(View.GONE);
                                 showJoin();
+                                joinWaitingListButton.setEnabled(true);
                                 Log.e("waitingList DB Call", "Unable to add user", e);
                             }
                         });
@@ -154,6 +157,7 @@ public class EventDetailsFragment extends Fragment {
                             public void onError(Exception e) {
                                 progressBar.setVisibility(View.GONE);
                                 showJoin();
+                                joinWaitingListButton.setEnabled(true);
                                 Log.e("waitingList DB Call", "Unable to add user", e);
                             }
                         });
@@ -161,6 +165,7 @@ public class EventDetailsFragment extends Fragment {
                     } else {
                         progressBar.setVisibility(View.GONE);
                         showJoin();
+                        joinWaitingListButton.setEnabled(true);
                         requestPermissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION);
                     }
                 }
@@ -168,6 +173,7 @@ public class EventDetailsFragment extends Fragment {
                 public void onError(Exception e) {
                     progressBar.setVisibility(View.GONE);
                     showJoin();
+                    joinWaitingListButton.setEnabled(true);
                     Log.e("waitingList DB Call", "Unable to refresh users", e);
                 }
             });
