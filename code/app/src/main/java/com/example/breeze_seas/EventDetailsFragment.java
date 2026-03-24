@@ -42,6 +42,7 @@ public class EventDetailsFragment extends Fragment {
     private AcceptedList acceptedList;
     private DeclinedList declinedList;
     private User user;
+    private EventCommentsSectionController commentsSectionController;
 
     public EventDetailsFragment () {
         super(R.layout.fragment_event_details);
@@ -220,6 +221,8 @@ public class EventDetailsFragment extends Fragment {
 
         // Update event details
         updateView();
+        commentsSectionController = new EventCommentsSectionController(this, view);
+        commentsSectionController.bind(eventShown, user);
 
         // Display options based on user's current status
         if (waitingList.userIsInList(user)) {

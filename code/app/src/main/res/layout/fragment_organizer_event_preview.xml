@@ -427,6 +427,9 @@
                 android:textAllCaps="false"
                 android:textColor="@color/white"
                 android:textSize="15sp" />
+
+            <include
+                layout="@layout/include_event_comments_section" />
         </LinearLayout>
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

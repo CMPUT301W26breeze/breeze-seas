@@ -46,6 +46,7 @@ public class OrganizerEventPreviewFragment extends Fragment {
     private Timestamp regStartDate;
     private Timestamp regEndDate;
     private String posterUriString;
+    private EventCommentsSectionController commentsSectionController;
 
     private final ActivityResultLauncher<String> pickImage =
             registerForActivityResult(new ActivityResultContracts.GetContent(), new androidx.activity.result.ActivityResultCallback<Uri>() {
@@ -184,6 +185,7 @@ public class OrganizerEventPreviewFragment extends Fragment {
         });
 
         resolveAndLoadEvent();
+        commentsSectionController = new EventCommentsSectionController(this, view);
     }
 
     /**
@@ -296,6 +298,9 @@ public class OrganizerEventPreviewFragment extends Fragment {
         geoSwitch.setChecked(event.isGeolocationEnforced());
 
         bindPoster(posterUriString);
+        if (commentsSectionController != null) {
+            commentsSectionController.bind(event, viewModel == null ? null : viewModel.getUser().getValue());
+        }
     }
 
     /**

@@ -97,4 +97,23 @@
     <string name="send">Send</string>
     <string name="notification_text">Enter your announcement here</string>
     <string name="view_map">View Map</string>
+    <string name="event_comments_section_title">Comments</string>
+    <string name="event_comments_input_hint">Add a comment</string>
+    <string name="event_comments_post">Post</string>
+    <string name="event_comments_empty_title">No comments yet</string>
+    <string name="event_comments_empty_message">Be the first to comment on this event.</string>
+    <string name="event_comments_empty_error">Enter a comment first</string>
+    <string name="event_comments_role_organizer">Organizer</string>
+    <string name="event_comments_role_entrant">Entrant</string>
+    <string name="event_comments_delete_action">Delete</string>
+    <string name="event_comments_delete_title">Delete comment?</string>
+    <string name="event_comments_delete_message">This will remove the comment from the conversation.</string>
+    <string name="event_comments_delete_confirm">Delete</string>
+    <string name="event_comments_delete_cancel">Cancel</string>
+    <string name="event_comments_sample_organizer_name">Event Organizer</string>
+    <string name="event_comments_sample_organizer_body">We will share any important event updates here.</string>
+    <string name="event_comments_sample_entrant_name">Alex Kim</string>
+    <string name="event_comments_sample_entrant_body">Looking forward to this event. Thanks for organizing it.</string>
+    <string name="event_comments_sample_time_recent">Today • 2:14 PM</string>
+    <string name="event_comments_sample_time_earlier">Yesterday • 6:42 PM</string>
 </resources>

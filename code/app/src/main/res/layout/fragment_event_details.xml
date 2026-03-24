@@ -307,6 +307,9 @@
             android:textSize="20sp"
             android:visibility="gone" />
 
+        <include
+            layout="@layout/include_event_comments_section" />
+
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>
