@@ -1,5 +1,8 @@
 package com.example.breeze_seas;
 
+import android.app.AlertDialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -78,9 +81,74 @@ public class OrganizeFragment extends Fragment {
              */
             @Override
             public void onClick(View v) {
-                ((MainActivity) requireActivity()).openSecondaryFragment(new CreateEventFragment());
+                openCreateEventChooser();
             }
         });
+    }
+
+    /**
+     * Shows the organizer create-event chooser so the user can pick public or private first.
+     */
+    private void openCreateEventChooser() {
+        View dialogView = LayoutInflater.from(requireContext())
+                .inflate(R.layout.dialog_create_event_visibility, null, false);
+
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        dialogView.findViewById(R.id.create_public_event_option).setOnClickListener(new View.OnClickListener() {
+            /**
+             * Opens the public create-event flow from the chooser.
+             *
+             * @param v Public-event option that was tapped.
+             */
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                openCreateEventFlow(false);
+            }
+        });
+
+        dialogView.findViewById(R.id.create_private_event_option).setOnClickListener(new View.OnClickListener() {
+            /**
+             * Opens the private create-event flow from the chooser.
+             *
+             * @param v Private-event option that was tapped.
+             */
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                openCreateEventFlow(true);
+            }
+        });
+
+        dialogView.findViewById(R.id.create_event_visibility_cancel).setOnClickListener(new View.OnClickListener() {
+            /**
+             * Closes the visibility chooser without opening the create-event form.
+             *
+             * @param v Cancel button that was tapped.
+             */
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+    }
+
+    /**
+     * Opens the organizer create-event form with the requested visibility type preselected.
+     *
+     * @param isPrivateEvent {@code true} for a private event, {@code false} for a public event.
+     */
+    private void openCreateEventFlow(boolean isPrivateEvent) {
+        ((MainActivity) requireActivity()).openSecondaryFragment(CreateEventFragment.newInstance(isPrivateEvent));
     }
 
     /**

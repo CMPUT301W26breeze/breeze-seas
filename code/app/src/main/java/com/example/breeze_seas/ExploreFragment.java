@@ -96,7 +96,7 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
      * @param events ArrayList of events
      */
     private void loadEvents(View view, ArrayList<Event> events) {
-        eventList = events;
+        eventList = filterPublicEvents(events);
         showNoEventsText(eventList == null || eventList.isEmpty());
 
         RecyclerView eventsView = view.findViewById(R.id.explore_recycler_view_events);
@@ -104,6 +104,26 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
         ExploreEventViewAdapter adapter =  new ExploreEventViewAdapter(getContext(), this, eventList == null ? java.util.Collections.emptyList() : eventList);
         eventsView.setAdapter(adapter);
         eventsView.setLayoutManager(new LinearLayoutManager(getContext()));
+    }
+
+    /**
+     * Removes private events from the public Explore listing.
+     *
+     * @param events Events returned by {@link EventDB}, or {@code null}.
+     * @return Publicly visible events only.
+     */
+    private ArrayList<Event> filterPublicEvents(@Nullable ArrayList<Event> events) {
+        ArrayList<Event> publicEvents = new ArrayList<>();
+        if (events == null) {
+            return publicEvents;
+        }
+
+        for (Event event : events) {
+            if (event != null && !event.isPrivate()) {
+                publicEvents.add(event);
+            }
+        }
+        return publicEvents;
     }
 
     /**

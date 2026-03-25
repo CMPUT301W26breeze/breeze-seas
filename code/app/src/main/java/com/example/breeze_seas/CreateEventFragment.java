@@ -32,11 +32,15 @@ import java.util.TimeZone;
  */
 public class CreateEventFragment extends Fragment {
 
+    private static final String ARG_PRIVATE_EVENT = "arg_private_event";
+
     private ImageView ivPoster;
     private LinearLayout posterPlaceholder;
+    private View privateEventRow;
 
     private TextInputEditText etRegFrom, etRegTo, etEventName, etEventDetails, etCapacity, etWaitingListCapacity;
     private SwitchMaterial swGeo;
+    private SwitchMaterial swPrivate;
     private SessionViewModel viewModel;
 
     private Long regFromMillis = null;
@@ -69,6 +73,21 @@ public class CreateEventFragment extends Fragment {
     }
 
     /**
+     * Creates a preconfigured create-event fragment for the chosen visibility type.
+     *
+     * @param isPrivateEvent {@code true} for a private event, {@code false} for a public event.
+     * @return Create-event fragment with the visibility choice bundled in its arguments.
+     */
+    @NonNull
+    public static CreateEventFragment newInstance(boolean isPrivateEvent) {
+        CreateEventFragment fragment = new CreateEventFragment();
+        Bundle args = new Bundle();
+        args.putBoolean(ARG_PRIVATE_EVENT, isPrivateEvent);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    /**
      * Binds organizer form fields and wires the create-event interactions.
      *
      * @param view Inflated create-event root view.
@@ -94,6 +113,7 @@ public class CreateEventFragment extends Fragment {
 
         ivPoster = view.findViewById(R.id.ivPoster);
         posterPlaceholder = view.findViewById(R.id.posterPlaceholder);
+        privateEventRow = view.findViewById(R.id.privateEventRow);
 
         View cardPoster = view.findViewById(R.id.cardPoster);
         View btnAddImage = view.findViewById(R.id.btnAddImage);
@@ -106,6 +126,15 @@ public class CreateEventFragment extends Fragment {
         etCapacity = view.findViewById(R.id.etCapacity);
         etWaitingListCapacity = view.findViewById(R.id.etWaitingListCapacity);
         swGeo = view.findViewById(R.id.swGeo);
+        swPrivate = view.findViewById(R.id.swPrivate);
+
+        Bundle args = getArguments();
+        if (args != null && args.containsKey(ARG_PRIVATE_EVENT) && swPrivate != null) {
+            swPrivate.setChecked(args.getBoolean(ARG_PRIVATE_EVENT));
+            if (privateEventRow != null) {
+                privateEventRow.setVisibility(View.GONE);
+            }
+        }
 
         View.OnClickListener pickPoster = new View.OnClickListener() {
             /**
@@ -237,8 +266,9 @@ public class CreateEventFragment extends Fragment {
 
         int normalizedCapacity = eventCap == null ? -1 : eventCap;
         int normalizedEventWaitingListCapacity = eventWaitingListCap == null ? -1 : eventWaitingListCap;
+        boolean isPrivateEvent = swPrivate != null && swPrivate.isChecked();
         Event event = new Event(
-                false,
+                isPrivateEvent,
                 organizerId,
                 name,
                 details,
@@ -262,10 +292,19 @@ public class CreateEventFragment extends Fragment {
              */
             @Override
             public void onSuccess(String eventId) {
-                Toast.makeText(requireContext(), "Event created", Toast.LENGTH_SHORT).show();
+                Toast.makeText(
+                        requireContext(),
+                        isPrivateEvent ? R.string.create_event_private_success : R.string.create_event_public_success,
+                        Toast.LENGTH_SHORT
+                ).show();
 
                 if (viewModel != null) {
                     viewModel.setEventShown(event);
+                }
+
+                if (isPrivateEvent) {
+                    requireActivity().getSupportFragmentManager().popBackStack();
+                    return;
                 }
 
                 Bundle args = new Bundle();
