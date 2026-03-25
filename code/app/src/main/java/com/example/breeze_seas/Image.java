@@ -33,7 +33,7 @@ public class Image {
 
 
     public String getImageId() {
-        return imageId;
+        return (imageId == null) ? "" : imageId;  // temporary fix
     }
 
     public void setImageId(String imageId) {
