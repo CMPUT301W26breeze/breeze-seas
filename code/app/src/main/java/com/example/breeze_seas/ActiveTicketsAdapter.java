@@ -118,10 +118,15 @@ public class ActiveTicketsAdapter extends RecyclerView.Adapter<ActiveTicketsAdap
                 break;
 
             case ACTION_REQUIRED:
-                holder.chip.setText("Action Required");
+                holder.chip.setText(ticket.isPrivateEvent() ? "Private Invite" : "Action Required");
                 holder.icon.setImageResource(R.drawable.ic_star);
-                holder.supporting.setText("You were selected and your spot is waiting. Accept now to move this event into your attending tickets.");
-                holder.footer.setText("Tap to accept or decline");
+                if (ticket.isPrivateEvent()) {
+                    holder.supporting.setText("You were invited to join the waitlist for this private event. Accept to join the waitlist, or decline to dismiss the invite.");
+                    holder.footer.setText("Tap to join or decline");
+                } else {
+                    holder.supporting.setText("You were selected and your spot is waiting. Accept now to move this event into your attending tickets.");
+                    holder.footer.setText("Tap to accept or decline");
+                }
 
                 holder.chip.setBackgroundResource(R.drawable.bg_ticket_status_solid);
                 holder.chip.setTextColor(white);

@@ -171,20 +171,32 @@ public final class TicketDB {
     }
 
     /**
-     * Accepts an invited ticket and moves it into the attending state.
+     * Accepts an active ticket that requires a user decision.
+     *
+     * <p>Public-event invitations move into the attending state. Private-event invitations
+     * move into the waiting-list state because the entrant is only accepting the right to join
+     * the waitlist for that event.
      *
      * @param ticket Invited ticket being accepted.
      */
     public void acceptInvitation(@NonNull TicketUIModel ticket) {
-        updateParticipantStatus(ticket.getEventId(), "accepted");
+        updateParticipantStatus(ticket.getEventId(), ticket.isPrivateEvent() ? "waiting" : "accepted");
     }
 
     /**
-     * Declines an invited ticket and moves it into the past-history state.
+     * Declines an active ticket that requires a user decision.
+     *
+     * <p>Public-event invitations move into the past-history state. Private-event invitations
+     * are simply removed because the entrant is declining the chance to join that private
+     * event's waitlist.
      *
      * @param ticket Invited ticket being declined.
      */
     public void declineInvitation(@NonNull TicketUIModel ticket) {
+        if (ticket.isPrivateEvent()) {
+            deleteParticipant(ticket.getEventId());
+            return;
+        }
         updateParticipantStatus(ticket.getEventId(), "declined");
     }
 
@@ -423,13 +435,15 @@ public final class TicketDB {
         String title = buildTitleLabel(eventDocument);
         String dateLabel = buildDateLabel(eventDocument, timeJoined);
         String locationLabel = buildLocationLabel(eventDocument);
+        boolean privateEvent = Boolean.TRUE.equals(eventDocument.getBoolean("isPrivate"));
 
         if ("waiting".equals(status)) {
             return LoadedTicket.forActive(new TicketUIModel(
                     eventId,
                     title,
                     dateLabel,
-                    TicketUIModel.Status.PENDING
+                    TicketUIModel.Status.PENDING,
+                    privateEvent
             ));
         }
 
@@ -438,7 +452,8 @@ public final class TicketDB {
                     eventId,
                     title,
                     dateLabel,
-                    TicketUIModel.Status.BACKUP
+                    TicketUIModel.Status.BACKUP,
+                    privateEvent
             ));
         }
 
@@ -447,7 +462,8 @@ public final class TicketDB {
                     eventId,
                     title,
                     dateLabel,
-                    TicketUIModel.Status.ACTION_REQUIRED
+                    TicketUIModel.Status.ACTION_REQUIRED,
+                    privateEvent
             ));
         }
 
