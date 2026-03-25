@@ -49,6 +49,9 @@ public final class EventCommentsSectionController {
 
     private boolean organizerViewer;
 
+    @Nullable
+    private Boolean organizerViewerOverride;
+
     /**
      * Creates a reusable controller for the inline comments section.
      *
@@ -100,10 +103,24 @@ public final class EventCommentsSectionController {
     public void bind(@Nullable Event event, @Nullable User user) {
         currentEvent = event;
         currentUser = user;
-        organizerViewer = isOrganizerViewer();
+        organizerViewer = organizerViewerOverride != null
+                ? organizerViewerOverride
+                : isOrganizerViewer();
         adapter.setCanModerateEntrantComments(organizerViewer);
         seedMockCommentsIfNeeded();
         renderComments();
+    }
+
+    /**
+     * Attaches the current event/user context and explicitly controls organizer moderation mode.
+     *
+     * @param event Event whose comments should be displayed.
+     * @param user Current signed-in app user, if available.
+     * @param organizerViewerOverride Whether the current screen should behave as organizer view.
+     */
+    public void bind(@Nullable Event event, @Nullable User user, boolean organizerViewerOverride) {
+        this.organizerViewerOverride = organizerViewerOverride;
+        bind(event, user);
     }
 
     /**
