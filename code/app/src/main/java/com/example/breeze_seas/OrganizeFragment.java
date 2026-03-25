@@ -252,9 +252,9 @@ public class OrganizeFragment extends Fragment {
             Event e = data.get(position);
 
             holder.ivPoster.setImageResource(R.drawable.ic_image_placeholder);
-            if (e.getImage() != null && !e.getImage().trim().isEmpty()) {
+            if (e.getImage() != null) {
                 try {
-                    holder.ivPoster.setImageURI(Uri.parse(e.getImage()));
+                    holder.ivPoster.setImageBitmap(e.getImage().display());
                 } catch (Exception ignored) {
                     holder.ivPoster.setImageResource(R.drawable.ic_image_placeholder);
                 }

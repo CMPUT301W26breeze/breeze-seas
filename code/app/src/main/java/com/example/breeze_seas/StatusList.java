@@ -1,5 +1,7 @@
 package com.example.breeze_seas;
 
+import android.content.Context;
+
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -21,6 +23,7 @@ public abstract class StatusList {
     protected ArrayList<User> userList;
     protected int capacity;
     protected Event event;
+    protected com.google.firebase.firestore.GeoPoint tempLocation;
 
     /**
      * Interface to communicate result of asynchronous database tasks back to the UI.
@@ -41,6 +44,7 @@ public abstract class StatusList {
         this.event=event;
         this.capacity=capacity;
         this.userList=new ArrayList<>();
+        this.tempLocation=null;
     }
 
     /**
@@ -50,6 +54,35 @@ public abstract class StatusList {
 
     protected abstract String getStatusName();
 
+    public void determineLocation(Context context, User user, ListUpdateListener listener){
+        tempLocation=null;
+        if(event.isGeolocationEnforced()){
+            com.google.android.gms.location.FusedLocationProviderClient client =
+                    com.google.android.gms.location.LocationServices.getFusedLocationProviderClient(context);
+
+            if (androidx.core.app.ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                client.getCurrentLocation(com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener(location -> {
+                    if (location != null) {
+                        this.tempLocation = new com.google.firebase.firestore.GeoPoint(
+                                location.getLatitude(), location.getLongitude());
+                    }
+                    addUser(user, listener);
+                }).addOnFailureListener(e->{
+                    if(listener!=null) listener.onError(e);
+                });
+            }else {
+                if (listener != null) listener.onError(new Exception("Permission Denied"));
+            }
+        }
+        else{
+            this.tempLocation = null;
+            addUser(user, listener);
+        }
+
+
+    }
+
     /**
      * Adds a user to the event's participant sub-collection in Firestore.
      * Uses merge to preserve existing fields (like location) while updating status.
@@ -57,7 +90,7 @@ public abstract class StatusList {
      * @param listener Callback to handle success or failure of the DB operation.
      */
 
-    public void addUser(User user, ListUpdateListener listener) {
+    public void addUser(User user,ListUpdateListener listener) {
         if (user == null || user.getDeviceId() == null) return;
         FirebaseFirestore db = DBConnector.getDb();
         DocumentReference participantRef = db.collection("events")
@@ -71,7 +104,9 @@ public abstract class StatusList {
         update.put("deviceId",user.getDeviceId());
         update.put("status", status);
         update.put("timeJoined", FieldValue.serverTimestamp());
-        update.put("location",null);
+        if (tempLocation != null) {
+            update.put("location", tempLocation);
+        }
 
 
         participantRef.set(update, SetOptions.merge()) //update field if doc exists
@@ -79,6 +114,7 @@ public abstract class StatusList {
                     if (!userList.contains(user)) {
                         userList.add(user);
                     }
+                    tempLocation = null;
                     if (listener != null) listener.onUpdate();
                 })
                 .addOnFailureListener(e -> {

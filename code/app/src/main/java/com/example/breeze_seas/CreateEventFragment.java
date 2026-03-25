@@ -242,7 +242,7 @@ public class CreateEventFragment extends Fragment {
                 organizerId,
                 name,
                 details,
-                posterUri == null ? "" : posterUri.toString(),
+                new Image(""), //posterUri == null ? "" : null, // TODO: Fix this
                 "",
                 new Timestamp(new Date(regFromMillis)),
                 new Timestamp(new Date(regToMillis)),

@@ -6,6 +6,7 @@ import android.util.Log;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -65,7 +66,6 @@ public class EventDB {
 
     /**
      * Synonym method of addEvent
-     *
      * @param event Event object to add to the database
      * @param callback Callback method to run after firebase transaction
      */
@@ -75,7 +75,6 @@ public class EventDB {
 
     /**
      * Add an event collection to database
-     *
      * @param event Event object to add to database
      * @param callback Callback method to run after firebase transaction
      */
@@ -92,7 +91,6 @@ public class EventDB {
 
     /**
      * Modifies an event collection from the database.
-     *
      * @param event The event object to modifiy.
      * @param callback Callback method to run after firebase transaction.
      */
@@ -135,10 +133,10 @@ public class EventDB {
      * @param eventId The event document to fetch for.
      * @param callback Callback method to run after firebase transaction.
      */
-    public static void getEventById(String eventId,LoadSingleEventCallback callback){
+    public static void getEventById(String eventId,LoadSingleEventCallback callback) {
         setup();
-        eventRef.document(eventId).get().
-                addOnSuccessListener(documentSnapshot ->{
+        eventRef.document(eventId).get()
+                .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         callback.onSuccess(fromSingle(documentSnapshot));
                     } else {
@@ -183,7 +181,7 @@ public class EventDB {
     }
 
     /**
-     * Fetch all events that the user is organizing
+     * Fetch all events that the user is organizing (any kind of organizer)
      * @param user User to check the id of organizers.
      * @param callback Callback method to run after firebase transaction.
      */
@@ -192,7 +190,47 @@ public class EventDB {
         // Get userID
         String userId = user.getDeviceId();
 
+        eventRef.where(Filter.or(
+                Filter.equalTo("organizerId", userId),
+                Filter.arrayContains("coOrganizerId", userId)))
+                .orderBy("registrationStartTimestamp")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    callback.onSuccess(fromMultiple(queryDocumentSnapshots));
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Fetch all events that the user is organizing (the original organizer)
+     * @param user User to check the id of organizers.
+     * @param callback Callback method to run after firebase transaction.
+     */
+    public static void getAllEventsOrganizedByOrganizer(User user, LoadEventsCallback callback) {
+        setup();
+        // Get userID
+        String userId = user.getDeviceId();
+
         eventRef.whereEqualTo("organizerId", userId)
+                .orderBy("registrationStartTimestamp")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    callback.onSuccess(fromMultiple(queryDocumentSnapshots));
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Fetch all events that the user is co-organizing.
+     * @param user User to check the id of organizers.
+     * @param callback Callback method to run after firebase transaction.
+     */
+    public static void getAllEventsOrganizedByCoOrganizer(User user, LoadEventsCallback callback) {
+        setup();
+        // Get userID
+        String userId = user.getDeviceId();
+
+        eventRef.whereArrayContains("coOrganizerId", userId)
                 .orderBy("registrationStartTimestamp")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -232,7 +270,9 @@ public class EventDB {
         ArrayList<String> coOrganizerId = new ArrayList<String>();
         String name = doc.getString("name");
         String description = doc.getString("description")!=null ? doc.getString("description") : "";
-        String image = doc.getString("image") != null ? doc.getString("image") : "";
+        // Fetch image object down below
+        String imageId = doc.getString("imageDocId") != null ? doc.getString("imageDocId") : "";
+
         String qrValue = doc.getString("qrValue") != null ? doc.getString("qrValue") : "";
 
         //timestamps
@@ -251,7 +291,7 @@ public class EventDB {
 
 
         Event newEvent = new Event(
-                eventId, isPrivate, organizerId, coOrganizerId, name, description, image, qrValue,
+                eventId, isPrivate, organizerId, coOrganizerId, name, description, null, qrValue,
                 created, modified, regStart, regEnd, eventStart, eventEnd,
                 geo, eventCap, waitCap, drawRound,
                 null, null, null, null
@@ -262,6 +302,10 @@ public class EventDB {
         newEvent.setAcceptedList(new AcceptedList(newEvent, eventCap));
         newEvent.setDeclinedList(new DeclinedList(newEvent, -1));
         newEvent.refreshListsFromDB();
+
+        // TODO: fetch image document, get imageId and base64 string
+        Image newImage = new Image(imageId, "");
+        newEvent.setImage(newImage);
 
         return newEvent;
     }

@@ -7,6 +7,7 @@ import com.google.firebase.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Event stores the organizer-facing and entrant-facing metadata for a single event document.
@@ -18,7 +19,7 @@ public class Event {
     private ArrayList<String> coOrganizerId;
     private String name;
     private String description;
-    private String image;
+    private Image image;
     private String qrValue;
     private Timestamp createdTimestamp;
     private Timestamp modifiedTimestamp;
@@ -43,7 +44,7 @@ public class Event {
      * @param coOrganizerId Other organizers that manages the event.
      * @param name Display name of the event.
      * @param description Organizer-provided description.
-     * @param image Poster or image URI string.
+     * @param image Image object.
      * @param qrValue QR payload associated with the event.
      * @param createdTimestamp Timestamp when the event was created.
      * @param modifiedTimestamp Timestamp when the event was last modified.
@@ -66,7 +67,7 @@ public class Event {
                  ArrayList<String> coOrganizerId,
                  String name,
                  String description,
-                 String image,
+                 Image image,
                  String qrValue,
                  Timestamp createdTimestamp,
                  Timestamp modifiedTimestamp,
@@ -112,7 +113,7 @@ public class Event {
      * @param organizerId Organizer identifier that owns the new event.
      * @param name Display name of the event.
      * @param description Organizer-provided description.
-     * @param image Poster or image URI string.
+     * @param image Image object.
      * @param qrValue QR payload associated with the event.
      * @param registrationStartTimestamp Registration opening timestamp.
      * @param registrationEndTimestamp Registration closing timestamp.
@@ -127,7 +128,7 @@ public class Event {
                  String organizerId,
                  String name,
                  String description,
-                 String image,
+                 Image image,
                  String qrValue,
                  Timestamp registrationStartTimestamp,
                  Timestamp registrationEndTimestamp,
@@ -201,10 +202,10 @@ public class Event {
         map.put("eventId", getEventId());
         map.put("isPrivate", isPrivate());
         map.put("organizerId", getOrganizerId());
-        // TODO: Need co-organizers here?
+        map.put("coOrganizerId", getCoOrganizerId());
         map.put("name", getName());
         map.put("description", getDescription());
-        map.put("image", getImage());
+        map.put("imageDocId", getImage().getImageId());
         map.put("qrValue", getQrValue());
         map.put("createdTimestamp", getCreatedTimestamp());
         map.put("modifiedTimestamp", getModifiedTimestamp());
@@ -285,6 +286,43 @@ public class Event {
     }
 
     /**
+     * Returns a list of all user IDs that are any kind of organizers.
+     * @reutrn Arraylist of IDs
+     */
+    public ArrayList<String> getAllOrganizerId() {
+        ArrayList<String> allOrganizers = new ArrayList<String>(this.coOrganizerId);
+        allOrganizers.add(this.organizerId);
+        return allOrganizers;
+    }
+
+    /**
+     * Method to check if a user is the ORIGINAL organizer of the event
+     * @param user User object
+     * @return true is user is the ORIGINAL organizer of event, otherwise false
+     */
+    public boolean userIsOrganizer(User user) {
+        return Objects.equals(user.getDeviceId(), this.organizerId);
+    }
+
+    /**
+     * Method to check if a user is a co-organizer of the event
+     * @param user User object
+     * @return true is user is a co-organizer of event, otherwise false
+     */
+    public boolean userIsCoOrganizer(User user) {
+        return this.coOrganizerId.contains(user.getDeviceId());
+    }
+
+    /**
+     * Method to check if a user is any kind of organizer of the event
+     * @param user User object
+     * @return true is user is any kind of organizer of event, otherwise false
+     */
+    public boolean userIsAnOrganizer(User user) {
+        return getAllOrganizerId().contains(user.getDeviceId());
+    }
+
+    /**
      * Returns the display name of the event.
      * @return Event name.
      */
@@ -317,18 +355,18 @@ public class Event {
     }
 
     /**
-     * Returns the poster or image URI associated with the event.
-     * @return Poster or image URI string.
+     * Returns the image object associated with the event.
+     * @return Image object.
      */
-    public String getImage() {
+    public Image getImage() {
         return image;
     }
 
     /**
-     * Updates the poster or image URI associated with the event.
-     * @param image Poster or image URI string to store.
+     * Updates the image object associated with the event.
+     * @param image Image object to hold a reference to.
      */
-    public void setImage(String image) {
+    public void setImage(Image image) {
         this.image = image;
     }
 
