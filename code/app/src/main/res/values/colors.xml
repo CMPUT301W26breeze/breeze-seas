@@ -8,6 +8,7 @@
     <color name="text_primary">#111827</color>
     <color name="text_secondary">#6B7280</color>
     <color name="surface_subtle">#F5F5F7</color>
+    <color name="comment_delete">#B42318</color>
     <color name="tickets_tab_text_selected">#FFFFFFFF</color>
     <color name="tickets_tab_text_unselected">#111827</color>
     <color name="switch_track_checked">#33000000</color>

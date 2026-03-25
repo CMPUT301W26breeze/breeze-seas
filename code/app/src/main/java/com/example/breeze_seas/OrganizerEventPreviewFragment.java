@@ -204,8 +204,8 @@ public class OrganizerEventPreviewFragment extends Fragment {
             }
         });
 
-        resolveAndLoadEvent();
         commentsSectionController = new EventCommentsSectionController(this, view);
+        resolveAndLoadEvent();
     }
 
     /**
@@ -320,7 +320,11 @@ public class OrganizerEventPreviewFragment extends Fragment {
 
         bindPoster(poster);
         if (commentsSectionController != null) {
-            commentsSectionController.bind(event, viewModel == null ? null : viewModel.getUser().getValue());
+            commentsSectionController.bind(
+                    event,
+                    viewModel == null ? null : viewModel.getUser().getValue(),
+                    true
+            );
         }
     }
 
