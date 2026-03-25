@@ -211,20 +211,34 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:orientation="vertical">
-
-            <Button
-                android:id="@+id/event_details_join_waitlist_button"
+            
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:background="@drawable/bg_welcome_primary_button"
-                android:backgroundTint="@null"
-                android:fontFamily="@font/inter_medium"
-                android:text="Join Waiting List"
-                android:textAllCaps="false"
-                android:textColor="@color/white"
-                android:textSize="14sp"
-                android:visibility="gone"
-                app:backgroundTint="@null" />
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/event_details_join_waitlist_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:background="@drawable/bg_welcome_primary_button"
+                    android:backgroundTint="@null"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Join Waiting List"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:visibility="gone"
+                    app:backgroundTint="@null" />
+
+                <ProgressBar
+                    android:id="@+id/event_details_loading_progress_bar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:indeterminateTint="@color/white"
+                    android:visibility="gone" />
+
+            </FrameLayout>
 
             <Button
                 android:id="@+id/event_details_leave_waitlist_button"

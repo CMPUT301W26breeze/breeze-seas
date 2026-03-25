@@ -1,9 +1,14 @@
 package com.example.breeze_seas;
 
 
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -13,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
@@ -32,6 +38,21 @@ public class AcceptedListFragment extends Fragment {
     public AcceptedListFragment() {
     }
 
+    private final ActivityResultLauncher<Intent> csvLauncher=registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+            Uri uri = result.getData().getData();
+            acceptedList.exportCsv(requireContext(), uri);
+        }
+    });
+
+    private void onExportClick(){
+        Intent intent= new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("text/csv");
+        csvLauncher.launch(intent);
+    }
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,6 +70,10 @@ public class AcceptedListFragment extends Fragment {
 
         listView = view.findViewById(R.id.accept_frag_list_view);
         waitingProgress = view.findViewById(R.id.accepted_list_spinner);
+        Button exportButton=view.findViewById(R.id.btn_export_csv);
+        exportButton.setOnClickListener(v->{
+            onExportClick();
+        });
 
 
         if (currentEvent != null) {

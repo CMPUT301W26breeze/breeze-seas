@@ -48,6 +48,37 @@ public class WaitingListFragment extends Fragment {
 
     public WaitingListFragment() { }
 
+    private void deleteDialog(User user){
+        new android.app.AlertDialog.Builder(requireContext())
+                .setTitle("Remove Entrant")
+                .setMessage("Are you sure you want to remove " + user.getUserName() + " from the waiting list?")
+                .setPositiveButton("Remove", (dialog, which) -> {
+
+                    waitingProgress.setVisibility(View.VISIBLE);
+                    waitingList.removeUserFromDB(user, new StatusList.ListUpdateListener() {
+                        @Override
+                        public void onUpdate() {
+                            if (isAdded()) {
+                                waitingProgress.setVisibility(View.GONE);
+                                Toast.makeText(getContext(), "User removed", Toast.LENGTH_SHORT).show();
+                                adapter.notifyDataSetChanged();
+                            }
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            if (isAdded()) {
+                                waitingProgress.setVisibility(View.GONE);
+                                Toast.makeText(getContext(), "Error removing user", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                .create()
+                .show();
+    }
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -82,6 +113,11 @@ public class WaitingListFragment extends Fragment {
             if (getActivity() != null) {
                 getActivity().getSupportFragmentManager().popBackStack();
             }
+        });
+
+        listView.setOnItemClickListener((parent, view1, position, id) -> {
+            User selected = waitingList.getUserList().get(position);
+            deleteDialog(selected);
         });
 
         runLotteryBtn.setOnClickListener(v -> {
