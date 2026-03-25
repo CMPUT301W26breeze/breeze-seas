@@ -59,9 +59,9 @@ public class ExploreEventViewAdapter extends RecyclerView.Adapter<ExploreEventVi
                 : holder.itemView.getContext().getString(R.string.explore_card_geo_optional));
 
         holder.eventImage.setImageResource(R.drawable.ic_image_placeholder);
-        if (event.getImage() != null && !event.getImage().trim().isEmpty()) {
+        if (event.getImage() != null) {
             try {
-                holder.eventImage.setImageURI(Uri.parse(event.getImage()));
+                holder.eventImage.setImageBitmap(event.getImage().display());
             } catch (Exception ignored) {
                 holder.eventImage.setImageResource(R.drawable.ic_image_placeholder);
             }

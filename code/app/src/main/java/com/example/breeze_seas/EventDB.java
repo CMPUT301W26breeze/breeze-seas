@@ -65,7 +65,6 @@ public class EventDB {
 
     /**
      * Synonym method of addEvent
-     *
      * @param event Event object to add to the database
      * @param callback Callback method to run after firebase transaction
      */
@@ -75,7 +74,6 @@ public class EventDB {
 
     /**
      * Add an event collection to database
-     *
      * @param event Event object to add to database
      * @param callback Callback method to run after firebase transaction
      */
@@ -92,7 +90,6 @@ public class EventDB {
 
     /**
      * Modifies an event collection from the database.
-     *
      * @param event The event object to modifiy.
      * @param callback Callback method to run after firebase transaction.
      */
@@ -135,10 +132,10 @@ public class EventDB {
      * @param eventId The event document to fetch for.
      * @param callback Callback method to run after firebase transaction.
      */
-    public static void getEventById(String eventId,LoadSingleEventCallback callback){
+    public static void getEventById(String eventId,LoadSingleEventCallback callback) {
         setup();
-        eventRef.document(eventId).get().
-                addOnSuccessListener(documentSnapshot ->{
+        eventRef.document(eventId).get()
+                .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         callback.onSuccess(fromSingle(documentSnapshot));
                     } else {
@@ -232,7 +229,9 @@ public class EventDB {
         ArrayList<String> coOrganizerId = new ArrayList<String>();
         String name = doc.getString("name");
         String description = doc.getString("description")!=null ? doc.getString("description") : "";
-        String image = doc.getString("image") != null ? doc.getString("image") : "";
+        // Fetch image object down below
+        String imageId = doc.getString("imageDocId") != null ? doc.getString("imageDocId") : "";
+
         String qrValue = doc.getString("qrValue") != null ? doc.getString("qrValue") : "";
 
         //timestamps
@@ -251,7 +250,7 @@ public class EventDB {
 
 
         Event newEvent = new Event(
-                eventId, isPrivate, organizerId, coOrganizerId, name, description, image, qrValue,
+                eventId, isPrivate, organizerId, coOrganizerId, name, description, null, qrValue,
                 created, modified, regStart, regEnd, eventStart, eventEnd,
                 geo, eventCap, waitCap, drawRound,
                 null, null, null, null
@@ -262,6 +261,10 @@ public class EventDB {
         newEvent.setAcceptedList(new AcceptedList(newEvent, eventCap));
         newEvent.setDeclinedList(new DeclinedList(newEvent, -1));
         newEvent.refreshListsFromDB();
+
+        // TODO: fetch image document, get imageId and base64 string
+        Image newImage = new Image(imageId, "");
+        newEvent.setImage(newImage);
 
         return newEvent;
     }

@@ -45,7 +45,7 @@ public class OrganizerEventPreviewFragment extends Fragment {
 
     private Timestamp regStartDate;
     private Timestamp regEndDate;
-    private String posterUriString;
+    private Image poster;
 
     private final ActivityResultLauncher<String> pickImage =
             registerForActivityResult(new ActivityResultContracts.GetContent(), new androidx.activity.result.ActivityResultCallback<Uri>() {
@@ -60,7 +60,9 @@ public class OrganizerEventPreviewFragment extends Fragment {
                         return;
                     }
 
-                    posterUriString = uri.toString();
+                    // TODO: take uri and convert into image object
+                    String uriImageString = uri.toString();
+                    poster = new Image("");
                     if (posterImageView != null) {
                         posterImageView.setImageURI(uri);
                     }
@@ -281,7 +283,8 @@ public class OrganizerEventPreviewFragment extends Fragment {
 
         regStartDate = event.getRegistrationStartTimestamp();
         regEndDate = event.getRegistrationEndTimestamp();
-        posterUriString = event.getImage();
+        // TODO: Fix image handling
+        poster = event.getImage();
 
         ((android.widget.TextView) root.findViewById(R.id.organizer_event_preview_title)).setText(event.getName());
         ((android.widget.TextView) root.findViewById(R.id.organizer_event_preview_subtitle))
@@ -295,7 +298,7 @@ public class OrganizerEventPreviewFragment extends Fragment {
         detailsInput.setText(event.getDescription());
         geoSwitch.setChecked(event.isGeolocationEnforced());
 
-        bindPoster(posterUriString);
+        bindPoster(poster);
     }
 
     /**
@@ -482,16 +485,16 @@ public class OrganizerEventPreviewFragment extends Fragment {
     /**
      * Displays the current event poster or falls back to the placeholder artwork.
      *
-     * @param uriString Poster URI string to display, or {@code null} if unavailable.
+     * @param image Image object to display, or {@code null} if unavailable.
      */
-    private void bindPoster(@Nullable String uriString) {
+    private void bindPoster(@Nullable Image image) {
         posterImageView.setImageResource(R.drawable.ic_image_placeholder);
-        if (uriString == null || uriString.trim().isEmpty()) {
+        if (image == null) {
             return;
         }
 
         try {
-            posterImageView.setImageURI(Uri.parse(uriString));
+            posterImageView.setImageBitmap(image.display());
         } catch (Exception ignored) {
             posterImageView.setImageResource(R.drawable.ic_image_placeholder);
         }

@@ -18,7 +18,7 @@ public class Event {
     private ArrayList<String> coOrganizerId;
     private String name;
     private String description;
-    private String image;
+    private Image image;
     private String qrValue;
     private Timestamp createdTimestamp;
     private Timestamp modifiedTimestamp;
@@ -43,7 +43,7 @@ public class Event {
      * @param coOrganizerId Other organizers that manages the event.
      * @param name Display name of the event.
      * @param description Organizer-provided description.
-     * @param image Poster or image URI string.
+     * @param image Image object.
      * @param qrValue QR payload associated with the event.
      * @param createdTimestamp Timestamp when the event was created.
      * @param modifiedTimestamp Timestamp when the event was last modified.
@@ -66,7 +66,7 @@ public class Event {
                  ArrayList<String> coOrganizerId,
                  String name,
                  String description,
-                 String image,
+                 Image image,
                  String qrValue,
                  Timestamp createdTimestamp,
                  Timestamp modifiedTimestamp,
@@ -112,7 +112,7 @@ public class Event {
      * @param organizerId Organizer identifier that owns the new event.
      * @param name Display name of the event.
      * @param description Organizer-provided description.
-     * @param image Poster or image URI string.
+     * @param image Image object.
      * @param qrValue QR payload associated with the event.
      * @param registrationStartTimestamp Registration opening timestamp.
      * @param registrationEndTimestamp Registration closing timestamp.
@@ -127,7 +127,7 @@ public class Event {
                  String organizerId,
                  String name,
                  String description,
-                 String image,
+                 Image image,
                  String qrValue,
                  Timestamp registrationStartTimestamp,
                  Timestamp registrationEndTimestamp,
@@ -204,7 +204,7 @@ public class Event {
         // TODO: Need co-organizers here?
         map.put("name", getName());
         map.put("description", getDescription());
-        map.put("image", getImage());
+        map.put("imageDocId", getImage().getImageId());
         map.put("qrValue", getQrValue());
         map.put("createdTimestamp", getCreatedTimestamp());
         map.put("modifiedTimestamp", getModifiedTimestamp());
@@ -317,18 +317,18 @@ public class Event {
     }
 
     /**
-     * Returns the poster or image URI associated with the event.
-     * @return Poster or image URI string.
+     * Returns the image object associated with the event.
+     * @return Image object.
      */
-    public String getImage() {
+    public Image getImage() {
         return image;
     }
 
     /**
-     * Updates the poster or image URI associated with the event.
-     * @param image Poster or image URI string to store.
+     * Updates the image object associated with the event.
+     * @param image Image object to hold a reference to.
      */
-    public void setImage(String image) {
+    public void setImage(Image image) {
         this.image = image;
     }
 
