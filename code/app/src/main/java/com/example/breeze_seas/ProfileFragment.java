@@ -30,6 +30,7 @@ import java.util.Map;
  * * ProfileFragment is a top-level destination accessed via Bottom Navigation.
  * It is the fragment for users to view their account details and update them
  * as needed.
+ * TODO: Delete the events the user is the organizer for if they delete their profile.
  */
 public class ProfileFragment extends Fragment {
 
