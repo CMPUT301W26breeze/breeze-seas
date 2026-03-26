@@ -1,9 +1,8 @@
 package com.example.breeze_seas;
 
-import static android.preference.PreferenceManager.*;
-
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -22,7 +22,7 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MapsFragment extends Fragment {
 
@@ -63,20 +63,13 @@ public class MapsFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState){
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view,savedInstanceState);
-        view.findViewById(R.id.maps_back_button).setOnClickListener(v ->
-                requireActivity().getSupportFragmentManager().popBackStack()
-        );
-        TextView subtitleView = view.findViewById(R.id.maps_subtitle);
-        if (currentEvent != null && currentEvent.getName() != null && !currentEvent.getName().trim().isEmpty()) {
-            subtitleView.setText(currentEvent.getName());
-        }
-        mapObj=new Map(currentEvent);
+        mapObj = new Map(currentEvent);
         mapObj.fetchLocation(new Map.FetchedLocationListener() {
             @Override
-            public void onLocationFetched(ArrayList<GeoPoint> location) {
-                if(isAdded() && map!=null){
+            public void onLocationFetched(HashMap<GeoPoint,String[]> location) {
+                if(isAdded() && map != null){
                     drawPoints(location);
                 }
             }
@@ -90,21 +83,48 @@ public class MapsFragment extends Fragment {
         });
     }
 
-    public void drawPoints(ArrayList<GeoPoint> locations){
+    public void drawPoints(HashMap<GeoPoint,String[]> locations){
         map.getOverlays().clear();
-        for(GeoPoint point: locations){
-            Marker marker=new Marker(map);
+        for(java.util.Map.Entry<GeoPoint, String[]> entry: locations.entrySet()){
+
+            GeoPoint point = entry.getKey();
+            String username = entry.getValue()[0];
+            String status = entry.getValue()[1];
+
+            Marker marker = new Marker(map);
             marker.setPosition(point);
             marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-            marker.setTitle("Participant");
-            map.getOverlays().add(marker);
+            marker.setTitle(username);
+            marker.setSnippet("Status: " + status);
 
-            if (!locations.isEmpty()) {
-                map.getController().animateTo(locations.get(0));
+            int color = Color.GRAY;
+            if (status != null) {
+                switch (status){
+                    case "accepted":
+                        color = Color.GREEN;
+                        break;
+                    case "waiting":
+                        color = Color.BLUE;
+                        break;
+                    case "pending":
+                        color = Color.YELLOW;
+                        break;
+                }
             }
-            map.invalidate();
-        }
 
+            Drawable defaultMarker = marker.getIcon();
+            if (defaultMarker != null) {
+                Drawable tintedIcon = DrawableCompat.wrap(defaultMarker).mutate();
+                DrawableCompat.setTint(tintedIcon, color);
+                marker.setIcon(tintedIcon);
+            }
+            map.getOverlays().add(marker);
+        }
+        if (!locations.isEmpty()) {
+            GeoPoint first = locations.keySet().iterator().next();
+            map.getController().animateTo(first);
+        }
+        map.invalidate();
     }
 
 
