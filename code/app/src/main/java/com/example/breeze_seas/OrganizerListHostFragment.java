@@ -24,6 +24,9 @@ public class OrganizerListHostFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle saved) {
         View view = inflater.inflate(R.layout.fragment_organizer_list_host, container, false);
         viewPager = view.findViewById(R.id.organizer_view_pager);
+        view.findViewById(R.id.organizer_lists_back).setOnClickListener(v ->
+                requireActivity().getSupportFragmentManager().popBackStack()
+        );
         tabButtons = new TextView[] {
                 view.findViewById(R.id.organizer_tab_waiting),
                 view.findViewById(R.id.organizer_tab_pending),

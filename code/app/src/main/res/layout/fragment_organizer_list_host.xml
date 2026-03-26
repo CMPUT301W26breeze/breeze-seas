@@ -5,27 +5,71 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    android:paddingHorizontal="16dp"
-    android:paddingTop="16dp"
-    android:paddingBottom="8dp">
+    android:paddingStart="20dp"
+    android:paddingTop="20dp"
+    android:paddingEnd="20dp"
+    android:paddingBottom="12dp">
+
+    <LinearLayout
+        android:id="@+id/organizer_lists_header_row"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/organizer_lists_back"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_profile_field_shell"
+            android:contentDescription="@string/organizer_lists_back"
+            android:padding="8dp"
+            android:src="@drawable/ic_go_back" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:fontFamily="@font/inter_medium"
+            android:text="@string/organizer_lists_header"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/organizer_lists_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="22dp"
         android:fontFamily="@font/inter_semibold"
-        android:text="Entrant Status"
+        android:text="@string/organizer_lists_title"
         android:textColor="@color/text_primary"
-        android:textSize="24sp"
+        android:textSize="28sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/organizer_lists_header_row" />
+
+    <TextView
+        android:id="@+id/organizer_lists_subtitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/inter_regular"
+        android:text="@string/organizer_lists_subtitle"
+        android:textColor="@color/text_secondary"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/organizer_lists_title" />
 
     <LinearLayout
         android:id="@+id/organizer_tab_shell"
         android:layout_width="0dp"
         android:layout_height="56dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="18dp"
         android:background="@drawable/bg_tickets_tab_shell"
         android:elevation="8dp"
         android:gravity="center_vertical"
@@ -33,7 +77,7 @@
         android:padding="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/organizer_lists_title">
+        app:layout_constraintTop_toBottomOf="@id/organizer_lists_subtitle">
 
         <TextView
             android:id="@+id/organizer_tab_waiting"

@@ -43,6 +43,7 @@ public class EventDetailsFragment extends Fragment {
     private AcceptedList acceptedList;
     private DeclinedList declinedList;
     private User user;
+    private EventCommentsSectionController commentsSectionController;
     private final androidx.activity.result.ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new androidx.activity.result.contract.ActivityResultContracts.RequestPermission(), isGranted -> {
                 joinWaitingListButton.setEnabled(true);
@@ -273,6 +274,8 @@ public class EventDetailsFragment extends Fragment {
 
         // Update event details
         updateView();
+        commentsSectionController = new EventCommentsSectionController(this, view);
+        commentsSectionController.bind(eventShown, user);
 
         // Display options based on user's current status
         if (waitingList.userIsInList(user)) {

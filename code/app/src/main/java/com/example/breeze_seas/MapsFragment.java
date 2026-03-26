@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -64,6 +65,13 @@ public class MapsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState){
         super.onViewCreated(view,savedInstanceState);
+        view.findViewById(R.id.maps_back_button).setOnClickListener(v ->
+                requireActivity().getSupportFragmentManager().popBackStack()
+        );
+        TextView subtitleView = view.findViewById(R.id.maps_subtitle);
+        if (currentEvent != null && currentEvent.getName() != null && !currentEvent.getName().trim().isEmpty()) {
+            subtitleView.setText(currentEvent.getName());
+        }
         mapObj=new Map(currentEvent);
         mapObj.fetchLocation(new Map.FetchedLocationListener() {
             @Override

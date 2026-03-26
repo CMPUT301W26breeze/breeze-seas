@@ -39,6 +39,80 @@
                 android:text="@string/organizer_event_preview_header"
                 android:textColor="@color/text_secondary"
                 android:textSize="14sp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <ImageButton
+                android:id="@+id/organizer_event_preview_menu_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_profile_field_shell"
+                android:contentDescription="@string/organizer_event_preview_actions_menu"
+                android:padding="8dp"
+                android:src="@drawable/ic_menu_lines" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/organizer_event_preview_action_menu"
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_tickets_tab_shell"
+            android:elevation="8dp"
+            android:orientation="vertical"
+            android:padding="8dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/organizer_event_preview_manage_button"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:background="@drawable/bg_profile_field_shell"
+                android:drawableStart="@drawable/ic_person"
+                android:drawablePadding="10dp"
+                android:fontFamily="@font/inter_medium"
+                android:gravity="center_vertical"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:text="@string/organizer_event_preview_manage_button"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/organizer_event_preview_announcement_button"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_profile_field_shell"
+                android:drawableStart="@drawable/ic_notification"
+                android:drawablePadding="10dp"
+                android:fontFamily="@font/inter_medium"
+                android:gravity="center_vertical"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:text="@string/organizer_event_preview_announcement_button"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/organizer_event_preview_map_button"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_profile_field_shell"
+                android:drawableStart="@drawable/ic_explore"
+                android:drawablePadding="10dp"
+                android:fontFamily="@font/inter_medium"
+                android:gravity="center_vertical"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:text="@string/view_map"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
         </LinearLayout>
 
         <TextView
@@ -358,75 +432,46 @@
                     android:textSize="15sp" />
             </FrameLayout>
 
-            <Button
-                android:id="@+id/organizer_event_preview_save_button"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="54dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="22dp"
-                android:background="@drawable/bg_welcome_primary_button"
-                android:backgroundTint="@null"
-                app:backgroundTint="@null"
-                android:fontFamily="@font/inter_semibold"
-                android:text="@string/organizer_event_preview_save_button"
-                android:textAllCaps="false"
-                android:textColor="@color/white"
-                android:textSize="15sp" />
+                android:baselineAligned="false"
+                android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/organizer_event_preview_delete_button"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_ticket_status_outline"
-                android:backgroundTint="@null"
-                app:backgroundTint="@null"
-                android:fontFamily="@font/inter_medium"
-                android:text="@string/organizer_event_preview_delete_button"
-                android:textAllCaps="false"
-                android:textColor="@color/text_primary"
-                android:textSize="14sp" />
+                <Button
+                    android:id="@+id/organizer_event_preview_save_button"
+                    android:layout_width="0dp"
+                    android:layout_height="54dp"
+                    android:layout_marginEnd="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_welcome_primary_button"
+                    android:backgroundTint="@null"
+                    android:fontFamily="@font/inter_semibold"
+                    android:text="@string/organizer_event_preview_save_button"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:textSize="15sp"
+                    app:backgroundTint="@null" />
 
-            <Button
-                android:id="@+id/organizer_event_preview_manage_button"
-                android:layout_width="match_parent"
-                android:layout_height="54dp"
-                android:layout_marginTop="18dp"
-                android:background="@drawable/bg_welcome_primary_button"
-                android:backgroundTint="@null"
-                app:backgroundTint="@null"
-                android:fontFamily="@font/inter_semibold"
-                android:text="@string/organizer_event_preview_manage_button"
-                android:textAllCaps="false"
-                android:textColor="@color/white"
-                android:textSize="15sp" />
+                <Button
+                    android:id="@+id/organizer_event_preview_delete_button"
+                    android:layout_width="0dp"
+                    android:layout_height="54dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_ticket_status_outline"
+                    android:backgroundTint="@null"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="@string/organizer_event_preview_delete_button"
+                    android:textAllCaps="false"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    app:backgroundTint="@null" />
+            </LinearLayout>
 
-            <Button
-                android:id="@+id/organizer_event_preview_announcement_button"
-                android:layout_width="match_parent"
-                android:layout_height="54dp"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_welcome_primary_button"
-                android:backgroundTint="@null"
-                app:backgroundTint="@null"
-                android:fontFamily="@font/inter_semibold"
-                android:text="@string/organizer_event_preview_announcement_button"
-                android:textAllCaps="false"
-                android:textColor="@color/white"
-                android:textSize="15sp" />
-
-            <Button
-                android:id="@+id/organizer_event_preview_map_button"
-                android:layout_width="match_parent"
-                android:layout_height="54dp"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_welcome_primary_button"
-                android:backgroundTint="@null"
-                app:backgroundTint="@null"
-                android:fontFamily="@font/inter_semibold"
-                android:text="@string/view_map"
-                android:textAllCaps="false"
-                android:textColor="@color/white"
-                android:textSize="15sp" />
+            <include
+                layout="@layout/include_event_comments_section" />
         </LinearLayout>
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
