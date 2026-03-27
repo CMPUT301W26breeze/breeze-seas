@@ -1,7 +1,6 @@
 package com.example.breeze_seas;
 
 import android.content.Context;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +27,17 @@ public class ExploreEventViewAdapter extends RecyclerView.Adapter<ExploreEventVi
         this.context = context;
         this.eventList = eventList;
         ExploreEventViewAdapter.itemListener = itemListener;
+    }
+
+    /**
+     * Replaces the current Explore list contents.
+     *
+     * @param newEvents Events that should currently be visible in Explore.
+     */
+    public void submitList(@NonNull List<Event> newEvents) {
+        eventList.clear();
+        eventList.addAll(newEvents);
+        notifyDataSetChanged();
     }
 
     @NonNull
