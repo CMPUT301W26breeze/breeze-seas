@@ -15,6 +15,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
+
+import java.lang.reflect.Method;
 
 /**
  * A fragment that displays the list of users currently on the pending list for an event.
@@ -31,6 +34,36 @@ public class PendingListFragment extends Fragment {
 
     public PendingListFragment() { }
 
+    private void deleteDialog(User user){
+        new android.app.AlertDialog.Builder(requireContext())
+                .setTitle("Remove Entrant")
+                .setMessage("Are you sure you want to remove " + user.getUserName() + " from the pending list?")
+                .setPositiveButton("Remove", (dialog, which) -> {
+
+                    waitingProgress.setVisibility(View.VISIBLE);
+                    pendingList.removeUserFromDB(user, new StatusList.ListUpdateListener() {
+                        @Override
+                        public void onUpdate() {
+                            if (isAdded()) {
+                                waitingProgress.setVisibility(View.GONE);
+                                Toast.makeText(getContext(), "User removed", Toast.LENGTH_SHORT).show();
+                                adapter.notifyDataSetChanged();
+                            }
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            if (isAdded()) {
+                                waitingProgress.setVisibility(View.GONE);
+                                Toast.makeText(getContext(), "Error removing user", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                .create()
+                .show();
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -58,6 +91,16 @@ public class PendingListFragment extends Fragment {
 
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState){
+        super.onViewCreated(view, savedInstanceState);
+        listView.setOnItemClickListener((parent, view1, position, id) -> {
+            User selected = pendingList.getUserList().get(position);
+            deleteDialog(selected);
+        });
+
     }
 
 

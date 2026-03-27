@@ -124,52 +124,60 @@ public class EventDetailsFragment extends Fragment {
                         return; // TODO: implement unable to join msg
                     }
 
-                    // check for location permission if geolocation is enforced
-                    if (!eventShown.isGeolocationEnforced()) {
-                        waitingList.determineLocation(requireContext(), user, new StatusList.ListUpdateListener() {
-                            @Override
-                            public void onUpdate() {
-                                progressBar.setVisibility(View.GONE);
-                                showWaiting();
-                                updateView();
-                                refreshTickets();
-                            }
-                            @Override
-                            public void onError(Exception e) {
-                                progressBar.setVisibility(View.GONE);
-                                showJoin();
-                                joinWaitingListButton.setEnabled(true);
-                                Log.e("waitingList DB Call", "Unable to add user", e);
-                            }
-                        });
-                    } else if (androidx.core.app.ActivityCompat.checkSelfPermission(requireContext(),
-                            android.Manifest.permission.ACCESS_FINE_LOCATION) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                    progressBar.setVisibility(View.GONE);
+                    joinWaitingListButton.setEnabled(true);
 
+                    TermsAndCondition termsDialog = new TermsAndCondition(() -> {
 
-                        waitingList.determineLocation(requireContext(), user, new StatusList.ListUpdateListener() {
-                            @Override
-                            public void onUpdate() {
-                                progressBar.setVisibility(View.GONE);
-                                showWaiting();
-                                updateView();
-                                refreshTickets();
-                            }
-                            @Override
-                            public void onError(Exception e) {
-                                progressBar.setVisibility(View.GONE);
-                                showJoin();
-                                joinWaitingListButton.setEnabled(true);
-                                Log.e("waitingList DB Call", "Unable to add user", e);
-                            }
-                        });
+                        progressBar.setVisibility(View.VISIBLE);
+                        joinWaitingListButton.setEnabled(false);
 
-                    } else {
-                        progressBar.setVisibility(View.GONE);
-                        showJoin();
-                        joinWaitingListButton.setEnabled(true);
-                        requestPermissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION);
-                    }
+                        if (!eventShown.isGeolocationEnforced()) {
+                            waitingList.determineLocation(requireContext(), user, new StatusList.ListUpdateListener() {
+                                @Override
+                                public void onUpdate() {
+                                    progressBar.setVisibility(View.GONE);
+                                    showWaiting();
+                                    updateView();
+                                    refreshTickets();
+                                }
+                                @Override
+                                public void onError(Exception e) {
+                                    progressBar.setVisibility(View.GONE);
+                                    showJoin();
+                                    joinWaitingListButton.setEnabled(true);
+                                    Log.e("waitingList DB Call", "Unable to add user", e);
+                                }
+                            });
+                        } else if (androidx.core.app.ActivityCompat.checkSelfPermission(requireContext(),
+                                android.Manifest.permission.ACCESS_FINE_LOCATION) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+
+                            waitingList.determineLocation(requireContext(), user, new StatusList.ListUpdateListener() {
+                                @Override
+                                public void onUpdate() {
+                                    progressBar.setVisibility(View.GONE);
+                                    showWaiting();
+                                    updateView();
+                                    refreshTickets();
+                                }
+                                @Override
+                                public void onError(Exception e) {
+                                    progressBar.setVisibility(View.GONE);
+                                    showJoin();
+                                    joinWaitingListButton.setEnabled(true);
+                                }
+                            });
+
+                        } else {
+                            progressBar.setVisibility(View.GONE);
+                            joinWaitingListButton.setEnabled(true);
+                            requestPermissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION);
+                        }
+                    }, eventShown);
+
+                    termsDialog.show(getParentFragmentManager(), "TermsDialog");
                 }
+
                 @Override
                 public void onError(Exception e) {
                     progressBar.setVisibility(View.GONE);
@@ -340,6 +348,7 @@ public class EventDetailsFragment extends Fragment {
 
         // Show
         joinWaitingListButton.setVisibility(View.VISIBLE);
+        joinWaitingListButton.setEnabled(true);
     }
 
     /**
