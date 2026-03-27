@@ -193,25 +193,7 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
         showNoEventsText(eventList.isEmpty());
     }
 
-    /**
-     * Removes private events from the public Explore listing.
-     *
-     * @param events Events returned by {@link EventDB}, or {@code null}.
-     * @return Publicly visible events only.
-     */
-    private ArrayList<Event> filterPublicEvents(@Nullable ArrayList<Event> events) {
-        ArrayList<Event> publicEvents = new ArrayList<>();
-        if (events == null) {
-            return publicEvents;
-        }
 
-        for (Event event : events) {
-            if (event != null && !event.isPrivate()) {
-                publicEvents.add(event);
-            }
-        }
-        return publicEvents;
-    }
 
     /**
      * Helper function to hide/show text when events are found or not
