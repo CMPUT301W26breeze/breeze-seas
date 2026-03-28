@@ -1,5 +1,6 @@
 package com.example.breeze_seas;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -67,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
         viewModel = new ViewModelProvider(this).get(SessionViewModel.class);
 
-        String androidID = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        @SuppressLint("HardwareIds") String androidID = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
         viewModel.setAndroidID(androidID);
 
         showBottomNav(false);

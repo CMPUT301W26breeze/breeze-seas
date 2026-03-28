@@ -68,17 +68,63 @@ public class EventDetailsFragment extends Fragment {
 
         // Grab event and user from SessionViewModel
         user = viewModel.getUser().getValue();
-        eventShown = viewModel.getEventShown().getValue();
+        eventShown = viewModel.getExploreFragmentEventHandler().getEventShown().getValue();
         assert eventShown != null;
+
+        // Grab references to list classes
         waitingList = eventShown.getWaitingList();
         pendingList = eventShown.getPendingList();
         acceptedList = eventShown.getAcceptedList();
         declinedList = eventShown.getDeclinedList();
 
+        // Start listener on list classes
+        eventShown.startParticipantsListen(new Event.ParticipantsUpdatedCallback() {
+            @Override
+            public void onUpdated() {
+                // Update event details
+                updateView();
+                // Display options based on user's current status
+                showOption(user);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                // Unassign eventShown
+                viewModel.getExploreFragmentEventHandler().setEventShown(null);
+
+                // Return to explore fragment
+                getParentFragmentManager()
+                        .popBackStack();
+            }
+        });
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        // Close listener
+        eventShown.stopParticipantsListen();
+        Log.d("EventDetailsFragment", "Successfully closed event listener");
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Setup observer on eventShown
+        viewModel.getExploreFragmentEventHandler().getEventShown().observe(getViewLifecycleOwner(), e -> {
+            // Check if event still exists
+            if (e == null) {
+                // Return to explore fragment
+                getParentFragmentManager()
+                        .popBackStack();
+            }
+
+            // Since reference to the object is the same, the details should be updated automatically.
+            updateView();
+            showOption(user);
+        });
+
         // Bind all views
         eventTitle = view.findViewById(R.id.event_details_event_title);
         eventPoster = view.findViewById(R.id.event_details_event_photo);
@@ -103,7 +149,8 @@ public class EventDetailsFragment extends Fragment {
             // TODO: implement logic to show QRCode
         });
 
-        ProgressBar progressBar=view.findViewById(R.id.event_details_loading_progress_bar);
+        // TODO: Fix logic as list classes are now real time, consistent with the database.
+        ProgressBar progressBar = view.findViewById(R.id.event_details_loading_progress_bar);
         joinWaitingListButton = view.findViewById(R.id.event_details_join_waitlist_button);
         joinWaitingListButton.setOnClickListener(v -> {
             progressBar.setVisibility(View.VISIBLE);
@@ -121,7 +168,8 @@ public class EventDetailsFragment extends Fragment {
                         joinWaitingListButton.setEnabled(true);
                         Log.w("waitingList DB Call", "Waiting list capacity reached for event " + eventShown.getEventId());
                         Toast.makeText(requireContext(), "The waiting list is full for this event.", Toast.LENGTH_SHORT).show();
-                        return; // TODO: implement unable to join msg
+                        // TODO: implement unable to join msg
+                        return;
                     }
 
                     // check for location permission if geolocation is enforced
@@ -269,14 +317,41 @@ public class EventDetailsFragment extends Fragment {
                     Log.e("pendingList DB Call", "Unable to refresh users", e);
                 }
             });
-
         });
+    }
 
-        // Update event details
-        updateView();
-        commentsSectionController = new EventCommentsSectionController(this, view);
-        commentsSectionController.bind(eventShown, user);
+    /**
+     * Takes eventShown and updates all views to reflect event information
+     */
+    private void updateView() {
+        eventTitle.setText(eventShown.getName());
+        handlePoster(eventShown.getImage());
+        eventCapacity.setText(fmt("Capacity:", String.valueOf(eventShown.getEventCapacity())));
+        eventWaitingListCount.setText(fmt("Currently in Waiting List:", String.valueOf(waitingList.getSize())));
+        eventStartDate.setText(fmt("Starts:", formatTimestamp(eventShown.getRegistrationStartTimestamp())));
+        eventEndDate.setText(fmt("Ends:", formatTimestamp(eventShown.getRegistrationEndTimestamp())));
+        eventDescription.setText(eventShown.getDescription());
+    }
 
+    /**
+     * Helper method to display poster.
+     * @param image Image object.
+     */
+    private void handlePoster(Image image) {
+        if (image == null) {
+            Log.e("TEST", "Image does not exist");
+            eventPoster.setImageResource(R.drawable.ic_image_placeholder);
+        } else {
+            Log.e("TEST", "Image exists");
+            eventPoster.setImageBitmap(image.display());
+        }
+    }
+
+    /**
+     * Present options based on the status of the current user in the event.
+     * @param user User to show options for.
+     */
+    private void showOption(User user) {
         // Display options based on user's current status
         if (waitingList.userIsInList(user)) {
             showWaiting();
@@ -291,19 +366,6 @@ public class EventDetailsFragment extends Fragment {
         }
     }
 
-    /**
-     * Takes eventShown and updates all views to reflect event information
-     */
-    private void updateView() {
-        eventTitle.setText(eventShown.getName());
-        // eventPoster.setImageDrawable();  // TODO: need Poster and PosterDB
-        eventPoster.setImageResource(R.drawable.ic_image_placeholder);
-        eventCapacity.setText(fmt("Capacity:", String.valueOf(eventShown.getEventCapacity())));
-        eventWaitingListCount.setText(fmt("Currently in Waiting List:", String.valueOf(waitingList.getSize())));
-        eventStartDate.setText(fmt("Starts:", formatTimestamp(eventShown.getRegistrationStartTimestamp())));
-        eventEndDate.setText(fmt("Ends:", formatTimestamp(eventShown.getRegistrationEndTimestamp())));
-        eventDescription.setText(eventShown.getDescription());
-    }
 
     /**
      * Helper method to create a String

@@ -58,17 +58,18 @@
             android:layout_marginTop="18dp"
             android:background="@drawable/bg_welcome_hero_shell"
             android:elevation="10dp"
-            android:padding="12dp">
+            android:padding="0dp">
 
-            <ImageView
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/event_details_event_photo"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/bg_profile_field_shell"
                 android:contentDescription="@string/organizer_event_preview_poster"
-                android:padding="12dp"
+                android:padding="0dp"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_image_placeholder" />
+                android:src="@drawable/ic_image_placeholder"
+                app:shapeAppearanceOverlay="@style/RoundedCorners.EventDetails" />
         </FrameLayout>
 
         <Button

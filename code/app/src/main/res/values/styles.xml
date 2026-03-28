@@ -6,9 +6,9 @@
         <item name="cornerSize">50%</item>
     </style>
 
-    <style name="RoundedCorners" parent="">
+    <style name="RoundedCorners.EventDetails" parent="">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">10dp</item>
+        <item name="cornerSize">32dp</item>
     </style>
 
     <style name="TextAppearance.Breezeseas.BottomNavigation" parent="TextAppearance.Material3.LabelSmall">

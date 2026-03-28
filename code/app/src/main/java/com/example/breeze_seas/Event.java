@@ -1,8 +1,19 @@
 package com.example.breeze_seas;
 
+import android.graphics.Bitmap;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,6 +46,8 @@ public class Event {
     private PendingList pendingList;
     private AcceptedList acceptedList;
     private DeclinedList declinedList;
+    private ListenerRegistration eventListener = null;
+    private ListenerRegistration participantsListener = null;
 
     /**
      * Creates an event using the full field set expected when hydrating from {@link EventDB}.
@@ -105,6 +118,18 @@ public class Event {
         this.pendingList = pendingList;
         this.acceptedList = acceptedList;
         this.declinedList = declinedList;
+    }
+
+    /**
+     * Creates an event from Firebase using a map object.
+     * @param map Map object to retrieve and initialize values from.
+     */
+    public Event(Map<String, Object> map) {
+        loadMap(map);
+        this.waitingList = null;
+        this.pendingList = null;
+        this.acceptedList = null;
+        this.declinedList = null;
     }
 
     /**
@@ -218,6 +243,57 @@ public class Event {
         map.put("waitingListCapacity", getWaitingListCapacity());
         map.put("drawARound", getDrawARound());
         return map;
+    }
+
+    /**
+     * Loads the map object from Firestore and updates the event details accordingly.
+     * DOES NOT LOAD COMPLEX OBJECTS LIKE participants (the lists classes) and image
+     * @param map Map object to populate attribute from.
+     */
+    public void loadMap(Map<String, Object>  map) {
+        // Event Details
+        this.eventId = map.get("eventId").toString();
+        this.isPrivate = Boolean.TRUE.equals(map.get("isPrivate"));
+        this.organizerId = map.get("organizerId").toString();
+        this.coOrganizerId = (ArrayList<String>) map.get("coOrganizerId");
+        this.name = map.get("name").toString();
+        this.description = (map.get("description") == null) ? "" : map.get("description").toString();
+
+        // Images
+        // THIS MAY CAUSE RACE CONDITION AS THE IMAGE DB CALL IS ASYNCHRONOUS
+//        String imageDocId = (map.get("imageDocId") == null) ? null : map.get("imageDocId").toString();
+//        if (imageDocId != null) {
+//            ImageDB.loadImage("imageDocId", new ImageDB.LoadImageCallback() {
+//                @Override
+//                public void onSuccess(Image image) {
+//                    setImage(image);
+//                }
+//
+//                @Override
+//                public void onFailure(Exception e) {
+//
+//                }
+//            });
+//        }
+
+        // Qr Code
+        this.qrValue = (map.get("qrValue") == null) ? "" : map.get("qrValue").toString();
+
+        // Timestamps
+        this.createdTimestamp = (Timestamp) map.get("createdTimestamp");
+        this.modifiedTimestamp = (Timestamp) map.get("modifiedTimestamp");
+        this.registrationStartTimestamp = (Timestamp) map.get("registrationStartTimestamp");
+        this.registrationEndTimestamp = (Timestamp) map.get("registrationEndTimestamp");
+        this.eventStartTimestamp = (Timestamp) map.get("eventStartTimestamp");
+        this.eventEndTimestamp = (Timestamp) map.get("eventEndTimestamp");
+
+        // Geolocation
+        this.geolocationEnforced = Boolean.TRUE.equals(map.get("geolocationEnforced"));
+
+        // Misc
+        this.eventCapacity = ((Number) map.get("eventCapacity")).intValue();
+        this.waitingListCapacity = ((Number) map.getOrDefault("waitingListCapacity", -1)).intValue();
+        this.drawARound = ((Number) map.getOrDefault("drawARound", 0)).intValue();
     }
 
     /**
@@ -368,6 +444,22 @@ public class Event {
      */
     public void setImage(Image image) {
         this.image = image;
+    }
+
+    /**
+     * Synonym of {@link Event#getImageBitmap()}
+     * @return Bitmap of event poster. Null if image object does not exist.
+     */
+    public Bitmap getPosterBitmap() {
+        return getImageBitmap();
+    }
+
+    /**
+     * Returns bitmap of event poster to caller.
+     * @return Bitmap of event poster. Null if image object does not exist.
+     */
+    public Bitmap getImageBitmap() {
+        return (this.image == null) ? null : this.image.display();
     }
 
     /**
@@ -625,6 +717,9 @@ public class Event {
      * @return Waiting-list helper.
      */
     public WaitingList getWaitingList() {
+        if (waitingList == null) {
+            waitingList = new WaitingList(this, waitingListCapacity);
+        }
         return waitingList;
     }
 
@@ -641,6 +736,9 @@ public class Event {
      * @return Pending-list helper.
      */
     public PendingList getPendingList() {
+        if (pendingList == null) {
+            pendingList = new PendingList(this, eventCapacity);
+        }
         return pendingList;
     }
 
@@ -657,6 +755,9 @@ public class Event {
      * @return Accepted-list helper.
      */
     public AcceptedList getAcceptedList() {
+        if (acceptedList == null) {
+            acceptedList = new AcceptedList(this, eventCapacity);
+        }
         return acceptedList;
     }
 
@@ -673,6 +774,9 @@ public class Event {
      * @return Declined-list helper.
      */
     public DeclinedList getDeclinedList() {
+        if (declinedList == null) {
+            declinedList = new DeclinedList(this, -1);
+        }
         return declinedList;
     }
 
@@ -685,48 +789,361 @@ public class Event {
     }
 
     /**
+     * Helper method to remove all users from the list classes.
+     */
+    private void emptyLists() {
+        this.waitingList.getUserList().clear();
+        this.pendingList.getUserList().clear();
+        this.acceptedList.getUserList().clear();
+        this.declinedList.getUserList().clear();
+    }
+
+    /**
+     * Helper method to ensure list classes are initialized.
+     */
+    private void setupLists() {
+        if (waitingList == null) {
+            waitingList = new WaitingList(this, waitingListCapacity);
+        }
+        if (pendingList == null) {
+            pendingList = new PendingList(this, eventCapacity);
+        }
+        if (acceptedList == null) {
+            acceptedList = new AcceptedList(this, eventCapacity);
+        }
+        if (declinedList == null) {
+            declinedList = new DeclinedList(this, -1);
+        }
+    }
+
+    /**
+     * Helper method to place the User in the correct list.
+     * @param user User object to add to list.
+     * @param status String variable to determine which list the user belongs to.
+     */
+    private void addUserToList(User user, String status) {
+        switch(status) {
+            case "waiting":
+                waitingList.getUserList().add(user);
+                break;
+            case "pending":
+                pendingList.getUserList().add(user);
+                break;
+            case "accepted":
+                acceptedList.getUserList().add(user);
+                break;
+            case "declined":
+                declinedList.getUserList().add(user);
+                break;
+            default:
+                Log.e("Event Class", "Unable to place User in the correct list");
+        }
+    }
+
+    /**
+     * Helper method to remove user from list classes based on deviceId.
+     * @param user User object containing the deviceId to match against and remove.
+     *             Can be a simple user object with only deviceId present.
+     */
+    private void removeUserFromList(User user) {
+        if (waitingList.userIsInList(user)) {
+            waitingList.popUser(user);
+            return;
+        }
+        if (pendingList.userIsInList(user)) {
+            pendingList.popUser(user);
+            return;
+        }
+        if (acceptedList.userIsInList(user)) {
+            acceptedList.popUser(user);
+            return;
+        }
+        if (declinedList.userIsInList(user)) {
+            declinedList.popUser(user);
+        }
+    }
+
+    public interface EventUpdatedCallback {
+        void onUpdated();
+        void onDeleted();
+        void onFailure(Exception e);
+    }
+
+    /**
+     * Method to get realtime updates of event.
+     */
+    public void startEventListen(EventUpdatedCallback callback) {
+        // Listener on Event
+        final DocumentReference docRef = EventDB.getEventRef().document(this.eventId);
+        eventListener = docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot eventDoc,
+                                @Nullable FirebaseFirestoreException error) {
+                // Check for errors
+                if (error != null) {
+                    Log.w("Event Class", "Listen failed.", error);
+                    callback.onFailure(error);
+                    return;  // This will automatically close listener
+                }
+
+                // Determine whether change was local (database changed caused by this device) or
+                // change was server (database changed caused by another device, not this device)
+                String source = eventDoc != null && eventDoc.getMetadata().hasPendingWrites()
+                        ? "Local" : "Server";
+
+                if (eventDoc != null && eventDoc.exists()) {
+                    // Event document is updated
+                    Map<String, Object> map = eventDoc.getData();
+                    Log.d("Event Class", source + " data: " + map);
+                    // Load new information
+                    loadMap(map);
+                    callback.onUpdated();
+
+                } else {
+                    // Event document gets deleted
+                    Log.d("Event Class", source + " data: null");
+                    callback.onDeleted();
+                }
+            }
+        });
+    }
+
+    /**
+     * Stop fetching realtime updates of event.
+     */
+    public void stopEventListen() {
+        eventListener.remove();
+    }
+
+    public interface ParticipantsUpdatedCallback {
+        void onUpdated();
+        void onFailure(Exception e);
+    }
+
+    public void startParticipantsListen(ParticipantsUpdatedCallback callback) {
+        // Before listening on participants
+        setupLists();
+        emptyLists();
+
+        // Listener on Participants
+        final CollectionReference participantsRef = EventDB.getEventRef().document(this.eventId).collection("participants");
+        CollectionReference usersRef = DBConnector.getDb().collection("users");
+        participantsListener = participantsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot participantsDocs,
+                                @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    Log.w("Event Class", "Listen failed.", error);
+                    callback.onFailure(error);
+                    return;
+                }
+
+                // Loop setup
+                int total = participantsDocs.size();
+                final int[] fetched = {0};
+                for (DocumentChange dc : participantsDocs.getDocumentChanges()) {
+                    String deviceId = dc.getDocument().getId();
+                    String status = dc.getDocument().get("status", String.class).toString();
+                    switch (dc.getType()) {
+                        case ADDED:
+                            Log.d("Event Class", "New user: " + dc.getDocument().getData());
+
+                            // Fetch User
+                            usersRef.document(deviceId)
+                                    .get()
+                                    .addOnSuccessListener(userDoc -> {
+                                        if (userDoc.exists()) {
+                                            // Add user to list
+                                            addUserToList(userDoc.toObject(User.class), status);
+
+                                            // Check Finish Condition
+                                            fetched[0]++;
+                                            if (fetched[0] >= total) {
+                                                callback.onUpdated();
+                                            }
+                                        }
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.e("Event Class", "Unable to fetch user document.");
+                                    });
+                            break;
+
+                        case MODIFIED:  // This may never run, as the document details are mostly static.
+                            Log.d("Event Class", "Modified user: " + dc.getDocument().getData());
+
+                            // Fetch User
+                            usersRef.document(deviceId)
+                                    .get()
+                                    .addOnSuccessListener(userDoc -> {
+                                        if (userDoc.exists()) {
+                                            // Remove from existing lists
+                                            User tmpUser = userDoc.toObject(User.class);
+                                            removeUserFromList(tmpUser);
+
+                                            // Add user to list
+                                            addUserToList(tmpUser, status);
+
+                                            // Check Finish Condition
+                                            fetched[0]++;
+                                            if (fetched[0] >= total) {
+                                                callback.onUpdated();
+                                            }
+                                        }
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.e("Event Class", "Unable to fetch user document.");
+                                    });
+                            break;
+
+                        case REMOVED:
+                            Log.d("Event Class", "Removed user: " + dc.getDocument().getData());
+
+                            // DeviceId of removed document needs to be removed from list
+
+                            // Fetch User
+                            usersRef.document(deviceId)
+                                    .get()
+                                    .addOnSuccessListener(userDoc -> {
+                                        if (userDoc.exists()) {
+                                            // Remove user
+                                            removeUserFromList(userDoc.toObject(User.class));
+
+                                            // Check Finish Condition
+                                            fetched[0]++;
+                                            if (fetched[0] >= total) {
+                                                callback.onUpdated();
+                                            }
+                                        }
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.e("Event Class", "Unable to fetch user document.");
+                                    });
+                            break;
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Stop fetching realtime updates of participants.
+     */
+    public void stopParticipantsListen() {
+        participantsListener.remove();
+    }
+
+    public interface ListsLoadedCallback {
+        void onSuccess();
+        void onFailure(Exception e);
+    }
+
+    /**
+     * Helper method to query and generate and populate lists with user objects.
+     * @param callback Callback method after firebase transaction.
+     */
+    public void fetchLists(ListsLoadedCallback callback) {
+        // WARNING: Asynchronous call
+        EventDB.getEventRef()
+                .document(eventId)
+                .collection("participants")
+                .get()
+                .addOnSuccessListener(participantsDocs -> {
+                    emptyLists();
+
+                    // Fetch each user
+                    CollectionReference usersCollection = DBConnector.getDb().collection("users");
+                    int total = participantsDocs.size();
+                    final int[] fetched = {0};
+                    for (DocumentSnapshot participantDoc: participantsDocs) {
+                        String deviceId = participantDoc.getId();
+                        String status = participantDoc.get("status", String.class).toString();
+
+                        usersCollection.document(deviceId)
+                                .get()
+                                .addOnSuccessListener(userDoc -> {
+                                    if (userDoc.exists()) {
+                                        addUserToList(userDoc.toObject(User.class), status);
+
+                                        // Check Finish Condition
+                                        fetched[0]++;
+                                        if (fetched[0] >= total) {
+                                            callback.onSuccess();
+                                        }
+                                    }
+
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("Event Class", "Unable to fetch user document.");
+                                });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Event Class", "Error: ", e);
+                    callback.onFailure(e);
+                });
+    }
+
+    /**
      * Resyncs the list objects with information from the db
      */
     public void refreshListsFromDB() {
-        waitingList.refresh(new StatusList.ListUpdateListener() {
+        // Ensure list classes are initialized
+        setupLists();
+
+        fetchLists(new ListsLoadedCallback() {
             @Override
-            public void onUpdate() {
+            public void onSuccess() {
+
             }
 
             @Override
-            public void onError(Exception e) {
-                Log.e("EventDB", "Error: ", e);
-            }
-        });
-        pendingList.refresh(new StatusList.ListUpdateListener() {
-            @Override
-            public void onUpdate() {
-            }
+            public void onFailure(Exception e) {
 
-            @Override
-            public void onError(Exception e) {
-                Log.e("EventDB", "Error: ", e);
             }
         });
-        acceptedList.refresh(new StatusList.ListUpdateListener() {
-            @Override
-            public void onUpdate() {
-            }
 
-            @Override
-            public void onError(Exception e) {
-                Log.e("EventDB", "Error: ", e);
-            }
-        });
-        declinedList.refresh(new StatusList.ListUpdateListener() {
-            @Override
-            public void onUpdate() {
-            }
 
-            @Override
-            public void onError(Exception e) {
-                Log.e("EventDB", "Error: ", e);
-            }
-        });
+
+
+//        waitingList.refresh(new StatusList.ListUpdateListener() {
+//            @Override
+//            public void onUpdate() {
+//            }
+//
+//            @Override
+//            public void onError(Exception e) {
+//                Log.e("EventDB", "Error: ", e);
+//            }
+//        });
+//        pendingList.refresh(new StatusList.ListUpdateListener() {
+//            @Override
+//            public void onUpdate() {
+//            }
+//
+//            @Override
+//            public void onError(Exception e) {
+//                Log.e("EventDB", "Error: ", e);
+//            }
+//        });
+//        acceptedList.refresh(new StatusList.ListUpdateListener() {
+//            @Override
+//            public void onUpdate() {
+//            }
+//
+//            @Override
+//            public void onError(Exception e) {
+//                Log.e("EventDB", "Error: ", e);
+//            }
+//        });
+//        declinedList.refresh(new StatusList.ListUpdateListener() {
+//            @Override
+//            public void onUpdate() {
+//            }
+//
+//            @Override
+//            public void onError(Exception e) {
+//                Log.e("EventDB", "Error: ", e);
+//            }
+//        });
     }
 }

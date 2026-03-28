@@ -17,6 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class ExploreEventViewAdapter extends RecyclerView.Adapter<ExploreEventViewAdapter.ExploreEventViewHolder> {
     private final Context context;
@@ -69,7 +70,7 @@ public class ExploreEventViewAdapter extends RecyclerView.Adapter<ExploreEventVi
                 : holder.itemView.getContext().getString(R.string.explore_card_geo_optional));
 
         holder.eventImage.setImageResource(R.drawable.ic_image_placeholder);
-        if (event.getImage() != null) {
+        if (event.getImage() != null && !Objects.equals(event.getImage().getCompressedBase64(), "")) {
             try {
                 holder.eventImage.setImageBitmap(event.getImage().display());
             } catch (Exception ignored) {
