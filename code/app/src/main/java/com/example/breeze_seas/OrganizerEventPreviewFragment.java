@@ -19,6 +19,7 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.Timestamp;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
@@ -46,6 +47,7 @@ public class OrganizerEventPreviewFragment extends Fragment {
     private Timestamp regStartDate;
     private Timestamp regEndDate;
     private Image poster;
+    private String posterBase64 = "";
     private EventCommentsSectionController commentsSectionController;
 
     private final ActivityResultLauncher<String> pickImage =
@@ -61,12 +63,7 @@ public class OrganizerEventPreviewFragment extends Fragment {
                         return;
                     }
 
-                    // TODO: take uri and convert into image object
-                    String uriImageString = uri.toString();
-                    poster = new Image("");
-                    if (posterImageView != null) {
-                        posterImageView.setImageURI(uri);
-                    }
+                    handleSelectedPoster(uri);
                 }
             });
 
@@ -325,6 +322,16 @@ public class OrganizerEventPreviewFragment extends Fragment {
                     viewModel == null ? null : viewModel.getUser().getValue(),
                     true
             );
+        }
+    }
+
+    private void handleSelectedPoster(@NonNull Uri uri) {
+        try {
+            posterBase64 = ImageUtils.uriToCompressedBase64(requireContext(), uri);
+            bindPoster(new Image(posterBase64));  // **Image object is never saved, nor uploaded to database
+
+        } catch (IOException e) {
+            Toast.makeText(requireContext(), "Failed to process image", Toast.LENGTH_SHORT).show();
         }
     }
 

@@ -41,7 +41,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/event_details_event_title"
-            app:shapeAppearanceOverlay="@style/RoundedCorners"
+            app:shapeAppearanceOverlay="@style/RoundedCorners.EventDetails"
             app:layout_constraintVertical_weight="5"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout

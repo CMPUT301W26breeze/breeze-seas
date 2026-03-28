@@ -1,5 +1,6 @@
 package com.example.breeze_seas;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -21,6 +22,7 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.Timestamp;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -45,7 +47,7 @@ public class CreateEventFragment extends Fragment {
 
     private Long regFromMillis = null;
     private Long regToMillis = null;
-    private Uri posterUri = null;
+    private String posterBase64 = "";
 
     private final ActivityResultLauncher<String> pickImage =
             registerForActivityResult(new ActivityResultContracts.GetContent(), new androidx.activity.result.ActivityResultCallback<Uri>() {
@@ -56,12 +58,11 @@ public class CreateEventFragment extends Fragment {
                  */
                 @Override
                 public void onActivityResult(Uri uri) {
-                    if (uri != null) {
-                        posterUri = uri;
-                        ivPoster.setImageURI(uri);
-                        ivPoster.setVisibility(View.VISIBLE);
-                        posterPlaceholder.setVisibility(View.GONE);
+                    /// No image resource
+                    if (uri == null) {
+                        return;
                     }
+                    handleSelectedPoster(uri);
                 }
             });
 
@@ -179,6 +180,31 @@ public class CreateEventFragment extends Fragment {
     }
 
     /**
+     * Handles a poster chosen from the system picker by compressing it into Base64 and
+     * updating the on-screen preview.
+     *
+     * @param uri Selected poster image Uri.
+     */
+    private void handleSelectedPoster(Uri uri) {
+        try {
+            posterBase64 = ImageUtils.uriToCompressedBase64(requireContext(), uri);
+
+            Bitmap previewBitmap = ImageUtils.base64ToBitmap(posterBase64);
+            if (previewBitmap != null) {
+                ivPoster.setImageBitmap(previewBitmap);
+                ivPoster.setVisibility(View.VISIBLE);
+                posterPlaceholder.setVisibility(View.GONE);
+            } else {
+                posterBase64 = "";
+                Toast.makeText(requireContext(), "Failed to preview image", Toast.LENGTH_SHORT).show();
+            }
+        } catch (IOException e) {
+            posterBase64 = "";
+            Toast.makeText(requireContext(), "Failed to process image", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
      * Opens the registration-date picker and stores the selected date range.
      */
     private void openDateRangePicker() {
@@ -267,13 +293,28 @@ public class CreateEventFragment extends Fragment {
         int normalizedCapacity = eventCap == null ? -1 : eventCap;
         int normalizedEventWaitingListCapacity = eventWaitingListCap == null ? -1 : eventWaitingListCap;
         boolean isPrivateEvent = swPrivate != null && swPrivate.isChecked();
+        // Create and upload image
+        Image newImage = new Image(posterBase64);
+        ImageDB.saveImage(newImage, new ImageDB.ImageMutationCallback() {
+            @Override
+            public void onSuccess() {
+
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+
+            }
+        });
+
+        // Create event object
         Event event = new Event(
                 isPrivateEvent,
                 organizerId,
                 name,
                 details,
-                new Image(""), //posterUri == null ? "" : null, // TODO: Fix this
-                "",
+                newImage,
+                "",  // TODO: QR Value
                 new Timestamp(new Date(regFromMillis)),
                 new Timestamp(new Date(regToMillis)),
                 null,

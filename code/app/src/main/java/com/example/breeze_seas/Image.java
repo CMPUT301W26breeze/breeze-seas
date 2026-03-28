@@ -2,6 +2,8 @@ package com.example.breeze_seas;
 
 import android.graphics.Bitmap;
 
+import androidx.camera.core.internal.utils.ImageUtil;
+
 /**
  * Wrapper class to handle images
  */
@@ -16,24 +18,20 @@ public class Image {
     public Image(String imageId, String compressedBase64) {
         this.imageId = imageId;
         this.compressedBase64 = compressedBase64;
-        // TODO: Take compressedBase64 and construct the bitmap
-        this.imageData = null;
+        this.imageData = ImageUtils.base64ToBitmap(this.compressedBase64);
     }
 
     /**
      * For use when creating a new image object (as an organizer)
      */
     public Image(String compressedBase64) {
-        // TODO: Generate a new imageId (from ImageDB) (Refer to Event constructor for example)
-        this.imageId = null;
+        this.imageId = ImageDB.genNewId();
         this.compressedBase64 = compressedBase64;
-        // TODO: Take compressedBase64 and construct the bitmap
-        this.imageData = null;
+        this.imageData = ImageUtils.base64ToBitmap(this.compressedBase64);
     }
 
-
     public String getImageId() {
-        return (imageId == null) ? "" : imageId;  // temporary fix
+        return imageId;
     }
 
     public void setImageId(String imageId) {
@@ -46,7 +44,7 @@ public class Image {
 
     public void setCompressedBase64(String compressedBase64) {
         this.compressedBase64 = compressedBase64;
-        // TODO: recompute bitmap
+        this.imageData = ImageUtils.base64ToBitmap(this.compressedBase64);
     }
 
     /**

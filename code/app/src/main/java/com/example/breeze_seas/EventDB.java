@@ -5,9 +5,11 @@ import android.util.Log;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
@@ -62,6 +64,15 @@ public class EventDB {
     public interface EventMutationCallback {
         void onSuccess();
         void onFailure(Exception e);
+    }
+
+    /**
+     * Returns the event CollectionReference used in the database.
+     * @return CollectionReference to the events collection
+     */
+    public static CollectionReference getEventRef() {
+        setup();
+        return eventRef;
     }
 
     /**
@@ -145,18 +156,43 @@ public class EventDB {
                 } ).addOnFailureListener(callback::onFailure);
     }
 
+
+    /**
+     * Method to obtain query for all events.
+     * @return Query for all events.
+     */
+    public static Query getAllEventsQuery() {
+        setup();
+        return eventRef.orderBy("createdTimestamp");
+    }
+
     /**
      * Fetches all events from the database.
      * @param callback Callback method to run after firebase transaction.
      */
     public static void getAllEvents(LoadEventsCallback callback) {
         setup();
-        eventRef.orderBy("createdTimestamp")
+        getAllEventsQuery()
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     callback.onSuccess(fromMultiple(queryDocumentSnapshots));
                 })
                 .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Method to obtain query for all joinable public events for given user.
+     * @param user User to get query for.
+     * @return Query for all joinable events for user.
+     */
+    public static Query getAllJoinableEventsQuery(User user) {
+        setup();
+        String userId = user.getDeviceId();
+        return  eventRef.whereLessThan("registrationStartTimestamp", Timestamp.now())
+                .whereGreaterThan("registrationEndTimestamp", Timestamp.now())
+                .whereEqualTo("isPrivate", false)  // Public only events
+                .whereNotEqualTo("organizerId", userId)
+                .orderBy("registrationEndTimestamp");
     }
 
     /**
@@ -166,18 +202,26 @@ public class EventDB {
      */
     public static void getAllJoinableEvents(User user, LoadEventsCallback callback) {
         setup();
-        // Get userID
-        String userId = user.getDeviceId();
-
-        eventRef.whereLessThan("registrationStartTimestamp", Timestamp.now())
-                .whereGreaterThan("registrationEndTimestamp", Timestamp.now())
-                .whereNotEqualTo("organizerId", userId)
-                .orderBy("registrationEndTimestamp")
+        getAllJoinableEventsQuery(user)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     callback.onSuccess(fromMultiple(queryDocumentSnapshots));
                 })
                 .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Method to obtain all events that the user is any kind of organizer for.
+     * @param user User that is an organizer.
+     * @return Query for all events that is organized by the user.
+     */
+    public static Query getAllEventsOrganizedByUserQuery(User user) {
+        setup();
+        String userId = user.getDeviceId();
+        return eventRef.where(Filter.or(
+                        Filter.equalTo("organizerId", userId),
+                        Filter.arrayContains("coOrganizerId", userId)))
+                .orderBy("registrationStartTimestamp");
     }
 
     /**
@@ -187,18 +231,24 @@ public class EventDB {
      */
     public static void getAllEventsOrganizedByUser(User user, LoadEventsCallback callback) {
         setup();
-        // Get userID
-        String userId = user.getDeviceId();
-
-        eventRef.where(Filter.or(
-                Filter.equalTo("organizerId", userId),
-                Filter.arrayContains("coOrganizerId", userId)))
-                .orderBy("registrationStartTimestamp")
+        getAllEventsOrganizedByUserQuery(user)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     callback.onSuccess(fromMultiple(queryDocumentSnapshots));
                 })
                 .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Method to obtain query for all events that the user is the original organizer for.
+     * @param user User that is the original organizer.
+     * @return Query for all events that is originally organized by the user.
+     */
+    public static Query getAllEventsOrganizedByOrganizerQuery(User user) {
+        setup();
+        String userId = user.getDeviceId();
+        return eventRef.whereEqualTo("organizerId", userId)
+                .orderBy("registrationStartTimestamp");
     }
 
     /**
@@ -208,16 +258,24 @@ public class EventDB {
      */
     public static void getAllEventsOrganizedByOrganizer(User user, LoadEventsCallback callback) {
         setup();
-        // Get userID
-        String userId = user.getDeviceId();
-
-        eventRef.whereEqualTo("organizerId", userId)
-                .orderBy("registrationStartTimestamp")
+        getAllEventsOrganizedByOrganizerQuery(user)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     callback.onSuccess(fromMultiple(queryDocumentSnapshots));
                 })
                 .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Method to obtain query for all events that the user is a co-organizer for.
+     * @param user User that is the co-organizer.
+     * @return Query for all events that is being co-organized by user.
+     */
+    public static Query getAllEventsOrganizedByCoOrganizerQuery(User user) {
+        setup();
+        String userId = user.getDeviceId();
+        return eventRef.whereArrayContains("coOrganizerId", userId)
+                .orderBy("registrationStartTimestamp");
     }
 
     /**
@@ -227,11 +285,7 @@ public class EventDB {
      */
     public static void getAllEventsOrganizedByCoOrganizer(User user, LoadEventsCallback callback) {
         setup();
-        // Get userID
-        String userId = user.getDeviceId();
-
-        eventRef.whereArrayContains("coOrganizerId", userId)
-                .orderBy("registrationStartTimestamp")
+        getAllEventsOrganizedByCoOrganizerQuery(user)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     callback.onSuccess(fromMultiple(queryDocumentSnapshots));
@@ -263,49 +317,31 @@ public class EventDB {
     private static Event fromSingle(DocumentSnapshot doc) {
         if (doc == null || !doc.exists()) return null;
 
-        //Values
-        String eventId = doc.getId();
-        boolean isPrivate = Boolean.TRUE.equals(doc.getBoolean("isPrivate"));
-        String organizerId = doc.getString("organizerId");
-        ArrayList<String> coOrganizerId = new ArrayList<String>();
-        String name = doc.getString("name");
-        String description = doc.getString("description")!=null ? doc.getString("description") : "";
-        // Fetch image object down below
-        String imageId = doc.getString("imageDocId") != null ? doc.getString("imageDocId") : "";
+        // Convert into map object and pass as an argument
+        Event newEvent = new Event(doc.getData());
+        String imageDocId = (doc.getData().get("imageDocId") == null) ? null : doc.getData().get("imageDocId").toString();
 
-        String qrValue = doc.getString("qrValue") != null ? doc.getString("qrValue") : "";
+        //
+        if (imageDocId != null) {
+            ImageDB.loadImage(doc.getData().get("imageDocId").toString(), new ImageDB.LoadImageCallback() {
+                @Override
+                public void onSuccess(Image image) {
+                    newEvent.setImage(image);
+                }
 
-        //timestamps
-        Timestamp created = doc.getTimestamp("createdTimestamp");
-        Timestamp modified = doc.getTimestamp("modifiedTimestamp");
-        Timestamp regStart = doc.getTimestamp("registrationStartTimestamp");
-        Timestamp regEnd = doc.getTimestamp("registrationEndTimestamp");
-        Timestamp eventStart = doc.getTimestamp("eventStartTimestamp");
-        Timestamp eventEnd = doc.getTimestamp("eventEndTimestamp");
+                @Override
+                public void onFailure(Exception e) {
 
-        boolean geo = Boolean.TRUE.equals(doc.getBoolean("geolocationEnforced")); // false if null
-        //int vals
-        int eventCap = doc.getLong("eventCapacity").intValue();
-        int waitCap = doc.getLong("waitingListCapacity") != null ? doc.getLong("waitingListCapacity").intValue() : -1;
-        int drawRound = doc.getLong("drawARound") != null ? doc.getLong("drawARound").intValue() : 0;
+                }
+            });
+        }
 
-
-        Event newEvent = new Event(
-                eventId, isPrivate, organizerId, coOrganizerId, name, description, null, qrValue,
-                created, modified, regStart, regEnd, eventStart, eventEnd,
-                geo, eventCap, waitCap, drawRound,
-                null, null, null, null
-        );
-
-        newEvent.setWaitingList(new WaitingList(newEvent, waitCap));
-        newEvent.setPendingList(new PendingList(newEvent, eventCap));
-        newEvent.setAcceptedList(new AcceptedList(newEvent, eventCap));
+        // Setup lists
+        newEvent.setWaitingList(new WaitingList(newEvent, newEvent.getWaitingListCapacity()));
+        newEvent.setPendingList(new PendingList(newEvent, newEvent.getEventCapacity()));
+        newEvent.setAcceptedList(new AcceptedList(newEvent, newEvent.getEventCapacity()));
         newEvent.setDeclinedList(new DeclinedList(newEvent, -1));
         newEvent.refreshListsFromDB();
-
-        // TODO: fetch image document, get imageId and base64 string
-        Image newImage = new Image(imageId, "");
-        newEvent.setImage(newImage);
 
         return newEvent;
     }

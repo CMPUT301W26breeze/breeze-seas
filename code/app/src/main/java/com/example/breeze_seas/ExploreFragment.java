@@ -1,9 +1,9 @@
 package com.example.breeze_seas;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-import java.util.Locale;
 
 /*** ExploreFragment is a top-level destination accessible via Bottom Navigation.
  *
@@ -25,12 +24,14 @@ import java.util.Locale;
  */
 public class ExploreFragment extends Fragment implements RecyclerViewClickListener {
 
-    private TextView noEventsTest;
+    private TextView noEventsText;
     private View scanQRCodeBtn;
     private View filterButton;
     private EditText searchInput;
-    private ArrayList<Event> eventList = new ArrayList<>();
-    private final ArrayList<Event> allVisibleEvents = new ArrayList<>();
+    private EventHandler exploreEventHandler;
+    private Handler mhandler = new Handler();
+    private Runnable keywordRunnable;
+    private ArrayList<Event> displayedEventList = new ArrayList<>();
     private SessionViewModel viewModel;
     private User user;
     private ExploreEventViewAdapter adapter;
@@ -43,10 +44,10 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
     public void recyclerViewListClicked(View v, int position) {
         // Code for event entry being clicked
         // Grab event
-        Event selectedEvent = eventList.get(position);
+        Event selectedEvent = displayedEventList.get(position);
 
-        // Stow event in SessionViewModel
-        viewModel.setEventShown(selectedEvent);
+        // Stow event in EventHandler class
+        exploreEventHandler.setEventShown(selectedEvent);
 
         // Switch to event details
         getActivity().getSupportFragmentManager()
@@ -56,7 +57,6 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
                 .commit();
     }
 
-    // Bind recycleview
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,14 +65,29 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
         viewModel = new ViewModelProvider(requireActivity()).get(SessionViewModel.class);
         user = viewModel.getUser().getValue();
 
+        // Setup EventHandler class if necessary
+        if (!viewModel.exploreFragmentEventHandlerIsInitialized()) {
+            viewModel.setExploreFragmentEventHandler(new EventHandler(EventDB.getAllEventsQuery()));
+        }
+        // Grab reference
+        exploreEventHandler = viewModel.getExploreFragmentEventHandler();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Get realtime updated events from exploreEventHandler
+        // The observer also runs on startup.
+        exploreEventHandler.getEvents().observe(getViewLifecycleOwner(), this::loadEvents);
+
         // Bind views
-        noEventsTest = view.findViewById(R.id.explore_no_events_found_text);
+        noEventsText = view.findViewById(R.id.explore_no_events_found_text);
         scanQRCodeBtn = view.findViewById(R.id.explore_QRCode_floating_button);
         filterButton = view.findViewById(R.id.explore_filter_button);
         searchInput = view.findViewById(R.id.explore_search_input);
@@ -87,11 +102,12 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
         adapter = new ExploreEventViewAdapter(
                 getContext(),
                 this,
-                eventList
+                displayedEventList
         );
         eventsView.setAdapter(adapter);
         eventsView.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        // Search field listener
         searchInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -103,26 +119,18 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
 
             @Override
             public void afterTextChanged(Editable s) {
-                applySearchFilter(s == null ? "" : s.toString());
-            }
-        });
-
-        // Get events from DB
-        EventDB.getAllJoinableEvents(user, new EventDB.LoadEventsCallback() {
-            @Override
-            public void onSuccess(ArrayList<Event> events) {
-                loadEvents(events);
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                Log.e("ExploreFragment", "database query failed", e);
-                allVisibleEvents.clear();
-                eventList = new ArrayList<>();
-                if (adapter != null) {
-                    adapter.submitList(eventList);
+                // Remove previous calls (DEBOUNCE)
+                if (keywordRunnable != null) {
+                    mhandler.removeCallbacks(keywordRunnable);
                 }
-                showNoEventsText(true);
+
+                // New runnable instance with latest string
+                keywordRunnable = () -> {
+                    exploreEventHandler.setKeywordString((s == null) ? "" : s.toString());
+                };
+
+                // New keyword search
+                mhandler.postDelayed(keywordRunnable, 350);  // DEBOUNCE of 0.35 seconds.
             }
         });
     }
@@ -132,85 +140,10 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
      * @param events ArrayList of events
      */
     private void loadEvents(ArrayList<Event> events) {
-        allVisibleEvents.clear();
-        allVisibleEvents.addAll(filterPublicEvents(events));
-        String query = searchInput == null || searchInput.getText() == null
-                ? ""
-                : searchInput.getText().toString();
-        applySearchFilter(query);
-    }
-
-    /**
-     * Removes private events from the public Explore listing.
-     *
-     * @param events Events returned by {@link EventDB}, or {@code null}.
-     * @return Publicly visible events only.
-     */
-    private ArrayList<Event> filterPublicEvents(@Nullable ArrayList<Event> events) {
-        ArrayList<Event> publicEvents = new ArrayList<>();
-        if (events == null) {
-            return publicEvents;
-        }
-
-        for (Event event : events) {
-            if (event != null && !event.isPrivate()) {
-                publicEvents.add(event);
-            }
-        }
-        return publicEvents;
-    }
-
-    /**
-     * Applies a lightweight client-side keyword filter to the currently loaded Explore events.
-     *
-     * @param rawQuery Search text entered by the entrant.
-     */
-    private void applySearchFilter(@Nullable String rawQuery) {
-        String query = rawQuery == null ? "" : rawQuery.trim().toLowerCase(Locale.US);
-        ArrayList<Event> filteredEvents = new ArrayList<>();
-
-        if (query.isEmpty()) {
-            filteredEvents.addAll(allVisibleEvents);
-        } else {
-            for (Event event : allVisibleEvents) {
-                if (event == null) {
-                    continue;
-                }
-
-                String name = event.getName() == null ? "" : event.getName().toLowerCase(Locale.US);
-                String description = event.getDescription() == null ? "" : event.getDescription().toLowerCase(Locale.US);
-
-                if (name.contains(query) || description.contains(query)) {
-                    filteredEvents.add(event);
-                }
-            }
-        }
-
-        eventList = filteredEvents;
         if (adapter != null) {
-            adapter.submitList(eventList);
+            adapter.submitList(events);
         }
-        showNoEventsText(eventList.isEmpty());
-    }
-
-    /**
-     * Removes private events from the public Explore listing.
-     *
-     * @param events Events returned by {@link EventDB}, or {@code null}.
-     * @return Publicly visible events only.
-     */
-    private ArrayList<Event> filterPublicEvents(@Nullable ArrayList<Event> events) {
-        ArrayList<Event> publicEvents = new ArrayList<>();
-        if (events == null) {
-            return publicEvents;
-        }
-
-        for (Event event : events) {
-            if (event != null && !event.isPrivate()) {
-                publicEvents.add(event);
-            }
-        }
-        return publicEvents;
+        showNoEventsText(events.isEmpty());
     }
 
     /**
@@ -219,9 +152,9 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
      */
     private void showNoEventsText(boolean show) {
         if (show) {
-            noEventsTest.setVisibility(View.VISIBLE);
+            noEventsText.setVisibility(View.VISIBLE);
         } else {
-            noEventsTest.setVisibility(View.GONE);
+            noEventsText.setVisibility(View.GONE);
         }
     }
 }
