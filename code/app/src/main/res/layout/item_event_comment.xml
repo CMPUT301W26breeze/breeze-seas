@@ -25,7 +25,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/inter_semibold"
-                android:text="@string/event_comments_sample_entrant_name"
+                android:text="@string/event_comments_role_entrant"
                 android:textColor="@color/text_primary"
                 android:textSize="15sp" />
 
@@ -68,7 +68,7 @@
         android:layout_marginTop="12dp"
         android:fontFamily="@font/inter_regular"
         android:lineSpacingExtra="2dp"
-        android:text="@string/event_comments_sample_entrant_body"
+        android:text="@string/event_comments_empty_message"
         android:textColor="@color/text_primary"
         android:textSize="15sp" />
 
@@ -78,7 +78,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:fontFamily="@font/inter_regular"
-        android:text="@string/event_comments_sample_time_recent"
+        android:text="@string/event_comments_time_now"
         android:textColor="@color/text_secondary"
         android:textSize="12sp" />
 
