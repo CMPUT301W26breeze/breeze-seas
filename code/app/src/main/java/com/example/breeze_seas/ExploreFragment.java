@@ -67,7 +67,7 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
 
         // Setup EventHandler class if necessary
         if (!viewModel.exploreFragmentEventHandlerIsInitialized()) {
-            viewModel.setExploreFragmentEventHandler(new EventHandler(EventDB.getAllEventsQuery()));
+            viewModel.setExploreFragmentEventHandler(new EventHandler(EventDB.getAllJoinableEventsQuery(user)));
         }
         // Grab reference
         exploreEventHandler = viewModel.getExploreFragmentEventHandler();
