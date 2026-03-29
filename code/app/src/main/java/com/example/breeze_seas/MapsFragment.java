@@ -30,6 +30,10 @@ import org.osmdroid.views.overlay.Marker;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+
+/**
+ * A fragment that displays an interactive map using OSMDroid.
+ */
 public class MapsFragment extends Fragment {
 
     private MapView map = null;
@@ -96,6 +100,14 @@ public class MapsFragment extends Fragment {
         });
     }
 
+
+    /**
+     * Converts a vector drawable resource into a tinted BitmapDrawable for map markers.
+     * @param vectorId The resource ID of the vector asset.
+     * @param color The ARGB color to tint the icon.
+     * @param size The dimension in pixels for the icon width/height.
+     * @return A themed BitmapDrawable suitable for OSMDroid markers.
+     */
     public BitmapDrawable getMarker(int vectorId, int color, int size){
         Drawable drawable= androidx.core.content.ContextCompat.getDrawable(requireContext(), vectorId);
         if (drawable == null) {
@@ -113,6 +125,11 @@ public class MapsFragment extends Fragment {
         return new BitmapDrawable(getResources(), bitmap);
     }
 
+
+    /**
+     * Iterates through the fetched locations and places markers on the map.
+     * @param locations A map of GeoPoints to String arrays containing [username, status].
+     */
     public void drawPoints(HashMap<GeoPoint,String[]> locations){
         map.getOverlays().clear();
         int iconSize = 150;

@@ -119,4 +119,14 @@ public class AcceptedListFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        listView.setOnItemClickListener((parent, view1, position, id) -> {
+            User selected = acceptedList.getUserList().get(position);
+            ListDialogFragment dialog = new ListDialogFragment(selected,acceptedList);
+            dialog.show(getChildFragmentManager(), "Entrant Actions");
+        });
+    }
+
 }
