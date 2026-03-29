@@ -2,14 +2,12 @@ package com.example.breeze_seas;
 
 import android.util.Log;
 
-import com.google.firebase.Firebase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import org.osmdroid.util.GeoPoint;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 
@@ -18,7 +16,7 @@ import java.util.HashMap;
  * It converts Firestore GeoPoints into OSMDroid GeoPoints and associates them with
  * participant details; username and status; for map markers.
  */
-public class Map {
+public class GeoMap {
     private HashMap<GeoPoint,String[]> location;
     private FirebaseFirestore db;
     private UserDB userDb;
@@ -38,7 +36,7 @@ public class Map {
      * Constructor for the Map manager.
      * @param event The {@link Event} object whose participants' locations need to be fetched.
      */
-    public Map(Event event) {
+    public GeoMap(Event event) {
         this.event = event;
         this.db = DBConnector.getDb();
         this.location = new HashMap<>();

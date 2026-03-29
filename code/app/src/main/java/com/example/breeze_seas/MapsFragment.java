@@ -29,6 +29,7 @@ import org.osmdroid.views.overlay.Marker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -38,7 +39,7 @@ public class MapsFragment extends Fragment {
 
     private MapView map = null;
     private Event currentEvent;
-    private Map mapObj;
+    private GeoMap mapObj;
     private SessionViewModel sessionViewModel;
 
     @Override
@@ -82,8 +83,8 @@ public class MapsFragment extends Fragment {
         if (currentEvent != null && currentEvent.getName() != null && !currentEvent.getName().trim().isEmpty()) {
             subtitleView.setText(currentEvent.getName());
         }
-        mapObj = new Map(currentEvent);
-        mapObj.fetchLocation(new Map.FetchedLocationListener() {
+        mapObj = new GeoMap(currentEvent);
+        mapObj.fetchLocation(new GeoMap.FetchedLocationListener() {
             @Override
             public void onLocationFetched(HashMap<GeoPoint,String[]> location) {
                 if(isAdded() && map != null){
