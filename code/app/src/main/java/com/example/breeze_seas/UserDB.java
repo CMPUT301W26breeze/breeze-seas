@@ -6,8 +6,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
@@ -83,8 +85,7 @@ public class UserDB {
 
 
     /**
-     * Deletes a user document from the "User" collection and the documents of
-     * all the events they are an organizer for.
+     * Deletes all trace of the user from the database except comments.
      *
      * @param deviceId The unique identifier of the user to be deleted.
      */
@@ -92,51 +93,55 @@ public class UserDB {
         getUser(deviceId, new OnUserLoadedListener() {
             @Override
             public void onUserLoaded(User user) {
-                EventDB.getAllEvents(new EventDB.LoadEventsCallback() {
-                    @Override
-                    public void onSuccess(ArrayList<Event> events) {
-                        WriteBatch batch = db.batch();
-                        for (Event event : events) {
-                            DocumentReference eventRef = db.
-                                    collection("events")
-                                    .document(event.getEventId());
+                // Find all instances of this user in any "participants" collection
+                db.collectionGroup("participants")
+                        .whereEqualTo("deviceId", deviceId)
+                        .get()
+                        .addOnSuccessListener(participantSnapshots -> {
 
-                            if (Objects.equals(event.getOrganizerId(), deviceId)) {
-                                batch.delete(eventRef);
-                            } else {
-                                if (event.getWaitingList().getUserList().contains(user) ||
-                                        event.getPendingList().getUserList().contains(user) ||
-                                        event.getAcceptedList().getUserList().contains(user) ||
-                                        event.getDeclinedList().getUserList().contains(user) ) {
+                            // Get all events
+                            EventDB.getAllEvents(new EventDB.LoadEventsCallback() {
+                                @Override
+                                public void onSuccess(ArrayList<Event> events) {
+                                    WriteBatch batch = db.batch();
 
-                                    DocumentReference participantRef = eventRef
-                                            .collection("participants")
-                                            .document(deviceId);
-                                    batch.delete(participantRef);
+                                    // Deletions for all participant instances found
+                                    for (QueryDocumentSnapshot doc : participantSnapshots) {
+                                        batch.delete(doc.getReference());
+                                    }
 
+                                    // Event deletions if the user is the organizer
+                                    for (Event event : events) {
+                                        DocumentReference eventRef = db.collection("events")
+                                                .document(event.getEventId());
 
+                                        if (Objects.equals(event.getOrganizerId(), deviceId)) {
+                                            batch.delete(eventRef);
+                                        }
+                                    }
+
+                                    // The user document deletion
+                                    DocumentReference userDocumentRef = userRef.document(deviceId);
+                                    batch.delete(userDocumentRef);
+
+                                    batch.commit()
+                                            .addOnSuccessListener(aVoid -> {
+                                                Log.d("DB_UPDATE", "User profile, owned events, and participant records deleted.");
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                Log.e("DB_UPDATE", "Deletion failed. No data was removed.", e);
+                                            });
                                 }
-                            }
 
-                        }
-                        DocumentReference userDocumentRef = userRef.document(deviceId);
-                        batch.delete(userDocumentRef);
-                        batch.commit()
-                                .addOnSuccessListener(aVoid -> {
-                                    Log.d("DB_UPDATE", "User and all associated " +
-                                            "events deleted successfully.");
-                                })
-                                .addOnFailureListener(e -> {
-                                    Log.e("DB_UPDATE", "Deletion failed." +
-                                            " No data was removed.", e);
-                                });
-                    }
-
-                    @Override
-                    public void onFailure(Exception e) {
-                        Log.e("DB_UPDATE", "Failed to load user events", e);
-                    }
-                });
+                                @Override
+                                public void onFailure(Exception e) {
+                                    Log.e("DB_UPDATE", "Failed to load events", e);
+                                }
+                            });
+                        })
+                        .addOnFailureListener(e -> {
+                            Log.e("DB_UPDATE", "Failed to query participants", e);
+                        });
             }
 
             @Override
