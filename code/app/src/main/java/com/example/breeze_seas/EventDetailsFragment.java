@@ -61,6 +61,32 @@ public class EventDetailsFragment extends Fragment {
         super(R.layout.fragment_event_details);
     }
 
+    StatusList.ListUpdateListener liveListener = new StatusList.ListUpdateListener() {
+        @Override
+        public void onUpdate() {
+            updateView();
+            showOption(user);
+        }
+        @Override
+        public void onError(Exception e) {
+            Log.e("Realtime DB", "Error in listener", e);
+        }
+    };
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        eventShown.startListenAllLists(liveListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        eventShown.stopListenAllLists();
+    }
+
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,35 +105,8 @@ public class EventDetailsFragment extends Fragment {
         acceptedList = eventShown.getAcceptedList();
         declinedList = eventShown.getDeclinedList();
 
-        // Start listener on list classes
-        eventShown.startParticipantsListen(new Event.ParticipantsUpdatedCallback() {
-            @Override
-            public void onUpdated() {
-                // Update event details
-                updateView();
-                // Display options based on user's current status
-                showOption(user);
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                // Unassign eventShown
-                viewModel.getExploreFragmentEventHandler().setEventShown(null);
-
-                // Return to explore fragment
-                getParentFragmentManager()
-                        .popBackStack();
-            }
-        });
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        // Close listener
-        eventShown.stopParticipantsListen();
-        Log.d("EventDetailsFragment", "Successfully closed event listener");
-    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -166,170 +165,96 @@ public class EventDetailsFragment extends Fragment {
         ProgressBar progressBar = view.findViewById(R.id.event_details_loading_progress_bar);
         joinWaitingListButton = view.findViewById(R.id.event_details_join_waitlist_button);
         joinWaitingListButton.setOnClickListener(v -> {
-            progressBar.setVisibility(View.VISIBLE);
-            joinWaitingListButton.setEnabled(false);
-            // Add user to waitlist logic
-            // First check waiting list capacity
-            waitingList.refresh(new StatusList.ListUpdateListener() {
-                @Override
-                public void onUpdate() {
-                    int waitingListCapacity = waitingList.getCapacity();
-                    int waitingListSize = waitingList.getSize();
-                    if ((waitingListCapacity != -1) && (waitingListSize>= waitingListCapacity)) {
+            int waitingListCapacity = waitingList.getCapacity();
+            if (waitingListCapacity != -1 && waitingList.getSize() >= waitingListCapacity) {
+                Toast.makeText(requireContext(), "The waiting list is full.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            boolean locationEnforced = eventShown.isGeolocationEnforced();
+            boolean hasPermission = androidx.core.app.ActivityCompat.checkSelfPermission(requireContext(),
+                    android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    == android.content.pm.PackageManager.PERMISSION_GRANTED;
+
+
+            if (locationEnforced && !hasPermission) {
+                requestPermissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION);
+                return;
+            }
+
+
+            TermsAndCondition termsDialog = new TermsAndCondition(() -> {
+                progressBar.setVisibility(View.VISIBLE);
+                joinWaitingListButton.setEnabled(false);
+
+
+                waitingList.determineLocation(requireContext(), user, new StatusList.ListUpdateListener() {
+                    @Override
+                    public void onUpdate() {
                         progressBar.setVisibility(View.GONE);
-                        showJoin();
                         joinWaitingListButton.setEnabled(true);
-                        Log.w("waitingList DB Call", "Waiting list capacity reached for event " + eventShown.getEventId());
-                        Toast.makeText(requireContext(), "The waiting list is full for this event.", Toast.LENGTH_SHORT).show();
-                        // TODO: implement unable to join msg
-                        return;
+                        refreshTickets();
                     }
-
-                    // check for location permission if geolocation is enforced
-                    if (!eventShown.isGeolocationEnforced()) {
-                        waitingList.determineLocation(requireContext(), user, new StatusList.ListUpdateListener() {
-                            @Override
-                            public void onUpdate() {
-                                progressBar.setVisibility(View.GONE);
-                                showWaiting();
-                                updateView();
-                                refreshTickets();
-                            }
-                            @Override
-                            public void onError(Exception e) {
-                                progressBar.setVisibility(View.GONE);
-                                showJoin();
-                                joinWaitingListButton.setEnabled(true);
-                                Log.e("waitingList DB Call", "Unable to add user", e);
-                            }
-                        });
-                    } else if (androidx.core.app.ActivityCompat.checkSelfPermission(requireContext(),
-                            android.Manifest.permission.ACCESS_FINE_LOCATION) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-
-
-                        waitingList.determineLocation(requireContext(), user, new StatusList.ListUpdateListener() {
-                            @Override
-                            public void onUpdate() {
-                                progressBar.setVisibility(View.GONE);
-                                showWaiting();
-                                updateView();
-                                refreshTickets();
-                            }
-                            @Override
-                            public void onError(Exception e) {
-                                progressBar.setVisibility(View.GONE);
-                                showJoin();
-                                joinWaitingListButton.setEnabled(true);
-                                Log.e("waitingList DB Call", "Unable to add user", e);
-                            }
-                        });
-
-                    } else {
+                    @Override
+                    public void onError(Exception e) {
                         progressBar.setVisibility(View.GONE);
-                        showJoin();
                         joinWaitingListButton.setEnabled(true);
-                        requestPermissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION);
+                        Toast.makeText(getContext(), "Failed to join: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
-                }
-                @Override
-                public void onError(Exception e) {
-                    progressBar.setVisibility(View.GONE);
-                    showJoin();
-                    joinWaitingListButton.setEnabled(true);
-                    Log.e("waitingList DB Call", "Unable to refresh users", e);
-                }
-            });
+                });
+            }, eventShown);
+            termsDialog.show(getParentFragmentManager(), "TermsDialog");
         });
 
         leaveWaitingListButton = view.findViewById(R.id.event_details_leave_waitlist_button);
         leaveWaitingListButton.setOnClickListener(v -> {
+            progressBar.setVisibility(View.VISIBLE);
             // Remove user from waitlist logic
-            waitingList.refresh(new StatusList.ListUpdateListener() {
+            waitingList.removeUserFromDB(user.getDeviceId(), new StatusList.ListUpdateListener() {
                 @Override
                 public void onUpdate() {
-                    waitingList.removeUserFromDB(user, new StatusList.ListUpdateListener() {
-                        @Override
-                        public void onUpdate() {
-                            waitingList.popUser(user);
-                            showJoin();
-                            updateView();
-                            refreshTickets();
-                        }
-                        @Override
-                        public void onError(Exception e) {
-                            Log.e("waitingList DB Call", "Unable to delete user from DB", e);
-                        }
-                    });
+                    progressBar.setVisibility(View.GONE);
+                    refreshTickets();
                 }
-                @Override
-                public void onError(Exception e) {
-                    Log.e("waitingList DB Call", "Unable to refresh users", e);
-                }
+                @Override public void onError(Exception e) { progressBar.setVisibility(View.GONE); }
             });
         });
+
 
         acceptInviteButton = view.findViewById(R.id.event_details_accept_invite_button);
         acceptInviteButton.setOnClickListener(v -> {
             // Add user to accepted list
-            acceptedList.refresh(new StatusList.ListUpdateListener() {
+            if (acceptedList.getSize() >= acceptedList.getCapacity()) {
+                Toast.makeText(requireContext(), "The event is already full.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+
+            progressBar.setVisibility(View.VISIBLE);
+            acceptedList.addUser(user, new StatusList.ListUpdateListener() {
                 @Override
                 public void onUpdate() {
-                    // First check waiting list capacity
-                    int acceptedListCapacity = acceptedList.getCapacity();
-                    int acceptedListSize = waitingList.getSize();
-                    if (acceptedListSize >= acceptedListCapacity) {
-                        Toast.makeText(requireContext(), "The event is already full.", Toast.LENGTH_SHORT).show();
-                        return; // TODO: implement unable to join msg
-                    }
-                    acceptedList.addUser(user, new StatusList.ListUpdateListener() {
-                        @Override
-                        public void onUpdate() {
-                            // remove from waiting list (in memory)
-                            waitingList.popUser(user);
-                            showAccepted();
-                            updateView();
-                            refreshTickets();
-                        }
-                        @Override
-                        public void onError(Exception e) {
-                            Log.e("acceptedList DB Call", "Unable to add user to DB", e);
-                        }
-                    });
+                    progressBar.setVisibility(View.GONE);
+                    refreshTickets();
                 }
-                @Override
-                public void onError(Exception e) {
-                    Log.e("acceptedList DB Call", "Unable to refresh users", e);
-                }
+                @Override public void onError(Exception e) { progressBar.setVisibility(View.GONE); }
             });
         });
+
 
         declineInviteButton = view.findViewById(R.id.event_details_decline_invite_button);
         declineInviteButton.setOnClickListener(v -> {
             // Add user to declined list
-            declinedList.refresh(new StatusList.ListUpdateListener() {
+            progressBar.setVisibility(View.VISIBLE);
+            declinedList.addUser(user, new StatusList.ListUpdateListener() {
                 @Override
                 public void onUpdate() {
-                    declinedList.addUser(user, new StatusList.ListUpdateListener() {
-                        @Override
-                        public void onUpdate() {
-                            // remove from waiting list (in memory)
-                            waitingList.popUser(user);
-                            showDeclined();
-                            updateView();
-                            refreshTickets();
-                        }
-                        @Override
-                        public void onError(Exception e) {
-                            Log.e("pendingList DB Call", "Unable to add user to DB", e);
-                        }
-                    });
+                    progressBar.setVisibility(View.GONE);
+                    refreshTickets();
                 }
-
-                @Override
-                public void onError(Exception e) {
-                    Log.e("pendingList DB Call", "Unable to refresh users", e);
-                }
+                @Override public void onError(Exception e) { progressBar.setVisibility(View.GONE); }
             });
+
+
         });
 
         commentsSectionController = new EventCommentsSectionController(this, view);

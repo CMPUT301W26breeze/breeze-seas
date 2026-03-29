@@ -288,12 +288,11 @@ public abstract class StatusList {
     public Event getEvent() { return event; }
     public int getCapacity() { return capacity; }
     public void setCapacity(int capacity) { this.capacity = capacity; }
-    public void popUser(User user){
-        if (user == null) return;
-        userList.removeIf(u -> u.getDeviceId().equals(user.getDeviceId()));
-
-
+    public void popUser(String userId) {
+        if (userId == null) return;
+        userList.removeIf(u -> u.getDeviceId().equals(userId));
     }
+
     public ArrayList<User> getUserList(){
         return userList;
     }
