@@ -14,6 +14,7 @@ import com.google.firebase.firestore.WriteBatch;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 
 /**
@@ -91,14 +92,32 @@ public class UserDB {
         getUser(deviceId, new OnUserLoadedListener() {
             @Override
             public void onUserLoaded(User user) {
-                EventDB.getAllEventsOrganizedByUser(user, new EventDB.LoadEventsCallback() {
+                EventDB.getAllEvents(new EventDB.LoadEventsCallback() {
                     @Override
                     public void onSuccess(ArrayList<Event> events) {
-                        WriteBatch batch = FirebaseFirestore.getInstance().batch();
+                        WriteBatch batch = db.batch();
                         for (Event event : events) {
                             DocumentReference eventRef = db.
-                                    collection("events").document(event.getEventId());
-                            batch.delete(eventRef);
+                                    collection("events")
+                                    .document(event.getEventId());
+
+                            if (Objects.equals(event.getOrganizerId(), deviceId)) {
+                                batch.delete(eventRef);
+                            } else {
+                                if (event.getWaitingList().getUserList().contains(user) ||
+                                        event.getPendingList().getUserList().contains(user) ||
+                                        event.getAcceptedList().getUserList().contains(user) ||
+                                        event.getDeclinedList().getUserList().contains(user) ) {
+
+                                    DocumentReference participantRef = eventRef
+                                            .collection("participants")
+                                            .document(deviceId);
+                                    batch.delete(participantRef);
+
+
+                                }
+                            }
+
                         }
                         DocumentReference userDocumentRef = userRef.document(deviceId);
                         batch.delete(userDocumentRef);
