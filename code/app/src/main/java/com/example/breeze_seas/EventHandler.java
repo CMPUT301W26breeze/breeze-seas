@@ -1,6 +1,10 @@
 package com.example.breeze_seas;
 
+import static androidx.core.content.ContentProviderCompat.requireContext;
+
+import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
@@ -22,8 +26,9 @@ import java.util.Objects;
  * Class to help manage a list of events with realtime updates and search filters.
  */
 public class EventHandler {
+    private Context context;
     private ListenerRegistration eventHandlerListener = null;
-    private final HashMap<String, MutableLiveData<Image>> imageListeners = new HashMap<String, MutableLiveData<Image>>();
+    private final HashMap<String, Event> imageListeners = new HashMap<String, Event>();
     private final Observer<Image> imageObserver = new Observer<Image>() {
         @Override
         public void onChanged(Image image) {
@@ -40,7 +45,8 @@ public class EventHandler {
      * Creates EventHandler based on passed query.
      * @param q Query to generate events from.
      */
-    public EventHandler(Query q) {
+    public EventHandler(Context context, Query q) {
+        this.context = context;
         this.query = q;
         startListen();
     }
@@ -84,12 +90,8 @@ public class EventHandler {
      * @return true if event matches filter, otherwise false.
      */
     private boolean matchesFilter(Event e) {
-        // Get name and description of event
-        String name = e.getName() == null ? "" : e.getName().toLowerCase(Locale.US);
-        String description = e.getDescription() == null ? "" : e.getDescription().toLowerCase(Locale.US);
-
         // Check if title or description contains keyword
-        if (name.contains(keywordString) || description.contains(keywordString)) {
+        if (e.toString().contains(keywordString)) {
             return true;
         } else {
             return false;
@@ -183,15 +185,19 @@ public class EventHandler {
             return;
         }
 
+        // Abort if listener is already active
+        if (imageListeners.containsKey(e.getEventId())) {
+            return;
+        }
+
         // Start listener
         e.startImageListen(imageDocId);
 
-        // Save reference to MutableLiveData object
-        MutableLiveData<Image> tmpImageLiveData = e.getImageData();
-        tmpImageLiveData.observeForever(imageObserver);
+        // Start observer
+        e.getImageData().observeForever(imageObserver);
 
         // Add to hashmap
-        imageListeners.put(e.getEventId(), tmpImageLiveData);
+        imageListeners.put(e.getEventId(), e);
     }
 
     /**
@@ -202,11 +208,16 @@ public class EventHandler {
         // Check if listener is in hashmap
         if (imageListeners.containsKey(eventId)) {
             // Get live object
-            MutableLiveData<Image> tmpImageLiveData = imageListeners.get(eventId);
-            if (tmpImageLiveData == null) {
+            Event e = imageListeners.get(eventId);
+            if (e == null) {
                 return;
             }
-            tmpImageLiveData.removeObserver(imageObserver);
+
+            // Stop observer
+            e.getImageData().removeObserver(imageObserver);
+
+            // Stop listener
+            e.stopImageListen();
         }
     }
 
@@ -229,12 +240,14 @@ public class EventHandler {
                 // Check for errors
                 if (error != null) {
                     Log.w("EventHandler Class", "Listen failed.", error);
+                    Toast.makeText(context, "EventHolder failed to listen.", Toast.LENGTH_SHORT).show();
                     // TODO: Stop the app?
                     return;  // This will automatically close listener
                 }
 
                 // Handle each new event
                 Event eventTmp;
+                Object tmpImageDocId;
                 for (DocumentChange dc : eventDocs.getDocumentChanges()) {
                     switch (dc.getType()) {
                         case ADDED:
@@ -245,9 +258,10 @@ public class EventHandler {
                             queryListOfEvents.add(eventTmp);
 
                             // Attach image listeners if applicable
-                            if (dc.getDocument().getData().get("imageDocId") != null) {
+                            tmpImageDocId = dc.getDocument().getData().get("imageDocId");
+                            if (tmpImageDocId != null) {
                                 attachImageListener(eventTmp,
-                                                    dc.getDocument().getData().get("imageDocId").toString());
+                                                    tmpImageDocId.toString());
                             }
                             break;
 
@@ -258,8 +272,21 @@ public class EventHandler {
                             // First Identify which event object is different
                             Event modifiedEvent = findEventById(dc.getDocument().getId());
                             if (modifiedEvent != null) {
+
                                 // Load new values
                                 modifiedEvent.loadMap(dc.getDocument().getData());
+
+                                // Edge case: image uploaded or gone?
+                                tmpImageDocId = dc.getDocument().getData().get("imageDocId");
+                                // imageDocId exists
+                                if (tmpImageDocId != null) {
+                                    attachImageListener(modifiedEvent,
+                                            tmpImageDocId.toString());
+                                }
+                                // No imageDocId
+                                if (tmpImageDocId == null) {
+                                    removeImageListener(modifiedEvent.getEventId());
+                                }
 
                                 // Check if event is presently shown
                                 // This is to update the event in EventDetailsFragment
@@ -294,6 +321,9 @@ public class EventHandler {
 
                 // Unassign reference
                 eventTmp = null;
+                tmpImageDocId = null;
+
+                Toast.makeText(context, "EventHolder failed to listen.", Toast.LENGTH_SHORT).show();
             }
         });
     }

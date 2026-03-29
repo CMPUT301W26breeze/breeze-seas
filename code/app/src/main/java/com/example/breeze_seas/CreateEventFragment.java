@@ -330,8 +330,7 @@ public class CreateEventFragment extends Fragment {
                 null,
                 swGeo.isChecked(),
                 normalizedCapacity,
-                normalizedEventWaitingListCapacity,
-                0
+                normalizedEventWaitingListCapacity
         );
 
         EventDB.addEvent(event, new EventDB.AddEventCallback() {

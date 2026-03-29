@@ -18,6 +18,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -149,7 +150,6 @@ public class Event {
      * @param geolocationEnforced Whether registration requires geolocation.
      * @param eventCapacity Maximum accepted entrants.
      * @param waitingListCapacity Maximum waiting-list entrants.
-     * @param drawARound Current draw round counter.
      */
     public Event(boolean isPrivate,
                  String organizerId,
@@ -163,8 +163,7 @@ public class Event {
                  Timestamp eventEndTimestamp,
                  boolean geolocationEnforced,
                  int eventCapacity,
-                 int waitingListCapacity,
-                 int drawARound) {
+                 int waitingListCapacity) {
         this.eventId = EventDB.genNewEventId();
         this.isPrivate = isPrivate;
         this.organizerId = organizerId;
@@ -182,7 +181,7 @@ public class Event {
         this.geolocationEnforced = geolocationEnforced;
         this.eventCapacity = eventCapacity;
         this.waitingListCapacity = waitingListCapacity;
-        this.drawARound = drawARound;
+        this.drawARound = 0;
         this.waitingList = new WaitingList(this, waitingListCapacity);
         this.pendingList = new PendingList(this, -1);
         this.acceptedList = new AcceptedList(this, eventCapacity);
@@ -1167,5 +1166,18 @@ public class Event {
 
             }
         });
+    }
+
+    /**
+     * Generates a string representation of the event object.
+     * Useful when filtering for specific keywords.
+     * @return
+     */
+    public String toString() {
+        String tmp;
+        // Get name and description of event
+        tmp = getName() == null ? "" : getName().toLowerCase(Locale.US);
+        tmp = tmp + getDescription() == null ? "" : getDescription().toLowerCase(Locale.US);
+        return tmp;
     }
 }
