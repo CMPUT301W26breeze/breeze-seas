@@ -42,30 +42,6 @@ public class EventDB {
         return eventRef.document().getId();
     }
 
-    // Add Event to DB
-    public interface AddEventCallback {
-        void onSuccess(String eventId);
-        void onFailure(Exception e);
-    }
-
-    // Get event by id
-    public interface LoadSingleEventCallback {
-        void onSuccess(Event event);
-        void onFailure(Exception e);
-    }
-
-    // Get all events
-    public interface LoadEventsCallback {
-        void onSuccess(ArrayList<Event> events);
-        void onFailure(Exception e);
-    }
-
-    // Modify / Delete events
-    public interface EventMutationCallback {
-        void onSuccess();
-        void onFailure(Exception e);
-    }
-
     /**
      * Returns the event CollectionReference used in the database.
      * @return CollectionReference to the events collection
@@ -75,13 +51,10 @@ public class EventDB {
         return eventRef;
     }
 
-    /**
-     * Synonym method of addEvent
-     * @param event Event object to add to the database
-     * @param callback Callback method to run after firebase transaction
-     */
-    public static void createEvent(Event event, AddEventCallback callback) {
-        addEvent(event, callback);
+    // Add Event to DB
+    public interface AddEventCallback {
+        void onSuccess(String eventId);
+        void onFailure(Exception e);
     }
 
     /**
@@ -98,6 +71,11 @@ public class EventDB {
                     callback.onSuccess(event.getEventId());
                 })
                 .addOnFailureListener(callback::onFailure);
+    }
+
+    public interface EventMutationCallback {
+        void onSuccess();
+        void onFailure(Exception e);
     }
 
     /**
@@ -139,6 +117,12 @@ public class EventDB {
 
     }
 
+    // Get event by id
+    public interface LoadSingleEventCallback {
+        void onSuccess(Event event);
+        void onFailure(Exception e);
+    }
+
     /**
      * Fetches an event based on documentID
      * @param eventId The event document to fetch for.
@@ -164,6 +148,12 @@ public class EventDB {
     public static Query getAllEventsQuery() {
         setup();
         return eventRef.orderBy("createdTimestamp");
+    }
+
+    // Get all events
+    public interface LoadEventsCallback {
+        void onSuccess(ArrayList<Event> events);
+        void onFailure(Exception e);
     }
 
     /**
@@ -321,7 +311,8 @@ public class EventDB {
         Event newEvent = new Event(doc.getData());
         String imageDocId = (doc.getData().get("imageDocId") == null) ? null : doc.getData().get("imageDocId").toString();
 
-        //
+        // Loading images
+        // WARNING: this may cause a race condition.
         if (imageDocId != null) {
             ImageDB.loadImage(doc.getData().get("imageDocId").toString(), new ImageDB.LoadImageCallback() {
                 @Override

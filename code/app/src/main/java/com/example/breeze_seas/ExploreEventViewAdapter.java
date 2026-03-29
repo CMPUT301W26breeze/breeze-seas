@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -70,11 +71,17 @@ public class ExploreEventViewAdapter extends RecyclerView.Adapter<ExploreEventVi
                 : holder.itemView.getContext().getString(R.string.explore_card_geo_optional));
 
         holder.eventImage.setImageResource(R.drawable.ic_image_placeholder);
+        holder.eventImage.setVisibility(View.GONE);
+        holder.eventImageFrame.setVisibility(View.GONE);
         if (event.getImage() != null && !Objects.equals(event.getImage().getCompressedBase64(), "")) {
             try {
                 holder.eventImage.setImageBitmap(event.getImage().display());
+                holder.eventImage.setVisibility(View.VISIBLE);
+                holder.eventImageFrame.setVisibility(View.VISIBLE);
             } catch (Exception ignored) {
                 holder.eventImage.setImageResource(R.drawable.ic_image_placeholder);
+                holder.eventImage.setVisibility(View.GONE);
+                holder.eventImageFrame.setVisibility(View.GONE);
             }
         }
     }
@@ -91,6 +98,7 @@ public class ExploreEventViewAdapter extends RecyclerView.Adapter<ExploreEventVi
         TextView eventWaitingListCount;
         TextView eventCapacity;
         TextView eventLuck;
+        FrameLayout eventImageFrame;
         ImageView eventImage;
         LinearLayout eventCard;
 
@@ -104,6 +112,7 @@ public class ExploreEventViewAdapter extends RecyclerView.Adapter<ExploreEventVi
             eventWaitingListCount = itemView.findViewById(R.id.explore_event_entry_waiting_list_count);
             eventCapacity = itemView.findViewById(R.id.explore_event_entry_capacity);
             eventImage = itemView.findViewById(R.id.explore_event_entry_image);
+            eventImageFrame = itemView.findViewById(R.id.explore_event_entry_image_frame);
             eventLuck = itemView.findViewById(R.id.explore_event_entry_luck_percent);
             eventCard = itemView.findViewById(R.id.explore_event_entry_card);
         }

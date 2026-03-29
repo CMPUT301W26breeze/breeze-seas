@@ -62,7 +62,6 @@ public class OrganizerEventPreviewFragment extends Fragment {
                     if (uri == null) {
                         return;
                     }
-
                     handleSelectedPoster(uri);
                 }
             });

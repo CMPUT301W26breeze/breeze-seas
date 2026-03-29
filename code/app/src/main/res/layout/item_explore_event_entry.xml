@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/explore_event_entry_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -12,18 +13,20 @@
     android:padding="18dp">
 
     <FrameLayout
+        android:id="@+id/explore_event_entry_image_frame"
         android:layout_width="match_parent"
         android:layout_height="176dp"
         android:background="@drawable/bg_profile_field_shell"
-        android:padding="12dp">
+        android:padding="0dp">
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/explore_event_entry_image"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:contentDescription="@string/organizer_event_preview_poster"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_image_placeholder" />
+            android:src="@drawable/ic_image_placeholder"
+            app:shapeAppearanceOverlay="@style/RoundedCorners.ExploreEventEntry"/>
     </FrameLayout>
 
     <TextView

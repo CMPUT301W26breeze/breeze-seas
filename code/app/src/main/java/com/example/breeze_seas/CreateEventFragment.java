@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -294,18 +295,26 @@ public class CreateEventFragment extends Fragment {
         int normalizedEventWaitingListCapacity = eventWaitingListCap == null ? -1 : eventWaitingListCap;
         boolean isPrivateEvent = swPrivate != null && swPrivate.isChecked();
         // Create and upload image
-        Image newImage = new Image(posterBase64);
-        ImageDB.saveImage(newImage, new ImageDB.ImageMutationCallback() {
-            @Override
-            public void onSuccess() {
+        // Only create new image object if base64 has content, in otherwords, an image was selected.
+        final Image[] newImage = new Image[1];
+        if (posterBase64.isEmpty()) {
+            newImage[0] = null;
+        } else {
+            newImage[0] = new Image(posterBase64);
 
-            }
+            // Upload to database
+            ImageDB.saveImage(newImage[0], new ImageDB.ImageMutationCallback() {
+                @Override
+                public void onSuccess() {
+                }
 
-            @Override
-            public void onFailure(Exception e) {
-
-            }
-        });
+                @Override
+                public void onFailure(Exception e) {
+                    Log.e("Image DB", "Unable to upload image.", e);
+                    newImage[0] = null;
+                }
+            });
+        }
 
         // Create event object
         Event event = new Event(
@@ -313,7 +322,7 @@ public class CreateEventFragment extends Fragment {
                 organizerId,
                 name,
                 details,
-                newImage,
+                newImage[0],
                 "",  // TODO: QR Value
                 new Timestamp(new Date(regFromMillis)),
                 new Timestamp(new Date(regToMillis)),

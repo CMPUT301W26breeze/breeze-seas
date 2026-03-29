@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -21,6 +22,7 @@ import java.util.Locale;
 public class EventDetailsFragment extends Fragment {
     private ImageView returnButton;
     private TextView eventTitle;
+    private FrameLayout eventPosterFrame;
     private ImageView eventPoster;
     private Button viewQRCodeButton;
     private TextView eventCapacity;
@@ -112,7 +114,8 @@ public class EventDetailsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Setup observer on eventShown
-        viewModel.getExploreFragmentEventHandler().getEventShown().observe(getViewLifecycleOwner(), e -> {
+        viewModel.getExploreFragmentEventHandler()
+                .getEventShown().observe(getViewLifecycleOwner(), e -> {
             // Check if event still exists
             if (e == null) {
                 // Return to explore fragment
@@ -125,8 +128,17 @@ public class EventDetailsFragment extends Fragment {
             showOption(user);
         });
 
+        // Setup observer for image
+        eventShown.getImageData().observe(getViewLifecycleOwner(), image -> {
+                    // Just need to update image
+                    // Since the triggers for this observer will update the image object within event beforehand
+                    // We should be able to just refresh handlePoster using the same object reference.
+                    handlePoster(eventShown.getImage());
+        });
+
         // Bind all views
         eventTitle = view.findViewById(R.id.event_details_event_title);
+        eventPosterFrame = view.findViewById(R.id.event_details_event_photo_frame);
         eventPoster = view.findViewById(R.id.event_details_event_photo);
         eventCapacity = view.findViewById(R.id.event_details_event_capacity);
         eventWaitingListCount = view.findViewById(R.id.event_details_event_waiting_list_count);
@@ -150,6 +162,7 @@ public class EventDetailsFragment extends Fragment {
         });
 
         // TODO: Fix logic as list classes are now real time, consistent with the database.
+
         ProgressBar progressBar = view.findViewById(R.id.event_details_loading_progress_bar);
         joinWaitingListButton = view.findViewById(R.id.event_details_join_waitlist_button);
         joinWaitingListButton.setOnClickListener(v -> {
@@ -339,11 +352,13 @@ public class EventDetailsFragment extends Fragment {
      */
     private void handlePoster(Image image) {
         if (image == null) {
-            Log.e("TEST", "Image does not exist");
             eventPoster.setImageResource(R.drawable.ic_image_placeholder);
+            eventPoster.setVisibility(View.GONE);
+            eventPosterFrame.setVisibility(View.GONE);
         } else {
-            Log.e("TEST", "Image exists");
             eventPoster.setImageBitmap(image.display());
+            eventPoster.setVisibility(View.VISIBLE);
+            eventPosterFrame.setVisibility(View.VISIBLE);
         }
     }
 

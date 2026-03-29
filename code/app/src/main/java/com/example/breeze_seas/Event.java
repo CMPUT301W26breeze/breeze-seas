@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.lifecycle.MutableLiveData;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
@@ -30,7 +31,7 @@ public class Event {
     private ArrayList<String> coOrganizerId;
     private String name;
     private String description;
-    private Image image;
+    private MutableLiveData<Image> image = new MutableLiveData<Image>();
     private String qrValue;
     private Timestamp createdTimestamp;
     private Timestamp modifiedTimestamp;
@@ -48,6 +49,7 @@ public class Event {
     private DeclinedList declinedList;
     private ListenerRegistration eventListener = null;
     private ListenerRegistration participantsListener = null;
+    private ListenerRegistration imageListener = null;
 
     /**
      * Creates an event using the full field set expected when hydrating from {@link EventDB}.
@@ -102,7 +104,7 @@ public class Event {
         this.coOrganizerId = coOrganizerId;
         this.name = name;
         this.description = description;
-        this.image = image;
+        this.image.setValue(image);
         this.qrValue = qrValue;
         this.createdTimestamp = createdTimestamp;
         this.modifiedTimestamp = modifiedTimestamp;
@@ -169,7 +171,7 @@ public class Event {
         this.coOrganizerId = new ArrayList<String>();// Empty List
         this.name = name;
         this.description = description;
-        this.image = image;
+        this.image.setValue(image);
         this.qrValue = qrValue;
         this.createdTimestamp = Timestamp.now();  // Use timestamp at creation
         this.modifiedTimestamp = Timestamp.now();  // Use timestamp at creation
@@ -200,7 +202,7 @@ public class Event {
         this.coOrganizerId = new ArrayList<String>();
         this.name = null;
         this.description = null;
-        this.image = null;
+        this.image.setValue(null);
         this.qrValue = null;
         this.geolocationEnforced = false;
         this.createdTimestamp = Timestamp.now();  // Use timestamp at creation
@@ -230,7 +232,7 @@ public class Event {
         map.put("coOrganizerId", getCoOrganizerId());
         map.put("name", getName());
         map.put("description", getDescription());
-        map.put("imageDocId", getImage().getImageId());
+        map.put("imageDocId", (getImage() != null) ? getImage().getImageId() : null);
         map.put("qrValue", getQrValue());
         map.put("createdTimestamp", getCreatedTimestamp());
         map.put("modifiedTimestamp", getModifiedTimestamp());
@@ -258,23 +260,6 @@ public class Event {
         this.coOrganizerId = (ArrayList<String>) map.get("coOrganizerId");
         this.name = map.get("name").toString();
         this.description = (map.get("description") == null) ? "" : map.get("description").toString();
-
-        // Images
-        // THIS MAY CAUSE RACE CONDITION AS THE IMAGE DB CALL IS ASYNCHRONOUS
-//        String imageDocId = (map.get("imageDocId") == null) ? null : map.get("imageDocId").toString();
-//        if (imageDocId != null) {
-//            ImageDB.loadImage("imageDocId", new ImageDB.LoadImageCallback() {
-//                @Override
-//                public void onSuccess(Image image) {
-//                    setImage(image);
-//                }
-//
-//                @Override
-//                public void onFailure(Exception e) {
-//
-//                }
-//            });
-//        }
 
         // Qr Code
         this.qrValue = (map.get("qrValue") == null) ? "" : map.get("qrValue").toString();
@@ -435,7 +420,7 @@ public class Event {
      * @return Image object.
      */
     public Image getImage() {
-        return image;
+        return image.getValue();
     }
 
     /**
@@ -443,7 +428,16 @@ public class Event {
      * @param image Image object to hold a reference to.
      */
     public void setImage(Image image) {
-        this.image = image;
+        this.image.setValue(image);
+    }
+
+    /**
+     * Returns the image object wrapped in a MutableLiveData.
+     * Suitable for use when fragments need to observe when images get updated.
+     * @return MutableLiveData that encloses an image object.
+     */
+    public MutableLiveData<Image> getImageData() {
+        return image;
     }
 
     /**
@@ -459,7 +453,7 @@ public class Event {
      * @return Bitmap of event poster. Null if image object does not exist.
      */
     public Bitmap getImageBitmap() {
-        return (this.image == null) ? null : this.image.display();
+        return (this.image.getValue() == null) ? null : this.image.getValue().display();
     }
 
     /**
@@ -873,6 +867,11 @@ public class Event {
      * Method to get realtime updates of event.
      */
     public void startEventListen(EventUpdatedCallback callback) {
+        // Check whether the listener is already present
+        if (eventListener != null) {
+            return;
+        }
+
         // Listener on Event
         final DocumentReference docRef = EventDB.getEventRef().document(this.eventId);
         eventListener = docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -912,7 +911,10 @@ public class Event {
      * Stop fetching realtime updates of event.
      */
     public void stopEventListen() {
-        eventListener.remove();
+        // Check if listener is active
+        if (eventListener != null) {
+            eventListener.remove();
+        }
     }
 
     public interface ParticipantsUpdatedCallback {
@@ -921,6 +923,11 @@ public class Event {
     }
 
     public void startParticipantsListen(ParticipantsUpdatedCallback callback) {
+        // Check whether the listener is already present
+        if (participantsListener != null) {
+            return;
+        }
+
         // Before listening on participants
         setupLists();
         emptyLists();
@@ -1029,8 +1036,67 @@ public class Event {
      * Stop fetching realtime updates of participants.
      */
     public void stopParticipantsListen() {
-        participantsListener.remove();
+        // Check if listener is active
+        if (participantsListener != null) {
+            participantsListener.remove();
+        }
     }
+
+    /**
+     * Activates an image listener for the given event.
+     * @param imageDocId Image Document Id to listen at.
+     */
+    public void startImageListen(String imageDocId) {
+        // Check whether the listener is already present
+        if (imageListener != null) {
+            return;
+        }
+
+        // Lister on image
+        imageListener = DBConnector.getDb().collection("images")
+                .document(imageDocId)
+                .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable DocumentSnapshot imgDoc,
+                                        @Nullable FirebaseFirestoreException error) {
+                        // Check for errors
+                        if (error != null) {
+                            Log.w("Event Class", "Listen failed.", error);
+                            setImage(null);
+                            return;  // This will automatically close listener
+                        }
+
+                        // Determine whether change was local (database changed caused by this device) or
+                        // change was server (database changed caused by another device, not this device)
+                        String source = imgDoc != null && imgDoc.getMetadata().hasPendingWrites()
+                                ? "Local" : "Server";
+
+                        if (imgDoc != null && imgDoc.exists()) {
+                            // Image document is updated
+                            Map<String, Object> map = imgDoc.getData();
+                            Log.d("Event Class", source + " data: " + map);
+                            // Load new information
+                            setImage(new Image(imgDoc.getId(), map.get("data").toString()));
+
+                        } else {
+                            // Image document gets deleted
+                            Log.d("Event Class", source + " data: null");
+                            setImage(null);
+                        }
+                    }
+                });
+    }
+
+    /**
+     * Stop fetching realtime updates of image pertaining to this event.
+     */
+    public void stopImageListen() {
+        // Check if listener is active
+        if (imageListener != null) {
+            imageListener.remove();
+        }
+    }
+
 
     public interface ListsLoadedCallback {
         void onSuccess();
@@ -1101,49 +1167,5 @@ public class Event {
 
             }
         });
-
-
-
-
-//        waitingList.refresh(new StatusList.ListUpdateListener() {
-//            @Override
-//            public void onUpdate() {
-//            }
-//
-//            @Override
-//            public void onError(Exception e) {
-//                Log.e("EventDB", "Error: ", e);
-//            }
-//        });
-//        pendingList.refresh(new StatusList.ListUpdateListener() {
-//            @Override
-//            public void onUpdate() {
-//            }
-//
-//            @Override
-//            public void onError(Exception e) {
-//                Log.e("EventDB", "Error: ", e);
-//            }
-//        });
-//        acceptedList.refresh(new StatusList.ListUpdateListener() {
-//            @Override
-//            public void onUpdate() {
-//            }
-//
-//            @Override
-//            public void onError(Exception e) {
-//                Log.e("EventDB", "Error: ", e);
-//            }
-//        });
-//        declinedList.refresh(new StatusList.ListUpdateListener() {
-//            @Override
-//            public void onUpdate() {
-//            }
-//
-//            @Override
-//            public void onError(Exception e) {
-//                Log.e("EventDB", "Error: ", e);
-//            }
-//        });
     }
 }

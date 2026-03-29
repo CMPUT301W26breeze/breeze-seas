@@ -53,6 +53,7 @@
             android:textSize="30sp" />
 
         <FrameLayout
+            android:id="@+id/event_details_event_photo_frame"
             android:layout_width="match_parent"
             android:layout_height="250dp"
             android:layout_marginTop="18dp"

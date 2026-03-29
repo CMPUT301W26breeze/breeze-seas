@@ -4,6 +4,7 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
@@ -13,6 +14,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -21,6 +23,13 @@ import java.util.Objects;
  */
 public class EventHandler {
     private ListenerRegistration eventHandlerListener = null;
+    private final HashMap<String, MutableLiveData<Image>> imageListeners = new HashMap<String, MutableLiveData<Image>>();
+    private final Observer<Image> imageObserver = new Observer<Image>() {
+        @Override
+        public void onChanged(Image image) {
+            post();
+        }
+    };
     private final Query query;
     private final ArrayList<Event> queryListOfEvents = new ArrayList<Event>();
     private String keywordString = "";
@@ -164,6 +173,44 @@ public class EventHandler {
     }
 
     /**
+     * Helper method to save references to the hashmap for management purposes.
+     * @param e Event class to initialize image listener from.
+     * @param imageDocId DocumentId to set the listener to listen at.
+     */
+    private void attachImageListener(Event e, @Nullable String imageDocId) {
+        // Abort if imageDocId is not valid
+        if ((imageDocId == null) || (imageDocId.isEmpty())) {
+            return;
+        }
+
+        // Start listener
+        e.startImageListen(imageDocId);
+
+        // Save reference to MutableLiveData object
+        MutableLiveData<Image> tmpImageLiveData = e.getImageData();
+        tmpImageLiveData.observeForever(imageObserver);
+
+        // Add to hashmap
+        imageListeners.put(e.getEventId(), tmpImageLiveData);
+    }
+
+    /**
+     * Helper method to deactivate listeners from the hashmap for management purposes.
+     * @param eventId Event object to remove listener from.
+     */
+    private void removeImageListener(String eventId) {
+        // Check if listener is in hashmap
+        if (imageListeners.containsKey(eventId)) {
+            // Get live object
+            MutableLiveData<Image> tmpImageLiveData = imageListeners.get(eventId);
+            if (tmpImageLiveData == null) {
+                return;
+            }
+            tmpImageLiveData.removeObserver(imageObserver);
+        }
+    }
+
+    /**
      * Starts listeners to get realtime updates of the event list.
      */
     public void startListen() {
@@ -187,13 +234,21 @@ public class EventHandler {
                 }
 
                 // Handle each new event
+                Event eventTmp;
                 for (DocumentChange dc : eventDocs.getDocumentChanges()) {
                     switch (dc.getType()) {
                         case ADDED:
                             Log.d("EventHandler Class", "New event: " + dc.getDocument().getData());
 
                             // Create event
-                            queryListOfEvents.add(new Event(dc.getDocument().getData()));
+                            eventTmp = new Event(dc.getDocument().getData());
+                            queryListOfEvents.add(eventTmp);
+
+                            // Attach image listeners if applicable
+                            if (dc.getDocument().getData().get("imageDocId") != null) {
+                                attachImageListener(eventTmp,
+                                                    dc.getDocument().getData().get("imageDocId").toString());
+                            }
                             break;
 
                         case MODIFIED:
@@ -219,6 +274,9 @@ public class EventHandler {
                         case REMOVED:
                             Log.d("EventHandler Class", "Removed event: " + dc.getDocument().getData());
 
+                            // Detach image listeners if applicable
+                            removeImageListener(dc.getDocument().getId());
+
                             // Remove event
                             removeEventById(dc.getDocument().getId());
 
@@ -233,6 +291,9 @@ public class EventHandler {
                 // Recompute after processing changes
                 filter();
                 post();
+
+                // Unassign reference
+                eventTmp = null;
             }
         });
     }
