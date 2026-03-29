@@ -4,14 +4,19 @@ import android.util.Log;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 
 /**
@@ -77,18 +82,73 @@ public class UserDB {
                         Log.e("DB", "Update failed", e));
     }
 
+
+
     /**
-     * Deletes a user document from the "User" collection.
+     * Deletes all trace of the user from the database except comments.
      *
      * @param deviceId The unique identifier of the user to be deleted.
      */
     public void deleteUser(String deviceId) {
-        userRef.document(deviceId).delete()
-                .addOnSuccessListener(aVoid ->
-                        Log.d("DB_UPDATE", "User deleted successfully"))
-                .addOnFailureListener(e ->
-                        Log.e("DB_UPDATE", "Deletion failed", e));
+        getUser(deviceId, new OnUserLoadedListener() {
+            @Override
+            public void onUserLoaded(User user) {
+                // Find all instances of this user in any "participants" collection
+                db.collectionGroup("participants")
+                        .whereEqualTo("deviceId", deviceId)
+                        .get()
+                        .addOnSuccessListener(participantSnapshots -> {
 
+                            // Get all events
+                            EventDB.getAllEvents(new EventDB.LoadEventsCallback() {
+                                @Override
+                                public void onSuccess(ArrayList<Event> events) {
+                                    WriteBatch batch = db.batch();
+
+                                    // Deletions for all participant instances found
+                                    for (QueryDocumentSnapshot doc : participantSnapshots) {
+                                        batch.delete(doc.getReference());
+                                    }
+
+                                    // Event deletions if the user is the organizer
+                                    for (Event event : events) {
+                                        DocumentReference eventRef = db.collection("events")
+                                                .document(event.getEventId());
+
+                                        if (Objects.equals(event.getOrganizerId(), deviceId)) {
+                                            batch.delete(eventRef);
+                                        }
+                                    }
+
+                                    // The user document deletion
+                                    DocumentReference userDocumentRef = userRef.document(deviceId);
+                                    batch.delete(userDocumentRef);
+
+                                    batch.commit()
+                                            .addOnSuccessListener(aVoid -> {
+                                                Log.d("DB_UPDATE", "User profile, owned events, and participant records deleted.");
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                Log.e("DB_UPDATE", "Deletion failed. No data was removed.", e);
+                                            });
+                                }
+
+                                @Override
+                                public void onFailure(Exception e) {
+                                    Log.e("DB_UPDATE", "Failed to load events", e);
+                                }
+                            });
+                        })
+                        .addOnFailureListener(e -> {
+                            Log.e("DB_UPDATE", "Failed to query participants", e);
+                        });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.e("DB_UPDATE", "Failed to load user", e);
+            }
+        });
     }
 
     /**
