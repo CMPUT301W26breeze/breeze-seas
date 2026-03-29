@@ -131,7 +131,7 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
                 };
 
                 // New keyword search
-                mhandler.postDelayed(keywordRunnable, 350);  // DEBOUNCE of 0.35 seconds.
+                mhandler.postDelayed(keywordRunnable, 300);  // DEBOUNCE of 0.3 seconds.
             }
         });
     }

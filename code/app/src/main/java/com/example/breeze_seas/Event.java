@@ -1177,7 +1177,7 @@ public class Event {
         String tmp;
         // Get name and description of event
         tmp = getName() == null ? "" : getName().toLowerCase(Locale.US);
-        tmp = tmp + getDescription() == null ? "" : getDescription().toLowerCase(Locale.US);
+        tmp = tmp + ((getDescription() == null) ? "" : getDescription().toLowerCase(Locale.US));
         return tmp;
     }
 }
