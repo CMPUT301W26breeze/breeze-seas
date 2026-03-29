@@ -205,6 +205,18 @@ public class OrganizerEventPreviewFragment extends Fragment {
     }
 
     /**
+     * Releases view-scoped resources when the organizer preview view is destroyed.
+     */
+    @Override
+    public void onDestroyView() {
+        if (commentsSectionController != null) {
+            commentsSectionController.release();
+            commentsSectionController = null;
+        }
+        super.onDestroyView();
+    }
+
+    /**
      * Binds view references used by the organizer preview screen.
      *
      * @param view Inflated organizer-preview root view.

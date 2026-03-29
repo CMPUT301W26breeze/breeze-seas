@@ -331,6 +331,11 @@ public class EventDetailsFragment extends Fragment {
                 }
             });
         });
+
+        commentsSectionController = new EventCommentsSectionController(this, view);
+        commentsSectionController.bind(eventShown, user);
+        updateView();
+        showOption(user);
     }
 
     /**
@@ -381,6 +386,17 @@ public class EventDetailsFragment extends Fragment {
         }
     }
 
+    /**
+     * Releases view-scoped resources when the event-details view is destroyed.
+     */
+    @Override
+    public void onDestroyView() {
+        if (commentsSectionController != null) {
+            commentsSectionController.release();
+            commentsSectionController = null;
+        }
+        super.onDestroyView();
+    }
 
     /**
      * Helper method to create a String

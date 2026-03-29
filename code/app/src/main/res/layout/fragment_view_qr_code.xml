@@ -42,6 +42,20 @@
         android:textSize="15sp" />
 
     <Button
+        android:id="@+id/btnSaveQr"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_welcome_primary_button"
+        android:backgroundTint="@null"
+        app:backgroundTint="@null"
+        android:fontFamily="@font/inter_semibold"
+        android:text="@string/view_qr_code_save_button"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="15sp" />
+
+    <Button
         android:id="@+id/btnClose"
         android:layout_width="match_parent"
         android:layout_height="54dp"
