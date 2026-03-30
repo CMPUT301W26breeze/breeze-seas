@@ -178,7 +178,7 @@ public class UserDB {
      * @param callback Receives individual change events or errors.
      */
     public void startUsersListen(UsersChangedCallback callback) {
-        // Attach a persistent listener — Firestore will push updates automatically
+        // Listener
         usersListener = userRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot snapshots,
@@ -211,8 +211,7 @@ public class UserDB {
     }
 
     /**
-     * Stops the real-time listener for the "users" collection.
-     * Call this when the UI is torn down to avoid memory leaks.
+     * Stops listener for the "users" collection.
      */
     public void stopUsersListen() {
         if (usersListener != null) {

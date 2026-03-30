@@ -23,6 +23,7 @@ import java.util.List;
  * A fragment that allows administrators to browse all user profiles.
  * Displays a searchable, scrollable list of every registered user.
  * Admins can delete profiles from this screen (still needs polishing).
+ * TODO: Implement popup before deletion
  */
 public class AdminBrowseProfilesFragment extends Fragment {
 
