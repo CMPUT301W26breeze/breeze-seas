@@ -27,7 +27,7 @@ import java.util.List;
 public class AdminBrowseProfilesFragment extends Fragment {
 
     private AdminBrowseProfilesAdapter adapter;
-    // Master list of all users — the adapter's filter reads from this
+    // Master list of all users
     private final List<User> userList = new ArrayList<>();
     private UserDB userDB;
     // Tracks what the admin has typed in the search box so we can re-apply it after each update
@@ -52,9 +52,8 @@ public class AdminBrowseProfilesFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         adapter = new AdminBrowseProfilesAdapter(userList, (user, position) -> {
-            // Kick off async deletion — this runs a multi-step batch (participant records,
+            // Runs a multi-step batch (participant records,
             // owned events, then the user document itself) before anything is actually removed.
-            // We do NOT show a toast here because nothing has been deleted yet at this point.
             userDB.deleteUser(user.getDeviceId());
         });
 
@@ -71,7 +70,7 @@ public class AdminBrowseProfilesFragment extends Fragment {
             @Override public void afterTextChanged(Editable s) {}
         });
 
-        // Start the real-time listener — populates the list and keeps it in sync automatically
+        // Start the real-time listener
         startListening();
     }
 
@@ -86,14 +85,14 @@ public class AdminBrowseProfilesFragment extends Fragment {
 
             @Override
             public void onUserAdded(User user) {
-                // New user document appeared in Firestore — add to master list and refresh view
+                // New user document appeared in Firestore
                 userList.add(user);
                 adapter.filter(currentQuery);
             }
 
             @Override
             public void onUserModified(User user) {
-                // An existing user's details changed — find them in the list and swap the object
+                // An existing user's details changed
                 for (int i = 0; i < userList.size(); i++) {
                     if (user.getDeviceId().equals(userList.get(i).getDeviceId())) {
                         userList.set(i, user);
@@ -106,7 +105,6 @@ public class AdminBrowseProfilesFragment extends Fragment {
             @Override
             public void onUserRemoved(User user) {
                 // The batch commit in deleteUser succeeded and Firestore confirmed the removal.
-                // This is the right place to show the toast — we know the deletion actually happened.
                 Iterator<User> it = userList.iterator();
                 while (it.hasNext()) {
                     if (user.getDeviceId().equals(it.next().getDeviceId())) {

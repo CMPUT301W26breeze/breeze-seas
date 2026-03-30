@@ -93,8 +93,8 @@ public class AdminBrowseProfilesAdapter extends RecyclerView.Adapter<AdminBrowse
     public void onBindViewHolder(@NonNull ProfileViewHolder holder, int position) {
         User user = filteredList.get(position);
         holder.tvUserName.setText("Name: " + getDisplayName(user));
-        holder.tvUsername.setText("User Name: " + (user.getUserName() != null ? user.getUserName() : "—"));
-        holder.tvDeviceId.setText("Device ID: " + (user.getDeviceId() != null ? user.getDeviceId() : "—"));
+        holder.tvUsername.setText("User Name: " + (user.getUserName() != null ? user.getUserName() : "-"));
+        holder.tvDeviceId.setText("Device ID: " + (user.getDeviceId() != null ? user.getDeviceId() : "-"));
 
         holder.btnDelete.setOnClickListener(v -> {
             int currentPosition = holder.getBindingAdapterPosition();
