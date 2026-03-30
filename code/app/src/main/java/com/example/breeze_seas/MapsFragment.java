@@ -2,6 +2,10 @@ package com.example.breeze_seas;
 
 import static android.preference.PreferenceManager.*;
 
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
@@ -12,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -23,12 +28,18 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
+
+/**
+ * A fragment that displays an interactive map using OSMDroid.
+ */
 public class MapsFragment extends Fragment {
 
     private MapView map = null;
     private Event currentEvent;
-    private Map mapObj;
+    private GeoMap mapObj;
     private SessionViewModel sessionViewModel;
 
     @Override
@@ -63,7 +74,7 @@ public class MapsFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState){
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view,savedInstanceState);
         view.findViewById(R.id.maps_back_button).setOnClickListener(v ->
                 requireActivity().getSupportFragmentManager().popBackStack()
@@ -72,11 +83,11 @@ public class MapsFragment extends Fragment {
         if (currentEvent != null && currentEvent.getName() != null && !currentEvent.getName().trim().isEmpty()) {
             subtitleView.setText(currentEvent.getName());
         }
-        mapObj=new Map(currentEvent);
-        mapObj.fetchLocation(new Map.FetchedLocationListener() {
+        mapObj = new GeoMap(currentEvent);
+        mapObj.fetchLocation(new GeoMap.FetchedLocationListener() {
             @Override
-            public void onLocationFetched(ArrayList<GeoPoint> location) {
-                if(isAdded() && map!=null){
+            public void onLocationFetched(HashMap<GeoPoint,String[]> location) {
+                if(isAdded() && map != null){
                     drawPoints(location);
                 }
             }
@@ -90,21 +101,74 @@ public class MapsFragment extends Fragment {
         });
     }
 
-    public void drawPoints(ArrayList<GeoPoint> locations){
-        map.getOverlays().clear();
-        for(GeoPoint point: locations){
-            Marker marker=new Marker(map);
-            marker.setPosition(point);
-            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-            marker.setTitle("Participant");
-            map.getOverlays().add(marker);
 
-            if (!locations.isEmpty()) {
-                map.getController().animateTo(locations.get(0));
-            }
-            map.invalidate();
+    /**
+     * Converts a vector drawable resource into a tinted BitmapDrawable for map markers.
+     * @param vectorId The resource ID of the vector asset.
+     * @param color The ARGB color to tint the icon.
+     * @param size The dimension in pixels for the icon width/height.
+     * @return A themed BitmapDrawable suitable for OSMDroid markers.
+     */
+    public BitmapDrawable getMarker(int vectorId, int color, int size){
+        Drawable drawable= androidx.core.content.ContextCompat.getDrawable(requireContext(), vectorId);
+        if (drawable == null) {
+            return null;
         }
 
+        Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+        android.graphics.Canvas canvas = new android.graphics.Canvas(bitmap);
+
+        drawable = androidx.core.graphics.drawable.DrawableCompat.wrap(drawable).mutate();
+        androidx.core.graphics.drawable.DrawableCompat.setTint(drawable, color);
+        drawable.setBounds(0, 0, size, size);
+        drawable.draw(canvas);
+
+        return new BitmapDrawable(getResources(), bitmap);
+    }
+
+
+    /**
+     * Iterates through the fetched locations and places markers on the map.
+     * @param locations A map of GeoPoints to String arrays containing [username, status].
+     */
+    public void drawPoints(HashMap<GeoPoint,String[]> locations){
+        map.getOverlays().clear();
+        int iconSize = 150;
+        for(java.util.Map.Entry<GeoPoint, String[]> entry: locations.entrySet()){
+
+            GeoPoint point = entry.getKey();
+            String username = entry.getValue()[0];
+            String status = entry.getValue()[1];
+
+            int color = Color.GRAY;
+            if (status != null) {
+                switch (status){
+                    case "accepted":
+                        color = Color.GREEN;
+                        break;
+                    case "waiting":
+                        color = Color.BLUE;
+                        break;
+                    case "pending":
+                        color = Color.RED;
+                        break;
+                }
+            }
+
+            Marker marker = new Marker(map);
+            marker.setPosition(point);
+            marker.setIcon(getMarker(R.drawable.map_pointer, color, iconSize));
+            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+
+            marker.setTitle(username);
+            marker.setSnippet("Status: " + status);
+            map.getOverlays().add(marker);
+        }
+        if (!locations.isEmpty()) {
+            GeoPoint first = locations.keySet().iterator().next();
+            map.getController().animateTo(first);
+        }
+        map.invalidate();
     }
 
 

@@ -44,8 +44,8 @@ public class Lottery {
     public Lottery(Event event) {
         this.event = event;
         this.capacity = event.getEventCapacity();
-        this.waitingList = new WaitingList(event, event.getWaitingListCapacity());
-        this.pendingList = new PendingList(event, event.getEventCapacity());
+        this.waitingList = event.getWaitingList();
+        this.pendingList = event.getPendingList();
     }
 
     /**
@@ -61,58 +61,45 @@ public class Lottery {
 
     public void onRunLottery(StatusList.ListUpdateListener finalListener) {
 
+        List<User> pool = waitingList.getUserList();
 
-        waitingList.refresh(new StatusList.ListUpdateListener() {
-            @Override
-            public void onUpdate() {
-                List<User> pool = waitingList.getUserList();
-                if (pool.isEmpty()) {
-                    if (finalListener != null){
-                        finalListener.onUpdate();
-                    }
-                    return;
-                }
-
-                FirebaseFirestore db = DBConnector.getDb();
-                db.collection("events").document(event.getEventId())
-                        .update("drawARound", FieldValue.increment(1))
-                        .addOnFailureListener(e -> {
-                            Log.e("Lottery", "Failed to increment draw round", e);
-                        });
-
-
-                Collections.shuffle(pool);
-                int slots= Math.min(capacity, pool.size());
-                final int[] count = {0};
-
-
-                for (int i = 0; i < slots; i++) {
-                    User winner= pool.get(i);
-                    pendingList.addUser(winner, new StatusList.ListUpdateListener() {
-                        @Override
-                        public void onUpdate() {
-                            // waitingList.removeUserFromDB(winner, null);
-                            counter(count,slots, finalListener);
-                        }
-                        @Override
-                        public void onError(Exception e) {
-                            counter(count,slots,finalListener);
-                        }
-                    });
-                }
-
-                event.setPendingList(pendingList);
+        if (pool==null || pool.isEmpty()) {
+            if (finalListener != null) {
+                finalListener.onError(new Exception("Cannot run lottery: The waiting list is empty."));
             }
+            return;
+        }
+
+        FirebaseFirestore db = DBConnector.getDb();
+        db.collection("events").document(event.getEventId())
+                .update("drawARound", FieldValue.increment(1))
+                .addOnFailureListener(e -> {
+                    Log.e("Lottery", "Failed to increment draw round", e);
+                });
 
 
-            @Override
-            public void onError(Exception e) {
-                if (finalListener != null) finalListener.onError(e);
-            }
-        });
+        Collections.shuffle(pool);
+        int slots= Math.min(capacity, pool.size());
+        final int[] count = {0};
+
+
+        for (int i = 0; i < slots; i++) {
+            User winner= pool.get(i);
+            pendingList.addUser(winner, new StatusList.ListUpdateListener() {
+                @Override
+                public void onUpdate() {
+                    counter(count, slots, finalListener);
+                }
+                @Override
+                public void onError(Exception e) {
+                    counter(count, slots, finalListener);
+                }
+            });
+        }
     }
 
-    /**
+
+     /**
      * Synchronizes the asynchronous {@code addUser} calls during the lottery draw.
      * @param count    A single-element integer array used as a mutable counter.
      * @param total    The total number of winners being processed.

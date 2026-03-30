@@ -45,48 +45,54 @@ public class WaitingListFragment extends Fragment {
     private Event currentEvent;
     private NotificationService notificationService = new NotificationService();
 
+    private final StatusList.ListUpdateListener liveListener = new StatusList.ListUpdateListener() {
+        @Override
+        public void onUpdate() {
+            if (isAdded()) {
+                waitingProgress.setVisibility(View.GONE);
+                waitingListUserList.clear();
+                waitingListUserList.addAll(waitingList.getUserList());
+                adapter.notifyDataSetChanged();
+            }
+        }
+        @Override
+        public void onError(Exception e) {
+            if (isAdded()) {
+                waitingProgress.setVisibility(View.GONE);
+            }
+        }
+    };
+
+
 
     public WaitingListFragment() { }
-
-    private void deleteDialog(User user){
-        new android.app.AlertDialog.Builder(requireContext())
-                .setTitle("Remove Entrant")
-                .setMessage("Are you sure you want to remove " + user.getUserName() + " from the waiting list?")
-                .setPositiveButton("Remove", (dialog, which) -> {
-
-                    waitingProgress.setVisibility(View.VISIBLE);
-                    waitingList.removeUserFromDB(user, new StatusList.ListUpdateListener() {
-                        @Override
-                        public void onUpdate() {
-                            if (isAdded()) {
-                                waitingProgress.setVisibility(View.GONE);
-                                Toast.makeText(getContext(), "User removed", Toast.LENGTH_SHORT).show();
-                                adapter.notifyDataSetChanged();
-                            }
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-                            if (isAdded()) {
-                                waitingProgress.setVisibility(View.GONE);
-                                Toast.makeText(getContext(), "Error removing user", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-                })
-                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
-                .create()
-                .show();
-    }
-
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         sessionViewModel = new ViewModelProvider(requireActivity()).get(SessionViewModel.class);
         currentEvent = sessionViewModel.getEventShown().getValue();
+        if (currentEvent != null) {
+            waitingList = currentEvent.getWaitingList();
+        }
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (waitingList != null) {
+            waitingProgress.setVisibility(View.VISIBLE);
+            waitingList.startListening(liveListener);
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (waitingList != null) {
+            waitingList.stopListening();
+        }
+    }
 
     @Nullable
     @Override
@@ -94,9 +100,7 @@ public class WaitingListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_waiting_list, container, false);
         listView = view.findViewById(R.id.waiting_frag_list_view);
         waitingProgress = view.findViewById(R.id.waiting_list_spinner);
-        if (currentEvent != null) {
-            waitingList = new WaitingList(currentEvent, currentEvent.getWaitingListCapacity());
-            waitingListUserList = waitingList.getUserList();
+        if (waitingList != null) {
             adapter = new OrganizerListAdapter(getContext(), R.layout.item_organizer_list, waitingList.getUserList(), "Waiting", false);
             listView.setAdapter(adapter);
         }
@@ -117,11 +121,14 @@ public class WaitingListFragment extends Fragment {
 
         listView.setOnItemClickListener((parent, view1, position, id) -> {
             User selected = waitingList.getUserList().get(position);
-            deleteDialog(selected);
+            ListDialogFragment dialog = new ListDialogFragment(selected,waitingList);
+            dialog.show(getChildFragmentManager(), "Entrant Actions");
         });
 
         runLotteryBtn.setOnClickListener(v -> {
-            if (currentEvent == null) return;
+            if (currentEvent == null) {
+                return;
+            }
             waitingProgress.setVisibility(View.VISIBLE);
             runLotteryBtn.setEnabled(false);
 
@@ -171,7 +178,6 @@ public class WaitingListFragment extends Fragment {
                                     Toast.LENGTH_SHORT).show();
                         }
 
-                        refreshWaitingList();
                         runLotteryBtn.setEnabled(true);
 
 
@@ -182,45 +188,10 @@ public class WaitingListFragment extends Fragment {
                     if (isAdded()) {
                         waitingProgress.setVisibility(View.GONE);
                         runLotteryBtn.setEnabled(true);
+                        Toast.makeText(getContext(), "Lottery Failed", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
-        });
-    }
-
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        refreshWaitingList();
-    }
-
-
-    /**
-     * Rebuilds the waiting list by fetching the latest participant data from Firestore.
-     * Toggles the visibility of the {@code waitingProgress} spinner during the update
-     * and refreshes the adapter upon success.
-     */
-
-    private void refreshWaitingList() {
-        if (waitingList == null) return;
-        waitingProgress.setVisibility(View.VISIBLE);
-        waitingList.refresh(new StatusList.ListUpdateListener() {
-            @Override
-            public void onUpdate() {
-                if (isAdded()) {
-                    waitingProgress.setVisibility(View.GONE);
-                    adapter.notifyDataSetChanged();
-                }
-            }
-
-
-            @Override
-            public void onError(Exception e) {
-                if (isAdded()) {
-                    waitingProgress.setVisibility(View.GONE);
-                }
-            }
         });
     }
 }

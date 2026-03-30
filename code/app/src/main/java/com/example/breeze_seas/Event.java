@@ -840,19 +840,19 @@ public class Event {
      */
     private void removeUserFromList(User user) {
         if (waitingList.userIsInList(user)) {
-            waitingList.popUser(user);
+            waitingList.popUser(user.getDeviceId());
             return;
         }
         if (pendingList.userIsInList(user)) {
-            pendingList.popUser(user);
+            pendingList.popUser(user.getDeviceId());
             return;
         }
         if (acceptedList.userIsInList(user)) {
-            acceptedList.popUser(user);
+            acceptedList.popUser(user.getDeviceId());
             return;
         }
         if (declinedList.userIsInList(user)) {
-            declinedList.popUser(user);
+            declinedList.popUser(user.getDeviceId());
         }
     }
 
@@ -921,125 +921,20 @@ public class Event {
         void onFailure(Exception e);
     }
 
-    public void startParticipantsListen(ParticipantsUpdatedCallback callback) {
-        // Check whether the listener is already present
-        if (participantsListener != null) {
-            return;
-        }
-
-        // Before listening on participants
-        setupLists();
-        emptyLists();
-
-        // Listener on Participants
-        final CollectionReference participantsRef = EventDB.getEventRef().document(this.eventId).collection("participants");
-        CollectionReference usersRef = DBConnector.getDb().collection("users");
-        participantsListener = participantsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot participantsDocs,
-                                @Nullable FirebaseFirestoreException error) {
-                if (error != null) {
-                    Log.w("Event Class", "Listen failed.", error);
-                    callback.onFailure(error);
-                    return;
-                }
-
-                // Loop setup
-                int total = participantsDocs.size();
-                final int[] fetched = {0};
-                for (DocumentChange dc : participantsDocs.getDocumentChanges()) {
-                    String deviceId = dc.getDocument().getId();
-                    String status = dc.getDocument().get("status", String.class).toString();
-                    switch (dc.getType()) {
-                        case ADDED:
-                            Log.d("Event Class", "New user: " + dc.getDocument().getData());
-
-                            // Fetch User
-                            usersRef.document(deviceId)
-                                    .get()
-                                    .addOnSuccessListener(userDoc -> {
-                                        if (userDoc.exists()) {
-                                            // Add user to list
-                                            addUserToList(userDoc.toObject(User.class), status);
-
-                                            // Check Finish Condition
-                                            fetched[0]++;
-                                            if (fetched[0] >= total) {
-                                                callback.onUpdated();
-                                            }
-                                        }
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Log.e("Event Class", "Unable to fetch user document.");
-                                    });
-                            break;
-
-                        case MODIFIED:  // This may never run, as the document details are mostly static.
-                            Log.d("Event Class", "Modified user: " + dc.getDocument().getData());
-
-                            // Fetch User
-                            usersRef.document(deviceId)
-                                    .get()
-                                    .addOnSuccessListener(userDoc -> {
-                                        if (userDoc.exists()) {
-                                            // Remove from existing lists
-                                            User tmpUser = userDoc.toObject(User.class);
-                                            removeUserFromList(tmpUser);
-
-                                            // Add user to list
-                                            addUserToList(tmpUser, status);
-
-                                            // Check Finish Condition
-                                            fetched[0]++;
-                                            if (fetched[0] >= total) {
-                                                callback.onUpdated();
-                                            }
-                                        }
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Log.e("Event Class", "Unable to fetch user document.");
-                                    });
-                            break;
-
-                        case REMOVED:
-                            Log.d("Event Class", "Removed user: " + dc.getDocument().getData());
-
-                            // DeviceId of removed document needs to be removed from list
-
-                            // Fetch User
-                            usersRef.document(deviceId)
-                                    .get()
-                                    .addOnSuccessListener(userDoc -> {
-                                        if (userDoc.exists()) {
-                                            // Remove user
-                                            removeUserFromList(userDoc.toObject(User.class));
-
-                                            // Check Finish Condition
-                                            fetched[0]++;
-                                            if (fetched[0] >= total) {
-                                                callback.onUpdated();
-                                            }
-                                        }
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Log.e("Event Class", "Unable to fetch user document.");
-                                    });
-                            break;
-                    }
-                }
-            }
-        });
+    public void startListenAllLists(StatusList.ListUpdateListener listener) {
+        if (getWaitingList() != null) getWaitingList().startListening(listener);
+        if (getPendingList() != null) getPendingList().startListening(listener);
+        if (getAcceptedList() != null) getAcceptedList().startListening(listener);
+        if (getDeclinedList() != null) getDeclinedList().startListening(listener);
     }
 
-    /**
-     * Stop fetching realtime updates of participants.
-     */
-    public void stopParticipantsListen() {
-        // Check if listener is active
-        if (participantsListener != null) {
-            participantsListener.remove();
-        }
+    public void stopListenAllLists() {
+        if (waitingList != null) waitingList.stopListening();
+        if (pendingList != null) pendingList.stopListening();
+        if (acceptedList != null) acceptedList.stopListening();
+        if (declinedList != null) declinedList.stopListening();
     }
+
 
     /**
      * Activates an image listener for the given event.

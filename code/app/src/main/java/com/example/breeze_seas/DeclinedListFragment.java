@@ -25,6 +25,23 @@ public class DeclinedListFragment extends Fragment {
     private SessionViewModel sessionViewModel;
     private Event currentEvent;
 
+    private final StatusList.ListUpdateListener liveListener = new StatusList.ListUpdateListener() {
+        @Override
+        public void onUpdate() {
+            if (isAdded()) {
+                waitingProgress.setVisibility(View.GONE);
+                adapter.notifyDataSetChanged();
+            }
+        }
+        @Override
+        public void onError(Exception e) {
+            if (isAdded()) {
+                waitingProgress.setVisibility(View.GONE);
+            }
+        }
+    };
+
+
     public DeclinedListFragment() { }
 
     @Override
@@ -32,7 +49,29 @@ public class DeclinedListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         sessionViewModel = new ViewModelProvider(requireActivity()).get(SessionViewModel.class);
         currentEvent = sessionViewModel.getEventShown().getValue();
+        if (currentEvent != null) {
+            declinedList = currentEvent.getDeclinedList();
+        }
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (declinedList != null) {
+            waitingProgress.setVisibility(View.VISIBLE);
+            declinedList.startListening(liveListener);
+        }
+    }
+
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (declinedList != null) {
+            declinedList.stopListening();
+        }
+    }
+
 
     @Nullable
     @Override
@@ -42,46 +81,24 @@ public class DeclinedListFragment extends Fragment {
         listView = view.findViewById(R.id.declined_frag_list_view);
         waitingProgress = view.findViewById(R.id.declined_list_spinner);
 
-        if (currentEvent != null) {
-            declinedList = new DeclinedList(currentEvent, -1);
-            adapter = new OrganizerListAdapter(getContext(), R.layout.item_organizer_list, declinedList.getUserList(), "Declined", false);
+        if (declinedList != null) {
+            adapter = new OrganizerListAdapter(getContext(), R.layout.item_organizer_list,
+                    declinedList.getUserList(), "Declined", false);
             listView.setAdapter(adapter);
         }
+
 
         return view;
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        refreshDeclinedList();
-    }
-
-    /**
-     * Rebuilds the declined list by fetching the latest participant data from Firestore.
-     * Toggles the visibility of the {@code waitingProgress} spinner during the update
-     * and refreshes the adapter upon success.
-     */
-
-    private void refreshDeclinedList() {
-        if (declinedList == null) return;
-        waitingProgress.setVisibility(View.VISIBLE);
-
-        declinedList.refresh(new StatusList.ListUpdateListener() {
-            @Override
-            public void onUpdate() {
-                if (isAdded()) {
-                    waitingProgress.setVisibility(View.GONE);
-                    adapter.notifyDataSetChanged();
-                }
-            }
-
-            @Override
-            public void onError(Exception e) {
-                if (isAdded()) {
-                    waitingProgress.setVisibility(View.GONE);
-                }
-            }
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        listView.setOnItemClickListener((parent, view1, position, id) -> {
+            User selected = declinedList.getUserList().get(position);
+            ListDialogFragment dialog = new ListDialogFragment(selected,declinedList);
+            dialog.show(getChildFragmentManager(), "Entrant Actions");
         });
     }
+
 }
