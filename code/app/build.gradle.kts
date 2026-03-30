@@ -62,6 +62,7 @@ dependencies {
     implementation("org.osmdroid:osmdroid-android:6.1.18")
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.opencsv:opencsv:5.9")
+    implementation("com.google.mlkit:barcode-scanning:17.3.0")
 }
 
 if (file("google-services.json").exists()) {
