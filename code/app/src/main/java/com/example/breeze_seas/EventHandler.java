@@ -240,7 +240,7 @@ public class EventHandler {
                 // Check for errors
                 if (error != null) {
                     Log.w("EventHandler Class", "Listen failed.", error);
-                    Toast.makeText(context, "EventHolder failed to listen.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "EventHolder failed to load events.", Toast.LENGTH_SHORT).show();
                     // TODO: Stop the app?
                     return;  // This will automatically close listener
                 }
@@ -322,8 +322,6 @@ public class EventHandler {
                 // Unassign reference
                 eventTmp = null;
                 tmpImageDocId = null;
-
-                Toast.makeText(context, "EventHolder failed to listen.", Toast.LENGTH_SHORT).show();
             }
         });
     }
