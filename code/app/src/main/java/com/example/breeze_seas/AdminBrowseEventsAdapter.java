@@ -31,15 +31,38 @@ public class AdminBrowseEventsAdapter extends RecyclerView.Adapter<AdminBrowseEv
         void onEventClick(Event event);
     }
 
+    /**
+     * Interface definition for a callback to be invoked when an event's delete button is pressed.
+     */
+    public interface OnEventDeleteListener {
+        void onEventDelete(Event event);
+    }
+
     private final List<Event> eventList;
     private final OnEventClickListener listener;
+    private final OnEventDeleteListener deleteListener;
 
     /**
      * Constructs a new AdminBrowseEventsAdapter.
      */
-    public AdminBrowseEventsAdapter(List<Event> eventList, OnEventClickListener listener) {
+    public AdminBrowseEventsAdapter(List<Event> eventList, OnEventClickListener listener, OnEventDeleteListener deleteListener) {
         this.eventList = eventList;
         this.listener = listener;
+        this.deleteListener = deleteListener;
+    }
+
+    /**
+     * Removes an event from the list and refreshes the view.
+     *
+     * @param event The event to remove.
+     */
+    public void removeEvent(Event event) {
+        int pos = eventList.indexOf(event);
+        if (pos != -1) {
+            eventList.remove(pos);
+            notifyItemRemoved(pos);
+            notifyItemRangeChanged(pos, eventList.size());
+        }
     }
 
     /**
@@ -96,16 +119,11 @@ public class AdminBrowseEventsAdapter extends RecyclerView.Adapter<AdminBrowseEv
             }
         });
 
-        // delete button clicks
+        // delete button
         holder.btnDelete.setOnClickListener(v -> {
             int currentPosition = holder.getBindingAdapterPosition();
-
-            if (currentPosition != RecyclerView.NO_POSITION) {
-                eventList.remove(currentPosition);
-                notifyItemRemoved(currentPosition);
-                notifyItemRangeChanged(currentPosition, eventList.size());
-
-                // TODO: Complete event deletion functionality:
+            if (currentPosition != RecyclerView.NO_POSITION && deleteListener != null) {
+                deleteListener.onEventDelete(eventList.get(currentPosition));
             }
         });
     }

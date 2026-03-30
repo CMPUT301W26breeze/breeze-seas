@@ -2,25 +2,34 @@ package com.example.breeze_seas;
 
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class EventDB {
     private static FirebaseFirestore db;
     private static CollectionReference eventRef;
     private static boolean setup = false;
+    // Holds the active collection-level listener so it can be detached later
+    private static ListenerRegistration eventsListener;
 
     private EventDB() {
     }
@@ -92,16 +101,105 @@ public class EventDB {
     }
 
     /**
-     * Deletes an event collection from the database.
-     * @param event The event object to delete
-     * @param callback Callback method to run after firebase transaction.
+     * Deletes an event and all of its data from the database.
+     *
+     * <p>The original implementation only deleted the top level event document, leaving behind
+     * orphaned documents in the "participants" subcollection.</p>
+     *
+     * <p>This version first fetches every document in the event's "participants" subcollection,
+     * then uses a {@link WriteBatch} to delete all participant documents and the event document
+     * together in a single write. Either everything is deleted or nothing is.</p>
+     *
+     * @param event    The event to delete.
+     * @param callback Callback fired once all deletes are committed, or on failure.
      */
     public static void deleteEvent(Event event, EventMutationCallback callback) {
         setup();
+        // Fetch the participants subcollection first so we can include them in the batch
         eventRef.document(event.getEventId())
-                .delete()
-                .addOnSuccessListener(unused -> callback.onSuccess())
+                .collection("participants")
+                .get()
+                .addOnSuccessListener(participantSnapshots -> {
+                    WriteBatch batch = db.batch();
+
+                    // Queue each participant document for deletion
+                    for (QueryDocumentSnapshot doc : participantSnapshots) {
+                        batch.delete(doc.getReference());
+                    }
+
+                    // Queue the event document itself for deletion
+                    batch.delete(eventRef.document(event.getEventId()));
+
+                    // Commit everything at once
+                    batch.commit()
+                            .addOnSuccessListener(unused -> callback.onSuccess())
+                            .addOnFailureListener(callback::onFailure);
+                })
                 .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Callbacks fired by the real-time events collection listener.
+     *
+     * <p>Unlike {@link Event#startEventListen}, which watches a single event document,
+     * this listener watches the entire "events" collection. It is intended for admin screens
+     * that need to display and react to changes across all events without a manual refresh.</p>
+     */
+    public interface EventsChangedCallback {
+        void onEventAdded(Event event);
+        void onEventModified(Event event);
+        void onEventRemoved(Event event);
+        void onFailure(Exception e);
+    }
+
+    /**
+     * Attaches a real time listener to the entire "events" collection.
+     * Any add, modify, or delete on any event document fires the appropriate callback.
+     *
+     * @param callback Receives individual change events or errors.
+     */
+    public static void startEventsListen(EventsChangedCallback callback) {
+        setup();
+        eventsListener = eventRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot snapshots,
+                                @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    Log.w("EventDB", "Events listen failed.", error);
+                    callback.onFailure(error);
+                    return;
+                }
+                if (snapshots == null) return;
+
+                // Only process documents that actually changed, not the full collection
+                for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                    Event event = fromSingle(dc.getDocument());
+                    if (event == null) continue;
+                    switch (dc.getType()) {
+                        case ADDED:
+                            callback.onEventAdded(event);
+                            break;
+                        case MODIFIED:
+                            callback.onEventModified(event);
+                            break;
+                        case REMOVED:
+                            callback.onEventRemoved(event);
+                            break;
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Detaches the real-time collection listener.
+     * Called when the screen is torn down to avoid memory leaks.
+     */
+    public static void stopEventsListen() {
+        if (eventsListener != null) {
+            eventsListener.remove();
+            eventsListener = null;
+        }
     }
 
     /**

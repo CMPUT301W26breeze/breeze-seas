@@ -73,6 +73,20 @@ public class AdminBrowseEventsFragment extends Fragment {
                     .replace(R.id.fragment_container, new AdminEventDetailsFragment())
                     .addToBackStack(null)
                     .commit();
+        }, event -> {
+            // Delete button pressed, call the DB, then remove from list only on success
+            EventDB.deleteEvent(event, new EventDB.EventMutationCallback() {
+                @Override
+                public void onSuccess() {
+                    adapter.removeEvent(event);
+                    Toast.makeText(getContext(), "Event deleted", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Toast.makeText(getContext(), "Failed to delete event", Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
         recyclerView.setAdapter(adapter);
