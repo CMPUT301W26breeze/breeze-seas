@@ -200,9 +200,6 @@ public class ProfileFragment extends Fragment {
                     })
                     .show();
 
-
-            Toast.makeText(getContext(), "Delete Profile (TODO)", Toast.LENGTH_SHORT).show();
-
         });
     }
 

@@ -111,7 +111,7 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
         filterButton = view.findViewById(R.id.explore_filter_button);
         searchInput = view.findViewById(R.id.explore_search_input);
         scanQRCodeBtn.setOnClickListener(v -> {
-            // TODO: Bind QR Code Action
+            ((MainActivity) getActivity()).showBottomNav(false);
             ((MainActivity) requireActivity()).openSecondaryFragment(new ScanFragment());
 
         });
