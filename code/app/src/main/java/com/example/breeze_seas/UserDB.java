@@ -2,14 +2,21 @@ package com.example.breeze_seas;
 
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
@@ -26,6 +33,8 @@ import java.util.Objects;
 public class UserDB {
     private final FirebaseFirestore db;
     private final CollectionReference userRef;
+    // Holds the active Firestore snapshot listener so we can detach it later
+    private ListenerRegistration usersListener;
 
 
     public UserDB() {
@@ -149,6 +158,67 @@ public class UserDB {
                 Log.e("DB_UPDATE", "Failed to load user", e);
             }
         });
+    }
+
+    /**
+     * Callbacks fired by the real-time users listener.
+     * Each method corresponds to a type of change in the "users" collection.
+     */
+    public interface UsersChangedCallback {
+        void onUserAdded(User user);      // A new user document appeared
+        void onUserModified(User user);   // An existing user document was updated
+        void onUserRemoved(User user);    // A user document was deleted
+        void onFailure(Exception e);      // Something went wrong with the listener
+    }
+
+    /**
+     * Starts listening to the "users" collection in real time.
+     * Any add, modify, or remove on any user document will fire the appropriate callback.
+     *
+     * @param callback Receives individual change events or errors.
+     */
+    public void startUsersListen(UsersChangedCallback callback) {
+        // Attach a persistent listener — Firestore will push updates automatically
+        usersListener = userRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot snapshots,
+                                @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    Log.w("UserDB", "Users listen failed.", error);
+                    callback.onFailure(error);
+                    return;
+                }
+                if (snapshots == null) return;
+
+                // Process only the documents that changed, not the entire collection
+                for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                    User user = parseUser(dc.getDocument());
+                    switch (dc.getType()) {
+                        case ADDED:
+                            callback.onUserAdded(user);
+                            break;
+                        case MODIFIED:
+                            callback.onUserModified(user);
+                            break;
+                        case REMOVED:
+                            // Fires after the batch commit in deleteUser succeeds
+                            callback.onUserRemoved(user);
+                            break;
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Stops the real-time listener for the "users" collection.
+     * Call this when the UI is torn down to avoid memory leaks.
+     */
+    public void stopUsersListen() {
+        if (usersListener != null) {
+            usersListener.remove();
+            usersListener = null;
+        }
     }
 
     /**
