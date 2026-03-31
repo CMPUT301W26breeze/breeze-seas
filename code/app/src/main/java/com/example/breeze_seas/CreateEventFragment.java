@@ -358,6 +358,7 @@ public class CreateEventFragment extends Fragment {
 
                 Bundle args = new Bundle();
                 args.putString("eventId", eventId);
+                args.putBoolean("isCreated", true);
 
                 ViewQrCodeFragment fragment = new ViewQrCodeFragment();
                 fragment.setArguments(args);

@@ -3,6 +3,7 @@ package com.example.breeze_seas;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,8 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -34,6 +37,7 @@ public class ScanFragment extends Fragment {
 
 
     private PreviewView previewView;
+    private SessionViewModel sessionViewModel;
 
     // Camera set up
     private final ActivityResultLauncher<String> requestPermissionLauncher =
@@ -109,21 +113,44 @@ public class ScanFragment extends Fragment {
                                     for (Barcode barcode : barcodes) {
                                         String rawValue = barcode.getRawValue();
                                         if (rawValue != null) {
-                                            // Successfully scanned! Handle your QR data here
-                                            Toast.makeText(requireContext(), "Scanned: " + rawValue, Toast.LENGTH_SHORT).show();
+                                            // Get the event correspending to the scanned code
+                                            String eventId = rawValue.replace("event:", "");
+                                            EventDB.getEventById(eventId, new EventDB.LoadSingleEventCallback() {
+                                                @Override
+                                                public void onSuccess(Event event) {
+                                                    // Initialize the session view model
+                                                    sessionViewModel = new ViewModelProvider(requireActivity())
+                                                            .get(SessionViewModel.class);
+                                                    sessionViewModel.setEventShown(event);
 
-                                            // Stop analyzing to prevent multiple scans
-                                            imageAnalysis.clearAnalyzer();
+                                                    // Stop analyzing to prevent multiple scans
+                                                    imageAnalysis.clearAnalyzer();
+
+                                                    // Open Event Details Fragment
+                                                    getActivity().getSupportFragmentManager()
+                                                            .beginTransaction()
+                                                            .replace(R.id.fragment_container, new EventDetailsFragment())
+                                                            .addToBackStack(null)
+                                                            .commit();
+                                                }
+
+                                                @Override
+                                                public void onFailure(Exception e) {
+                                                        Log.e("DB UPDATE",
+                                                                "Couldn't fetch event from DB");
+                                                }
+                                            });
+
                                         }
                                     }
                                 })
-                                .addOnCompleteListener(task -> imageProxy.close()); // Crucial to close the frame!
+                                .addOnCompleteListener(task -> imageProxy.close());
                     } else {
                         imageProxy.close();
                     }
                 });
 
-                // 4. Bind to Lifecycle
+
                 CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
                 cameraProvider.unbindAll();
                 cameraProvider.bindToLifecycle(getViewLifecycleOwner(), cameraSelector, preview, imageAnalysis);
