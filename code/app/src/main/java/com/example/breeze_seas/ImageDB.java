@@ -5,16 +5,13 @@ import androidx.annotation.Nullable;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -97,30 +94,6 @@ public class ImageDB {
 
                     String data = documentSnapshot.getString("data");
                     callback.onSuccess(new Image(imageDocId, data));
-                })
-                .addOnFailureListener(callback::onFailure);
-    }
-
-    public interface LoadImagesCallback {
-        void onSuccess(ArrayList<Image> images);
-        void onFailure(Exception e);
-    }
-
-    /**
-     * Fetches all documents from the "images" collection as a one-shot read.
-     *
-     * @param callback Returns the full list of images, or an error.
-     */
-    public static void getAllImages(LoadImagesCallback callback) {
-        setup();
-        imageRef.get()
-                .addOnSuccessListener(querySnapshot -> {
-                    ArrayList<Image> images = new ArrayList<>();
-                    for (QueryDocumentSnapshot doc : querySnapshot) {
-                        String data = doc.getString("data");
-                        images.add(new Image(doc.getId(), data));
-                    }
-                    callback.onSuccess(images);
                 })
                 .addOnFailureListener(callback::onFailure);
     }
