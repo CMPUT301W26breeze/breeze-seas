@@ -10,7 +10,6 @@ import androidx.lifecycle.ViewModel;
 public class SessionViewModel extends ViewModel {
     private final MutableLiveData<String> androidID = new MutableLiveData<>();
     private final MutableLiveData<User> user = new MutableLiveData<>();
-    private EventHandler exploreFragmentEventHandler;
     private final MutableLiveData<Event> eventShown = new MutableLiveData<>();
 
     /**
@@ -44,30 +43,6 @@ public class SessionViewModel extends ViewModel {
      */
     public void setUser(User userInstance) {
         user.setValue(userInstance);
-    }
-
-    /**
-     * Set the explore fragment EventHandler object.
-     * @param eventHandler The EventHandler object pertaining to the explore fragment.
-     */
-    public void setExploreFragmentEventHandler(EventHandler eventHandler) {
-        this.exploreFragmentEventHandler = eventHandler;
-    }
-
-    /**
-     * Gets the EventHandler object to be used in the explore fragment.
-     * @return The EventHandler object pertaining to the explore fragment.
-     */
-    public EventHandler getExploreFragmentEventHandler() {
-        return exploreFragmentEventHandler;
-    }
-
-    /**
-     * Returns the initialization state of the EventHandler object for the explore fragment.
-     * @return Boolean value describing the initialization state of EventHandler
-     */
-    public boolean exploreFragmentEventHandlerIsInitialized() {
-        return exploreFragmentEventHandler != null;
     }
 
     /**

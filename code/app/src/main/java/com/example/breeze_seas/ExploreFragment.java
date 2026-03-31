@@ -33,6 +33,7 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
     private Runnable keywordRunnable;
     private ArrayList<Event> displayedEventList = new ArrayList<>();
     private SessionViewModel viewModel;
+    private ExploreViewModel exploreViewModel;
     private User user;
     private ExploreEventViewAdapter adapter;
 
@@ -66,12 +67,13 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
         user = viewModel.getUser().getValue();
 
         // Setup EventHandler class if necessary
-        if (!viewModel.exploreFragmentEventHandlerIsInitialized()) {
-            viewModel.setExploreFragmentEventHandler(new EventHandler(getContext().getApplicationContext(),
+        exploreViewModel = new ViewModelProvider(requireActivity()).get(ExploreViewModel.class);
+        if (!exploreViewModel.exploreFragmentEventHandlerIsInitialized()) {
+            exploreViewModel.setExploreFragmentEventHandler(new EventHandler(getContext().getApplicationContext(),
                     EventDB.getAllJoinableEventsQuery(user)));
         }
         // Grab reference
-        exploreEventHandler = viewModel.getExploreFragmentEventHandler();
+        exploreEventHandler = exploreViewModel.getExploreFragmentEventHandler();
     }
 
     @Override

@@ -39,6 +39,7 @@ public class EventDetailsFragment extends Fragment {
     private TextView eventInviteDeclinedText;
 
     private SessionViewModel viewModel;
+    private ExploreViewModel exploreViewModel;
     private Event eventShown;
     private WaitingList waitingList;
     private PendingList pendingList;
@@ -70,6 +71,16 @@ public class EventDetailsFragment extends Fragment {
         @Override
         public void onError(Exception e) {
             Log.e("Realtime DB", "Error in listener", e);
+
+            // If list classes listener breaks, the logic for joining an event
+            // would no longer be consistent with the database.
+            // Thus, the best course of action is to leave the page.
+            // Unassign eventShown
+            exploreViewModel.getExploreFragmentEventHandler().setEventShown(null);
+
+            // Return to explore fragment
+            getParentFragmentManager()
+                    .popBackStack();
         }
     };
 
@@ -94,9 +105,11 @@ public class EventDetailsFragment extends Fragment {
         // Setup viewModel
         viewModel = new ViewModelProvider(requireActivity()).get(SessionViewModel.class);
 
-        // Grab event and user from SessionViewModel
+        // Grab event and user from ViewModels
         user = viewModel.getUser().getValue();
-        eventShown = viewModel.getExploreFragmentEventHandler().getEventShown().getValue();
+
+        exploreViewModel = new ViewModelProvider(requireActivity()).get(ExploreViewModel.class);
+        eventShown = exploreViewModel.getExploreFragmentEventHandler().getEventShown().getValue();
         assert eventShown != null;
 
         // Grab references to list classes
@@ -113,7 +126,7 @@ public class EventDetailsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Setup observer on eventShown
-        viewModel.getExploreFragmentEventHandler()
+        exploreViewModel.getExploreFragmentEventHandler()
                 .getEventShown().observe(getViewLifecycleOwner(), e -> {
             // Check if event still exists
             if (e == null) {
