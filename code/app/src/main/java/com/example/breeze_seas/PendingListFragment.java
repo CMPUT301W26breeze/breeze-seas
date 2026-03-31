@@ -32,7 +32,9 @@ public class PendingListFragment extends Fragment {
         @Override
         public void onUpdate() {
             if (isAdded()) {
-                waitingProgress.setVisibility(View.GONE);
+                if (!pendingList.getUserList().isEmpty()) {
+                    waitingProgress.setVisibility(View.GONE);
+                }
                 adapter.notifyDataSetChanged();
             }
         }
@@ -94,11 +96,16 @@ public class PendingListFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState){
         super.onViewCreated(view, savedInstanceState);
+        listView.setRecyclerListener(v-> {
+            v.removeCallbacks(null);
+            v.clearAnimation();
+        });
         listView.setOnItemClickListener((parent, view1, position, id) -> {
             User selected = pendingList.getUserList().get(position);
             ListDialogFragment dialog = new ListDialogFragment(selected,pendingList);
             dialog.show(getChildFragmentManager(), "Entrant Actions");
         });
+
     }
 
 }

@@ -18,6 +18,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
 
@@ -34,7 +35,6 @@ import java.util.Map;
 public class Lottery {
     private final Event event;
     private final WaitingList waitingList;
-    private final PendingList pendingList;
     private final int capacity;
 
      /**
@@ -45,7 +45,6 @@ public class Lottery {
         this.event = event;
         this.capacity = event.getEventCapacity();
         this.waitingList = event.getWaitingList();
-        this.pendingList = event.getPendingList();
     }
 
     /**
@@ -60,56 +59,57 @@ public class Lottery {
      */
 
     public void onRunLottery(StatusList.ListUpdateListener finalListener) {
-
         List<User> pool = waitingList.getUserList();
-
-        if (pool==null || pool.isEmpty()) {
-            if (finalListener != null) {
-                finalListener.onError(new Exception("Cannot run lottery: The waiting list is empty."));
-            }
-            return;
-        }
-
-        FirebaseFirestore db = DBConnector.getDb();
-        db.collection("events").document(event.getEventId())
-                .update("drawARound", FieldValue.increment(1))
-                .addOnFailureListener(e -> {
-                    Log.e("Lottery", "Failed to increment draw round", e);
-                });
-
+        if (pool == null || pool.isEmpty()) return;
 
         Collections.shuffle(pool);
-        int slots= Math.min(capacity, pool.size());
-        final int[] count = {0};
+        int total = Math.min(capacity, pool.size());
+
+        FirebaseFirestore db = DBConnector.getDb();
+        int BATCH_LIMIT = 450;
 
 
-        for (int i = 0; i < slots; i++) {
-            User winner= pool.get(i);
-            pendingList.addUser(winner, new StatusList.ListUpdateListener() {
-                @Override
-                public void onUpdate() {
-                    counter(count, slots, finalListener);
+        final int[] writes = {0};
+        final boolean[] batchError = {false};
+
+        db.collection("events").document(event.getEventId())
+                .update("drawARound", FieldValue.increment(1));
+
+
+        for (int i = 0; i < total; i += BATCH_LIMIT) {
+            WriteBatch batch = db.batch();
+
+            int end = Math.min(i + BATCH_LIMIT, total);
+            int currentBatchSize = end - i;
+
+            for (int j = i; j < end; j++) {
+                User winner = pool.get(j);
+                DocumentReference participantRef = db.collection("events")
+                        .document(event.getEventId())
+                        .collection("participants")
+                        .document(winner.getDeviceId());
+
+                Map<String, Object> update = new HashMap<>();
+                update.put("deviceId", winner.getDeviceId());
+                update.put("status", "pending");
+                batch.set(participantRef, update, SetOptions.merge());
+            }
+
+
+            batch.commit().addOnCompleteListener(task -> {
+                if (!task.isSuccessful()) {
+                    batchError[0] = true;
+                    if (finalListener != null) finalListener.onError(task.getException());
+                    return;
                 }
-                @Override
-                public void onError(Exception e) {
-                    counter(count, slots, finalListener);
+
+                writes[0] += currentBatchSize;
+
+
+                if (writes[0] >= total && !batchError[0]) {
+                    if (finalListener != null) finalListener.onUpdate();
                 }
             });
-        }
-    }
-
-
-     /**
-     * Synchronizes the asynchronous {@code addUser} calls during the lottery draw.
-     * @param count    A single-element integer array used as a mutable counter.
-     * @param total    The total number of winners being processed.
-     * @param listener The listener to trigger once {@code count} reaches {@code total}.
-     */
-
-    private void counter(int[] count, int total, StatusList.ListUpdateListener listener) {
-        count[0]++;
-        if (count[0]==total && listener!=null) {
-            listener.onUpdate();
         }
     }
 }
