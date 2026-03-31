@@ -16,6 +16,11 @@
         <item name="cornerSize">20dp</item>
     </style>
 
+    <style name="RoundedCorners.OrganizeEventEntry" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">14dp</item>
+    </style>
+
     <style name="TextAppearance.Breezeseas.BottomNavigation" parent="TextAppearance.Material3.LabelSmall">
         <item name="android:fontFamily">@font/inter_medium</item>
         <item name="fontFamily">@font/inter_medium</item>

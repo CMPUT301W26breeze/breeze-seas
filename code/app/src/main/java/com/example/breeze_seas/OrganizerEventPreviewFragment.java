@@ -3,6 +3,8 @@ package com.example.breeze_seas;
 import android.app.AlertDialog;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -12,6 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -24,15 +27,16 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * OrganizerEventPreviewFragment displays one organizer-owned event and provides organizer actions
  * such as editing event metadata, managing entrants, and opening the announcement flow.
  */
 public class OrganizerEventPreviewFragment extends Fragment {
-
-    private static final String ARG_EVENT_ID = "eventId";
     private SessionViewModel viewModel;
+    private OrganizeViewModel organizeViewModel;
     private Event currentEvent;
 
     private ImageView posterImageView;
@@ -47,6 +51,7 @@ public class OrganizerEventPreviewFragment extends Fragment {
     private Timestamp regStartDate;
     private Timestamp regEndDate;
     private Image poster;
+    private Image newPoster;
     private String posterBase64 = "";
     private EventCommentsSectionController commentsSectionController;
 
@@ -73,6 +78,50 @@ public class OrganizerEventPreviewFragment extends Fragment {
         super(R.layout.fragment_organizer_event_preview);
     }
 
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Setup viewModels
+        viewModel = new ViewModelProvider(requireActivity()).get(SessionViewModel.class);
+        organizeViewModel = new ViewModelProvider(requireActivity()).get(OrganizeViewModel.class);
+
+        // Grab current event
+        currentEvent = organizeViewModel.getEventHandler().getEventShown().getValue();
+        assert currentEvent != null;
+
+        // Start listeners for participants
+        currentEvent.startListenAllLists(new StatusList.ListUpdateListener() {
+            @Override
+            public void onUpdate() {
+                populateFields(currentEvent);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.e("Realtime DB", "Error in listener", e);
+
+                // If list classes listener breaks, other organizer functionalities break.
+                // Thus, the best course of action is to leave the page.
+                // Unassign eventShown
+                organizeViewModel.getEventHandler().setEventShown(null);
+
+                // Return to explore fragment
+                requireActivity().getSupportFragmentManager().popBackStack();
+            }
+        });
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        // TODO: Stopping all lists will break other organizer functionalities so
+        // TODO: This is commented out for now
+        // TODO: If left unchecked, may lead to memory leaks.
+        //currentEvent.stopListenAllLists();
+    }
+
     /**
      * Binds organizer preview views, wires actions, and starts loading the selected event.
      *
@@ -83,9 +132,33 @@ public class OrganizerEventPreviewFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        viewModel = new ViewModelProvider(requireActivity()).get(SessionViewModel.class);
-
         bindViews(view);
+        // Setup observer on eventShown
+        organizeViewModel.getEventHandler()
+                .getEventShown().observe(getViewLifecycleOwner(), e -> {
+                    // Check if event still exists
+                    if (e == null || e.getEventId() == null || e.getEventId().trim().isEmpty()) {
+
+                        // This happens when the EventHandler detects the event was deleted
+                        // either by the organizer themselves or by other organizers or admin or database authorities
+                        Toast.makeText(requireContext(), "Event deleted.", Toast.LENGTH_SHORT).show();
+
+                        // Return to organize fragment
+                        requireActivity().getSupportFragmentManager().popBackStack();
+                    }
+
+                    // Since reference to the object is the same, the details should be updated automatically.
+                    // Populate views with values.
+                    populateFields(currentEvent);
+                });
+
+        // Setup observer for image
+        currentEvent.getImageData().observe(getViewLifecycleOwner(), image -> {
+            // Just need to update image
+            // Since the triggers for this observer will update the image object within event beforehand
+            // We should be able to just refresh handlePoster using the same object reference.
+            bindPoster(currentEvent.getImage());
+        });
 
         final View actionMenu = view.findViewById(R.id.organizer_event_preview_action_menu);
 
@@ -201,7 +274,6 @@ public class OrganizerEventPreviewFragment extends Fragment {
         });
 
         commentsSectionController = new EventCommentsSectionController(this, view);
-        resolveAndLoadEvent();
     }
 
     /**
@@ -233,71 +305,6 @@ public class OrganizerEventPreviewFragment extends Fragment {
     }
 
     /**
-     * Resolves the event identifier from fragment arguments or shared session state.
-     */
-    private void resolveAndLoadEvent() {
-        String eventId = getArguments() == null ? null : getArguments().getString(ARG_EVENT_ID);
-        if (eventId == null || eventId.trim().isEmpty()) {
-            Event eventShown = viewModel == null ? null : viewModel.getEventShown().getValue();
-            if (eventShown != null) {
-                eventId = eventShown.getEventId();
-            }
-        }
-
-        if (eventId == null || eventId.trim().isEmpty()) {
-            Toast.makeText(requireContext(), "Unable to open event details", Toast.LENGTH_SHORT).show();
-            requireActivity().getSupportFragmentManager().popBackStack();
-            return;
-        }
-
-        loadEvent(eventId);
-    }
-
-    /**
-     * Loads the selected event from {@link EventDB}.
-     *
-     * @param eventId Identifier of the event to display.
-     */
-    private void loadEvent(@NonNull String eventId) {
-        EventDB.getEventById(eventId, new EventDB.LoadSingleEventCallback() {
-            /**
-             * Populates the organizer preview with the loaded event.
-             *
-             * @param event Event loaded from the database, or {@code null} if not found.
-             */
-            @Override
-            public void onSuccess(Event event) {
-                if (!isAdded()) return;
-                if (event == null) {
-                    Toast.makeText(requireContext(), R.string.organizer_event_preview_not_found, Toast.LENGTH_SHORT).show();
-                    requireActivity().getSupportFragmentManager().popBackStack();
-                    return;
-                }
-
-                currentEvent = event;
-                populateFields(event);
-                if (viewModel != null) {
-                    viewModel.setEventShown(event);
-                }
-            }
-            /**
-             * Reports a user-visible error if the event cannot be loaded.
-             *
-             * @param e Failure returned by the event lookup.
-             */
-            @Override
-            public void onFailure(Exception e) {
-                if (!isAdded()) {
-                    return;
-                }
-
-                Toast.makeText(requireContext(), "Failed to load event details", Toast.LENGTH_SHORT).show();
-                requireActivity().getSupportFragmentManager().popBackStack();
-            }
-        });
-    }
-
-    /**
      * Copies event data into the organizer preview form fields.
      *
      * @param event Loaded event whose data should be displayed.
@@ -308,11 +315,11 @@ public class OrganizerEventPreviewFragment extends Fragment {
             return;
         }
 
-
         regStartDate = event.getRegistrationStartTimestamp();
         regEndDate = event.getRegistrationEndTimestamp();
-        // TODO: Fix image handling
         poster = event.getImage();
+        // Set newPoster to also the same object
+        newPoster = poster;
 
         ((android.widget.TextView) root.findViewById(R.id.organizer_event_preview_title)).setText(event.getName());
         ((android.widget.TextView) root.findViewById(R.id.organizer_event_preview_subtitle))
@@ -339,7 +346,10 @@ public class OrganizerEventPreviewFragment extends Fragment {
     private void handleSelectedPoster(@NonNull Uri uri) {
         try {
             posterBase64 = ImageUtils.uriToCompressedBase64(requireContext(), uri);
-            bindPoster(new Image(posterBase64));  // **Image object is never saved, nor uploaded to database
+            // Success, so now create new image object and override newImage holder
+            newPoster = new Image(posterBase64);  // **Image object is never saved, nor uploaded to database on creation
+            newPoster.setImageId(poster.getImageId());  // Set same image ID, database uploads will update the same image document
+            bindPoster(newPoster);
 
         } catch (IOException e) {
             Toast.makeText(requireContext(), "Failed to process image", Toast.LENGTH_SHORT).show();
@@ -372,10 +382,10 @@ public class OrganizerEventPreviewFragment extends Fragment {
                     return;
                 }
 
-                // TODO: Fix API in the future
-                regStartDate = new Timestamp(Instant.ofEpochSecond(selection.first));
-                regEndDate = new Timestamp(Instant.ofEpochSecond(selection.second));
-
+                //SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.US);
+                //sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+                regStartDate = new Timestamp(new Date(selection.first));
+                regEndDate = new Timestamp(new Date(selection.second));
 
                 regFromInput.setText(formatDate(regStartDate));
                 regToInput.setText(formatDate(regEndDate));
@@ -393,7 +403,114 @@ public class OrganizerEventPreviewFragment extends Fragment {
             Toast.makeText(requireContext(), "Event not loaded yet", Toast.LENGTH_SHORT).show();
             return;
         }
-        Toast.makeText(requireContext(), "Editing events is coming soon.", Toast.LENGTH_SHORT).show();
+
+        // Check all values
+        // Name
+        String name = (nameInput.getText()) == null ? "" : nameInput.getText().toString().trim();
+        if (TextUtils.isEmpty(name)) {
+            nameInput.setError("Required");
+            return;
+        }
+
+        // Registration Start and End Timestamps
+        if (regStartDate == null || regEndDate == null) {
+            Toast.makeText(requireContext(), "Please set registration period", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Event Capacity
+        String capText = capacityInput.getText() == null ? "" : capacityInput.getText().toString().trim();
+        Integer eventCap = null;
+        if (TextUtils.isEmpty(capText)) {
+            capacityInput.setError("Number required");
+            return;
+        }
+        if (!TextUtils.isEmpty(capText)) {
+            try {
+                eventCap = Integer.parseInt(capText);
+            } catch (NumberFormatException e) {
+                capacityInput.setError("Enter a valid number");
+                return;
+            }
+        }
+        int normalizedCapacity = eventCap == null ? -1 : eventCap;
+
+        // WaitingList Capacity
+        String waitingListText = (waitingListCapacityInput.getText() == null) ? "" : waitingListCapacityInput.getText().toString().trim();
+        Integer waitingListCap = null;
+        if (TextUtils.isEmpty(waitingListText)) {
+            waitingListCapacityInput.setError("Number required");
+            return;
+        }
+        if (!TextUtils.isEmpty(waitingListText)) {
+            try {
+                waitingListCap = Integer.parseInt(waitingListText);
+            } catch (NumberFormatException e) {
+                waitingListCapacityInput.setError("Enter a valid number");
+                return;
+            }
+        }
+        int normalizedEventWaitingListCapacity = waitingListCap == null ? -1 : waitingListCap;
+
+
+        // Geolocation
+        boolean geoLocation = geoSwitch != null && geoSwitch.isChecked();
+
+        // Details
+        String details = detailsInput.getText() == null ? "" : detailsInput.getText().toString().trim();
+
+        // Check if poster was modified
+        // If poster was modified, newPoster will be a new image object
+        // and the condition below will fail.
+        if (poster != newPoster) {
+            // Update image and upload to database (same document ID)
+            ImageDB.saveImage(newPoster, new ImageDB.ImageMutationCallback() {
+                @Override
+                public void onSuccess() {
+                    // Set the new default image object
+                    poster = newPoster;
+                    // TODO: potentially call update Event from here so that both image
+                    //  and event upload do not run unless image uploads completes
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Log.e("Image DB", "Unable to upload image.", e);
+                }
+            });
+        }
+
+        // Save old copy of event
+        Map<String, Object> oldCopy = currentEvent.toMap();
+
+        // Update values
+        currentEvent.setName(name);
+        currentEvent.setRegistrationStartTimestamp(regStartDate);
+        currentEvent.setRegistrationEndTimestamp(regEndDate);
+        currentEvent.setEventCapacity(normalizedCapacity);
+        currentEvent.setWaitingListCapacity(normalizedEventWaitingListCapacity);
+        //currentEvent.isGeolocationEnforced(geoLocation);  // TODO: Remove geolocation modification??
+        // Does not make sense to change geolocation, otherwise, it is difficult to ensure all previous users have geolocation on
+        currentEvent.setDescription(details);
+
+        // Modify or Update event
+        EventDB.updateEvent(currentEvent, new EventDB.EventMutationCallback() {
+            @Override
+            public void onSuccess() {
+                // If event is successfully modified, the realtime listener from EventHandler should
+                // trigger the observers in this fragment.
+                Toast.makeText(requireContext(), "Event successfully updated.", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e("Event DB", "Unable to modify event", e);
+                Toast.makeText(requireContext(), "Updating event failed. Please try again.", Toast.LENGTH_SHORT).show();
+
+                // Restore object state
+                currentEvent.loadMap(oldCopy);
+            }
+        });
     }
 
     /**
@@ -430,7 +547,22 @@ public class OrganizerEventPreviewFragment extends Fragment {
         if (currentEvent == null) {
             return;
         }
-        Toast.makeText(requireContext(), "Deleting events is coming soon.", Toast.LENGTH_SHORT).show();
+        // Delete Event
+        EventDB.deleteEvent(currentEvent, new EventDB.EventMutationCallback() {
+            @Override
+            public void onSuccess() {
+                Log.d("Event DB", "Event deletion success!");
+                // If event is successfully deleted, the realtime listener from EventHandler should
+                // trigger the observers in this fragment, leading the user back to the organizer
+                // fragment.
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e("Event DB", "Unable to delete event", e);
+                Toast.makeText(requireContext(), "Deleting event failed. Please try again.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /**
@@ -497,7 +629,7 @@ public class OrganizerEventPreviewFragment extends Fragment {
      * Opens the map view fragment
      */
 
-    private void openMapFragment(){
+    private void openMapFragment() {
 
         if (currentEvent == null) {
             Toast.makeText(requireContext(), "Event not loaded yet", Toast.LENGTH_SHORT).show();

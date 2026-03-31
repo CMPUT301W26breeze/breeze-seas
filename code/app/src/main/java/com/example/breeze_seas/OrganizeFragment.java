@@ -3,11 +3,11 @@ package com.example.breeze_seas;
 import android.app.AlertDialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,15 +33,38 @@ import java.util.Locale;
  */
 public class OrganizeFragment extends Fragment {
 
-    private final List<Event> events = new ArrayList<>();
+    private ArrayList<Event> events;
     private EventAdapter adapter;
     private SessionViewModel viewModel;
+    private OrganizeViewModel organizeViewModel;
+    private EventHandler organizeEventHandler;
+    private User user;
 
     /**
      * Creates the top-level organizer fragment using the shared organize layout.
      */
     public OrganizeFragment() {
         super(R.layout.fragment_organize);
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Setup viewModel
+        viewModel = new ViewModelProvider(requireActivity()).get(SessionViewModel.class);
+        user = viewModel.getUser().getValue();
+
+        // Setup EventHandler class if necessary
+        organizeViewModel = new ViewModelProvider(requireActivity()).get(OrganizeViewModel.class);
+        if (!organizeViewModel.eventHandlerIsInitialized()) {
+            organizeViewModel.setEventHandler(new EventHandler(getContext().getApplicationContext(),
+                    EventDB.getAllEventsOrganizedByUserQuery(user), false));
+        }
+        // Save reference to EventHandler list of events
+        events = organizeViewModel.getEventHandler().getEvents().getValue();
+        // Grab reference
+        organizeEventHandler = organizeViewModel.getEventHandler();
     }
 
     /**
@@ -53,7 +76,13 @@ public class OrganizeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        viewModel = new ViewModelProvider(requireActivity()).get(SessionViewModel.class);
+
+        // Get realtime updated events from organizeEventHandler
+        // The observer also runs on startup.
+        organizeEventHandler.getEvents().observe(getViewLifecycleOwner(), updatedEvents -> {
+            // Ignore the updatedEvents as the fragment's event list is already the same reference to the EventHandler
+            loadEvents();
+        });
 
         RecyclerView rv = view.findViewById(R.id.rvMyEvents);
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -161,35 +190,13 @@ public class OrganizeFragment extends Fragment {
     }
 
     /**
-     * Loads all events from {@link EventDB}, filters them to the current organizer, and refreshes
-     * the RecyclerView adapter.
+     * Refresh the RecyclerView adapter to show all events that are
+     * organized by the current user (co-organizer or original organizer)
      */
     private void loadEvents() {
-        EventDB.getAllEvents(new EventDB.LoadEventsCallback() {
-            /**
-             * Replaces the visible organizer event list with the freshly loaded results.
-             *
-             * @param loadedEvents Events returned by {@link EventDB}.
-             */
-            @Override
-            public void onSuccess(ArrayList<Event> loadedEvents) {
-                events.clear();
-                events.addAll(filterEventsForCurrentOrganizer(loadedEvents));
-                if (adapter != null) {
-                    adapter.notifyDataSetChanged();
-                }
-            }
-
-            /**
-             * Reports a user-visible error if organizer events cannot be loaded.
-             *
-             * @param e Failure returned by the event-loading request.
-             */
-            @Override
-            public void onFailure(Exception e) {
-                Toast.makeText(requireContext(), "Failed to load events", Toast.LENGTH_SHORT).show();
-            }
-        });
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
     }
 
     /**
@@ -198,46 +205,11 @@ public class OrganizeFragment extends Fragment {
      * @param event Organizer-owned event selected from the list.
      */
     private void openEventPreview(@NonNull Event event) {
-        if (viewModel != null) {
-            viewModel.setEventShown(event);
-        }
+        // Set Event Shown for OrganizerEventPreviewFragment
+        organizeEventHandler.setEventShown(event);
 
-        Bundle args = new Bundle();
-        args.putString("eventId", event.getEventId());
-
-        OrganizerEventPreviewFragment fragment = new OrganizerEventPreviewFragment();
-        fragment.setArguments(args);
-        ((MainActivity) requireActivity()).openSecondaryFragment(fragment);
-    }
-
-    /**
-     * Filters a loaded event list down to the events owned by the current organizer device id.
-     *
-     * @param loadedEvents Events returned from {@link EventDB}, or {@code null}.
-     * @return Organizer-owned events, or all loaded events when no organizer id is available.
-     */
-    @NonNull
-    private List<Event> filterEventsForCurrentOrganizer(@Nullable List<Event> loadedEvents) {
-        if (loadedEvents == null) {
-            return new ArrayList<>();
-        }
-
-        String currentOrganizerId = null;
-        if (viewModel != null && viewModel.getAndroidID().getValue() != null) {
-            currentOrganizerId = viewModel.getAndroidID().getValue();
-        }
-
-        if (currentOrganizerId == null || currentOrganizerId.trim().isEmpty()) {
-            return new ArrayList<>(loadedEvents);
-        }
-
-        List<Event> filteredEvents = new ArrayList<>();
-        for (Event event : loadedEvents) {
-            if (event != null && currentOrganizerId.equals(event.getOrganizerId())) {
-                filteredEvents.add(event);
-            }
-        }
-        return filteredEvents;
+        // Switch to Organizer Event Preview fragment
+        ((MainActivity) requireActivity()).openSecondaryFragment(new OrganizerEventPreviewFragment());
     }
 
     /**
@@ -275,6 +247,7 @@ public class OrganizeFragment extends Fragment {
          * ViewHolder that caches the views used by a single organizer event row.
          */
         static class VH extends RecyclerView.ViewHolder {
+            FrameLayout ivPosterFrame;
             ImageView ivPoster;
             TextView tvName, tvDates, tvCap, tvDetails, tvAction;
 
@@ -285,6 +258,7 @@ public class OrganizeFragment extends Fragment {
              */
             VH(@NonNull View itemView) {
                 super(itemView);
+                ivPosterFrame = itemView.findViewById(R.id.ivEventPosterFrame);
                 ivPoster = itemView.findViewById(R.id.ivEventPoster);
                 tvName = itemView.findViewById(R.id.tvEventName);
                 tvDates = itemView.findViewById(R.id.tvEventDates);
@@ -319,12 +293,21 @@ public class OrganizeFragment extends Fragment {
         public void onBindViewHolder(@NonNull VH holder, int position) {
             Event e = data.get(position);
 
+            // Handle Image
             holder.ivPoster.setImageResource(R.drawable.ic_image_placeholder);
+            holder.ivPoster.setVisibility(View.GONE);
+            holder.ivPosterFrame.setVisibility(View.GONE);
             if (e.getImage() != null) {
                 try {
+                    // Show image if possible
                     holder.ivPoster.setImageBitmap(e.getImage().display());
+                    holder.ivPoster.setVisibility(View.VISIBLE);
+                    holder.ivPosterFrame.setVisibility(View.VISIBLE);
                 } catch (Exception ignored) {
+                    // Hide image
                     holder.ivPoster.setImageResource(R.drawable.ic_image_placeholder);
+                    holder.ivPoster.setVisibility(View.GONE);
+                    holder.ivPosterFrame.setVisibility(View.GONE);
                 }
             }
 

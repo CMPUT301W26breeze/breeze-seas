@@ -18,6 +18,8 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
@@ -27,6 +29,7 @@ import java.util.Objects;
  */
 public class EventHandler {
     private Context context;
+    private final boolean searchFilterEnabled;
     private ListenerRegistration eventHandlerListener = null;
     private final HashMap<String, Event> imageListeners = new HashMap<String, Event>();
     private final Observer<Image> imageObserver = new Observer<Image>() {
@@ -36,18 +39,21 @@ public class EventHandler {
         }
     };
     private final Query query;
-    private final ArrayList<Event> queryListOfEvents = new ArrayList<Event>();
+    private final HashMap<String, Event> queryHashMapOfEvents = new HashMap<String, Event>();
     private String keywordString = "";
     private final MutableLiveData<ArrayList<Event>> filteredListOfEventsData = new MutableLiveData<>(new ArrayList<Event>());
     private final MutableLiveData<Event> eventShownData = new MutableLiveData<>();
 
     /**
      * Creates EventHandler based on passed query.
+     * @param context Context object used for displaying toast messages.
      * @param q Query to generate events from.
+     * @param enableSearchFilter Boolean dictating whether filter computations should be enabled or not.
      */
-    public EventHandler(Context context, Query q) {
+    public EventHandler(Context context, Query q, boolean enableSearchFilter) {
         this.context = context;
         this.query = q;
+        this.searchFilterEnabled = enableSearchFilter;
         startListen();
     }
 
@@ -76,11 +82,47 @@ public class EventHandler {
         ArrayList<Event> filteredEvents = filteredListOfEventsData.getValue();
         filteredEvents.clear();
 
+        // Check if filtering is enabled
+        if (!searchFilterEnabled) {
+            // Simply copy over
+            filteredEvents.addAll(queryHashMapOfEvents.values());
+            return;
+        }
+
         // Apply filter
-        for (Event e : queryListOfEvents) {
+        for (Event e : queryHashMapOfEvents.values()) {
             if (matchesFilter(e)) {
                 filteredEvents.add(e);
             }
+        }
+    }
+
+    /**
+     * Sorts the filteredListOfEvents in a specified order.
+     * If search filter is enabled, sorted order is by registration deadline.
+     * If search filter is disabled, sorted order is by creation date, latest at the top.
+     * Notifying observers is done by {@link EventHandler#post()}
+     */
+    private void sort() {
+        if (searchFilterEnabled) {  // Used by explore fragment
+            // Sort by registration deadline.
+            filteredListOfEventsData.getValue().sort(new Comparator<Event>() {
+                @Override
+                public int compare(Event event, Event t1) {
+                    // event compared to t1 -> most upcoming deadlines at the top
+                    return event.getRegistrationEndTimestamp().compareTo(t1.getRegistrationEndTimestamp());
+                }
+            });
+        } else {  // Used by organize fragment
+            // Sort by creation date.
+            filteredListOfEventsData.getValue().sort(new Comparator<Event>() {
+                @Override
+                public int compare(Event event, Event t1) {
+                    // t1 compared to event -> latest at the top
+                    return t1.getCreatedTimestamp().compareTo(event.getCreatedTimestamp());
+                }
+            });
+
         }
     }
 
@@ -106,9 +148,9 @@ public class EventHandler {
     public void setKeywordString(String keywordString) {
         this.keywordString = keywordString.trim().toLowerCase(Locale.US);
         filter();
+        sort();
         post();
     }
-
 
     /**
      * Returns the list of event to be shown in the adapter.
@@ -150,32 +192,22 @@ public class EventHandler {
     /**
      * Helper method to find and return event object based on eventId.
      * @param eventId String to identify the event object by.
-     * @return Event object if present in list, otherwise null.
+     * @return Event object if present in query hashmap, otherwise null.
      */
-    private Event findEventById(String eventId) {
-        for (Event e: queryListOfEvents) {
-            if (Objects.equals(e.getEventId(), eventId)) {
-                return e;
-            }
-        }
-        return null;
+    public Event findEventById(String eventId) {
+        return queryHashMapOfEvents.get(eventId);
     }
 
     /**
-     * Helper method to remove the event object from list.
+     * Helper method to remove the event object from query hashmap.
      * @param eventId String to identify the event object to be removed.
      */
     private void removeEventById(String eventId) {
-        for (Event e: queryListOfEvents) {
-            if (Objects.equals(e.getEventId(), eventId)) {
-                queryListOfEvents.remove(e);
-                break;
-            }
-        }
+        queryHashMapOfEvents.remove(eventId);
     }
 
     /**
-     * Helper method to save references to the hashmap for management purposes.
+     * Helper method to save references to the image listeners hashmap for management purposes.
      * @param e Event class to initialize image listener from.
      * @param imageDocId DocumentId to set the listener to listen at.
      */
@@ -190,10 +222,10 @@ public class EventHandler {
             return;
         }
 
-        // Start listener
+        // Start firebase cloud listener
         e.startImageListen(imageDocId);
 
-        // Start observer
+        // Start MutableDataLive observer
         e.getImageData().observeForever(imageObserver);
 
         // Add to hashmap
@@ -201,7 +233,7 @@ public class EventHandler {
     }
 
     /**
-     * Helper method to deactivate listeners from the hashmap for management purposes.
+     * Helper method to deactivate listeners from the image listeners hashmap for management purposes.
      * @param eventId Event object to remove listener from.
      */
     private void removeImageListener(String eventId) {
@@ -213,11 +245,36 @@ public class EventHandler {
                 return;
             }
 
-            // Stop observer
+            // Stop MutableDataLive observer
             e.getImageData().removeObserver(imageObserver);
 
-            // Stop listener
+            // Stop firebase cloud listener
             e.stopImageListen();
+        }
+    }
+
+    /**
+     * Helper method to deactivate all image listeners from the image listeners hashmap.
+     * Only useful when the query realtime listener fails.
+     */
+    private void removeAllImageListeners() {
+        for (Event e: imageListeners.values()) {
+            // Stop MutableDataLive observer
+            e.getImageData().removeObserver(imageObserver);
+
+            // Stop firebase cloud listener
+            e.stopImageListen();
+        }
+    }
+
+    /**
+     * Helper method to deactivate all participants listeners from all held events.
+     * Only useful when the query realtime listener fails.
+     */
+    private void removeAllParticipantsListeners() {
+        for (Event e: queryHashMapOfEvents.values()) {
+            // Stop firebase cloud listener for all list classes
+            e.stopListenAllLists();
         }
     }
 
@@ -230,8 +287,8 @@ public class EventHandler {
             return;
         }
 
-        // Clear Event list before starting listener
-        queryListOfEvents.clear();
+        // Clear Event hashmap before starting listener
+        queryHashMapOfEvents.clear();
 
         eventHandlerListener = query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -240,7 +297,13 @@ public class EventHandler {
                 // Check for errors
                 if (error != null) {
                     Log.w("EventHandler Class", "Listen failed.", error);
-                    Toast.makeText(context, "EventHolder failed to load events.", Toast.LENGTH_SHORT).show();
+                    // Stop all list classes listeners (the participants)
+                    removeAllParticipantsListeners();
+
+                    // Stop all image listeners
+                    removeAllImageListeners();
+
+                    Toast.makeText(context, "EventHandler failed to load events.", Toast.LENGTH_SHORT).show();
                     // TODO: Stop the app?
                     return;  // This will automatically close listener
                 }
@@ -255,7 +318,7 @@ public class EventHandler {
 
                             // Create event
                             eventTmp = new Event(dc.getDocument().getData());
-                            queryListOfEvents.add(eventTmp);
+                            queryHashMapOfEvents.put(eventTmp.getEventId(), eventTmp);
 
                             // Attach image listeners if applicable
                             tmpImageDocId = dc.getDocument().getData().get("imageDocId");
@@ -301,6 +364,12 @@ public class EventHandler {
                         case REMOVED:
                             Log.d("EventHandler Class", "Removed event: " + dc.getDocument().getData());
 
+                            // Remove list classes listeners (the participants)
+                            eventTmp = findEventById(dc.getDocument().getId());
+                            if (eventTmp != null) {
+                                eventTmp.stopListenAllLists();
+                            }
+
                             // Detach image listeners if applicable
                             removeImageListener(dc.getDocument().getId());
 
@@ -317,6 +386,7 @@ public class EventHandler {
                 }
                 // Recompute after processing changes
                 filter();
+                sort();
                 post();
 
                 // Unassign reference

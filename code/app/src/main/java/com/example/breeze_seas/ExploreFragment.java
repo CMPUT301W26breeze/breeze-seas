@@ -68,8 +68,6 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
         super(R.layout.fragment_explore);
     }
 
-
-
     @Override
     public void recyclerViewListClicked(View v, int position) {
         // Code for event entry being clicked
@@ -97,12 +95,12 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
 
         // Setup EventHandler class if necessary
         exploreViewModel = new ViewModelProvider(requireActivity()).get(ExploreViewModel.class);
-        if (!exploreViewModel.exploreFragmentEventHandlerIsInitialized()) {
-            exploreViewModel.setExploreFragmentEventHandler(new EventHandler(getContext().getApplicationContext(),
-                    EventDB.getAllJoinableEventsQuery(user)));
+        if (!exploreViewModel.eventHandlerIsInitialized()) {
+            exploreViewModel.setEventHandler(new EventHandler(getContext().getApplicationContext(),
+                    EventDB.getAllJoinableEventsQuery(user), true));
         }
         // Grab reference
-        exploreEventHandler = exploreViewModel.getExploreFragmentEventHandler();
+        exploreEventHandler = exploreViewModel.getEventHandler();
     }
 
     @Override
