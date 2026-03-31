@@ -1,5 +1,7 @@
 package com.example.breeze_seas;
 
+import static android.view.View.INVISIBLE;
+
 import android.content.ContentValues;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -60,11 +62,20 @@ public class ViewQrCodeFragment extends Fragment {
         viewModel = new ViewModelProvider(requireActivity()).get(SessionViewModel.class);
 
         String eventId = getArguments() == null ? null : getArguments().getString("eventId");
+        Boolean isCreated = getArguments() == null ? null : getArguments().getBoolean("isCreated");
 
+        TextView tvTitle = view.findViewById(R.id.tvTitle);
         TextView tvEventName = view.findViewById(R.id.tvEventName);
         ImageView ivQr = view.findViewById(R.id.ivQr);
         Button saveQrButton = view.findViewById(R.id.btnSaveQr);
+        Button manageEntrantsButton = view.findViewById(R.id.btnManageEntrants);
         saveQrButton.setOnClickListener(v -> maybeSaveQr());
+
+        if (!isCreated) {
+            tvTitle.setVisibility(INVISIBLE);
+            manageEntrantsButton.setVisibility(INVISIBLE);
+        }
+
 
         if (eventId != null) {
             EventDB.getEventById(eventId, new EventDB.LoadSingleEventCallback() {
@@ -77,7 +88,7 @@ public class ViewQrCodeFragment extends Fragment {
                         currentEventName = event.getName();
                         currentQrBitmap = makeQr("event:" + event.getEventId());
                         ivQr.setImageBitmap(currentQrBitmap);
-                        view.findViewById(R.id.btnManageEntrants).setOnClickListener(v ->
+                        manageEntrantsButton.setOnClickListener(v ->
                                 openManageEntrantsFragment(event)
                         );
                     } else {

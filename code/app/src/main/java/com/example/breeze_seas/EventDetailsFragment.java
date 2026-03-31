@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
 import java.text.SimpleDateFormat;
@@ -47,6 +48,8 @@ public class EventDetailsFragment extends Fragment {
     private DeclinedList declinedList;
     private User user;
     private EventCommentsSectionController commentsSectionController;
+
+
     private final androidx.activity.result.ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new androidx.activity.result.contract.ActivityResultContracts.RequestPermission(), isGranted -> {
                 joinWaitingListButton.setEnabled(true);
@@ -107,17 +110,27 @@ public class EventDetailsFragment extends Fragment {
 
         // Grab event and user from ViewModels
         user = viewModel.getUser().getValue();
-
+      
         exploreViewModel = new ViewModelProvider(requireActivity()).get(ExploreViewModel.class);
         eventShown = exploreViewModel.getExploreFragmentEventHandler().getEventShown().getValue();
         assert eventShown != null;
+
+        // Get the transaction sitting directly behind the current fragment
+        FragmentManager fm = getParentFragmentManager();
+        int backStackCount = fm.getBackStackEntryCount();
+        FragmentManager.BackStackEntry previousEntry = fm.getBackStackEntryAt(backStackCount - 1);
+        String previousFragmentTag = previousEntry.getName();
+
+        // If the fragment is created by ScanFragment
+        if ("Scan QR Code".equals(previousFragmentTag)) {
+            eventShown = viewModel.getEventShown().getValue();
+        }
 
         // Grab references to list classes
         waitingList = eventShown.getWaitingList();
         pendingList = eventShown.getPendingList();
         acceptedList = eventShown.getAcceptedList();
         declinedList = eventShown.getDeclinedList();
-
     }
 
 
@@ -128,17 +141,17 @@ public class EventDetailsFragment extends Fragment {
         // Setup observer on eventShown
         exploreViewModel.getExploreFragmentEventHandler()
                 .getEventShown().observe(getViewLifecycleOwner(), e -> {
-            // Check if event still exists
-            if (e == null) {
-                // Return to explore fragment
-                getParentFragmentManager()
-                        .popBackStack();
-            }
+                    // Check if event still exists
+                    if (e == null) {
+                        // Return to explore fragment
+                        getParentFragmentManager()
+                                .popBackStack();
+                    }
 
-            // Since reference to the object is the same, the details should be updated automatically.
-            updateView();
-            showOption(user);
-        });
+                    // Since reference to the object is the same, the details should be updated automatically.
+                    updateView();
+                    showOption(user);
+                });
 
         // Setup observer for image
         eventShown.getImageData().observe(getViewLifecycleOwner(), image -> {
@@ -165,12 +178,22 @@ public class EventDetailsFragment extends Fragment {
         returnButton = view.findViewById(R.id.event_details_return_button);
         returnButton.setOnClickListener(v -> {
             getParentFragmentManager()
-                    .popBackStack();
+                   .popBackStack();
+
         });
 
         viewQRCodeButton = view.findViewById(R.id.event_details_view_QRCode_button);
         viewQRCodeButton.setOnClickListener(v -> {
-            // TODO: implement logic to show QRCode
+            Bundle args = new Bundle();
+            args.putString("eventId", eventShown.getEventId());
+            args.putBoolean("isCreated", false);
+            ViewQrCodeFragment fragment = new ViewQrCodeFragment();
+            fragment.setArguments(args);
+
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .commit();
         });
 
         // TODO: Fix logic as list classes are now real time, consistent with the database.

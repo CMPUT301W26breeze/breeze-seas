@@ -153,4 +153,5 @@
     <string name="view_qr_code_save_failure">Unable to save QR code right now.</string>
     <string name="view_qr_code_save_unavailable">QR code is not ready yet.</string>
     <string name="view_qr_code_save_permission_denied">Storage permission is needed to save on this device.</string>
+    <string name="scan_qr_code_to_find_an_event">Scan QR Code to find an event</string>
 </resources>

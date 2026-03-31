@@ -1,5 +1,6 @@
 package com.example.breeze_seas;
 
+import android.Manifest;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -7,15 +8,30 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageAnalysis;
+import androidx.camera.core.Preview;
+import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.mlkit.vision.barcode.BarcodeScanner;
+import com.google.mlkit.vision.barcode.BarcodeScanning;
+import com.google.mlkit.vision.barcode.common.Barcode;
+import com.google.mlkit.vision.common.InputImage;
+
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 /*** ExploreFragment is a top-level destination accessible via Bottom Navigation.
  *
@@ -40,6 +56,8 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
     public ExploreFragment() {
         super(R.layout.fragment_explore);
     }
+
+
 
     @Override
     public void recyclerViewListClicked(View v, int position) {
@@ -95,7 +113,9 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
         filterButton = view.findViewById(R.id.explore_filter_button);
         searchInput = view.findViewById(R.id.explore_search_input);
         scanQRCodeBtn.setOnClickListener(v -> {
-            // TODO: Bind QR Code Action
+            ((MainActivity) getActivity()).showBottomNav(false);
+            ((MainActivity) requireActivity()).openSecondaryFragment(new ScanFragment());
+
         });
         filterButton.setOnClickListener(v ->
                 ((MainActivity) requireActivity()).openSecondaryFragment(new FilterFragment())
