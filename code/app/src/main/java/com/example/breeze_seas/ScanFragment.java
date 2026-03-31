@@ -40,18 +40,6 @@ public class ScanFragment extends Fragment {
     private SessionViewModel sessionViewModel;
     private boolean isProcessingScan = false;
 
-    // Camera set up
-    private final ActivityResultLauncher<String> requestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    startCamera();
-                } else {
-                    Toast.makeText(requireContext(),
-                            "Camera is needed to scan QR codes",
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
-
 
     @Nullable
     @Override
@@ -79,14 +67,7 @@ public class ScanFragment extends Fragment {
             }
         });
 
-        // Check if we already have permission
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
-                == PackageManager.PERMISSION_GRANTED) {
-            startCamera();
-        } else {
-            // Ask for permission
-            requestPermissionLauncher.launch(Manifest.permission.CAMERA);
-        }
+        startCamera();
     }
 
     private void startCamera() {

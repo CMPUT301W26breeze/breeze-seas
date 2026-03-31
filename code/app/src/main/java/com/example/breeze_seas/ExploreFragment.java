@@ -1,6 +1,7 @@
 package com.example.breeze_seas;
 
 import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -52,6 +53,16 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
     private ExploreViewModel exploreViewModel;
     private User user;
     private ExploreEventViewAdapter adapter;
+
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    ((MainActivity) getActivity()).showBottomNav(false);
+                    ((MainActivity) requireActivity()).openSecondaryFragment(new ScanFragment());
+                } else {
+                    Toast.makeText(requireContext(), "Camera permission is required to scan QR codes.", Toast.LENGTH_SHORT).show();
+                }
+            });
 
     public ExploreFragment() {
         super(R.layout.fragment_explore);
@@ -113,8 +124,15 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
         filterButton = view.findViewById(R.id.explore_filter_button);
         searchInput = view.findViewById(R.id.explore_search_input);
         scanQRCodeBtn.setOnClickListener(v -> {
-            ((MainActivity) getActivity()).showBottomNav(false);
-            ((MainActivity) requireActivity()).openSecondaryFragment(new ScanFragment());
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+                    == PackageManager.PERMISSION_GRANTED) {
+                ((MainActivity) getActivity()).showBottomNav(false);
+                ((MainActivity) requireActivity()).openSecondaryFragment(new ScanFragment());
+            } else {
+                // Ask for permission
+                requestPermissionLauncher.launch(Manifest.permission.CAMERA);
+            }
+
 
         });
         filterButton.setOnClickListener(v ->
