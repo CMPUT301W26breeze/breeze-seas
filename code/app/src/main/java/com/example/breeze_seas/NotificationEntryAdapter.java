@@ -18,10 +18,18 @@ import java.util.Locale;
 // TODO: (Optional) combine this with other adapter classes
 public class NotificationEntryAdapter extends RecyclerView.Adapter<NotificationEntryAdapter.NotificationViewHolder> {
 
+    public interface OnNotificationClickListener {
+        void onNotificationClick(Notification notification);
+    }
+
+
+    private OnNotificationClickListener listener;
+
     private List<Notification> notificationList;
 
-    public NotificationEntryAdapter(List<Notification> notificationList) {
+    public NotificationEntryAdapter(List<Notification> notificationList,OnNotificationClickListener listener) {
         this.notificationList = notificationList;
+        this.listener=listener;
     }
 
     @Override
@@ -36,6 +44,10 @@ public class NotificationEntryAdapter extends RecyclerView.Adapter<NotificationE
         Notification notification = notificationList.get(position);
 
         holder.messageText.setText(notification.getDisplayMessage());
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) listener.onNotificationClick(notification);
+        });
+
         bindTypePresentation(holder, notification);
 
         if (notification.getSentAt() != null) {

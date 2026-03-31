@@ -178,23 +178,37 @@ public class CoOrganizerFragment extends Fragment {
         new AlertDialog.Builder(requireContext())
                 .setTitle("Promote User")
                 .setMessage("Add " + user.getUserName() + " as a Co-Organizer?")
-                .setPositiveButton("Confirm", (d, w) -> promoteInDb(user.getDeviceId()))
+                .setPositiveButton("Confirm", (d, w) -> promoteInDb(user))
                 .setNegativeButton("Cancel", null)
                 .show();
     }
 
-    private void promoteInDb(String deviceId) {
+
+    private void promoteInDb(User targetUser) {
         Event event = sessionViewModel.getEventShown().getValue();
         if (event == null) return;
 
-        FirebaseFirestore db = DBConnector.getDb();
-        db.collection("events").document(event.getEventId())
-                .update("coOrganizerId", FieldValue.arrayUnion(deviceId))
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(getContext(), "Promoted", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+
+        // Create the invite notification
+        Notification invite = new Notification(
+                NotificationType.CO_ORG_INVITE,
+                "Co-Organizer Invitation",
+                event.getEventId(),
+                event.getName(),
+                targetUser.getDeviceId()
+        );
+
+
+        NotificationService service = new NotificationService();
+        service.sendNotification(invite).addOnSuccessListener(aVoid -> {
+            Toast.makeText(getContext(), "Invitation sent to " + targetUser.getUserName(), Toast.LENGTH_SHORT).show();
+        }).addOnFailureListener(e -> {
+            Toast.makeText(getContext(), "Failed to send invite", Toast.LENGTH_SHORT).show();
+        });
     }
+
+
+
 
     @Override
     public void onStop() {
