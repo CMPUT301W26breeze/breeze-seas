@@ -33,7 +33,6 @@ public class Event {
     private String name;
     private String description;
     private MutableLiveData<Image> image = new MutableLiveData<Image>();
-    private String qrValue;
     private Timestamp createdTimestamp;
     private Timestamp modifiedTimestamp;
     private Timestamp registrationStartTimestamp;
@@ -49,7 +48,6 @@ public class Event {
     private AcceptedList acceptedList;
     private DeclinedList declinedList;
     private ListenerRegistration eventListener = null;
-    private ListenerRegistration participantsListener = null;
     private ListenerRegistration imageListener = null;
 
     /**
@@ -61,7 +59,6 @@ public class Event {
      * @param name Display name of the event.
      * @param description Organizer-provided description.
      * @param image Image object.
-     * @param qrValue QR payload associated with the event.
      * @param createdTimestamp Timestamp when the event was created.
      * @param modifiedTimestamp Timestamp when the event was last modified.
      * @param registrationStartTimestamp Registration opening timestamp.
@@ -84,7 +81,6 @@ public class Event {
                  String name,
                  String description,
                  Image image,
-                 String qrValue,
                  Timestamp createdTimestamp,
                  Timestamp modifiedTimestamp,
                  Timestamp registrationStartTimestamp,
@@ -106,7 +102,6 @@ public class Event {
         this.name = name;
         this.description = description;
         this.image.setValue(image);
-        this.qrValue = qrValue;
         this.createdTimestamp = createdTimestamp;
         this.modifiedTimestamp = modifiedTimestamp;
         this.registrationStartTimestamp = registrationStartTimestamp;
@@ -142,7 +137,6 @@ public class Event {
      * @param name Display name of the event.
      * @param description Organizer-provided description.
      * @param image Image object.
-     * @param qrValue QR payload associated with the event.
      * @param registrationStartTimestamp Registration opening timestamp.
      * @param registrationEndTimestamp Registration closing timestamp.
      * @param eventStartTimestamp Event start timestamp.
@@ -156,7 +150,6 @@ public class Event {
                  String name,
                  String description,
                  Image image,
-                 String qrValue,
                  Timestamp registrationStartTimestamp,
                  Timestamp registrationEndTimestamp,
                  Timestamp eventStartTimestamp,
@@ -171,7 +164,6 @@ public class Event {
         this.name = name;
         this.description = description;
         this.image.setValue(image);
-        this.qrValue = qrValue;
         this.createdTimestamp = Timestamp.now();  // Use timestamp at creation
         this.modifiedTimestamp = Timestamp.now();  // Use timestamp at creation
         this.registrationStartTimestamp = registrationStartTimestamp;
@@ -202,7 +194,6 @@ public class Event {
         this.name = null;
         this.description = null;
         this.image.setValue(null);
-        this.qrValue = null;
         this.geolocationEnforced = false;
         this.createdTimestamp = Timestamp.now();  // Use timestamp at creation
         this.modifiedTimestamp = Timestamp.now();  // Use timestamp at creation
@@ -232,7 +223,6 @@ public class Event {
         map.put("name", getName());
         map.put("description", getDescription());
         map.put("imageDocId", (getImage() != null) ? getImage().getImageId() : null);
-        map.put("qrValue", getQrValue());
         map.put("createdTimestamp", getCreatedTimestamp());
         map.put("modifiedTimestamp", getModifiedTimestamp());
         map.put("registrationStartTimestamp", getRegistrationStartTimestamp());
@@ -259,9 +249,6 @@ public class Event {
         this.coOrganizerId = (ArrayList<String>) map.get("coOrganizerId");
         this.name = map.get("name").toString();
         this.description = (map.get("description") == null) ? "" : map.get("description").toString();
-
-        // Qr Code
-        this.qrValue = (map.get("qrValue") == null) ? "" : map.get("qrValue").toString();
 
         // Timestamps
         this.createdTimestamp = (Timestamp) map.get("createdTimestamp");
@@ -453,22 +440,6 @@ public class Event {
      */
     public Bitmap getImageBitmap() {
         return (this.image.getValue() == null) ? null : this.image.getValue().display();
-    }
-
-    /**
-     * Returns the QR payload associated with the event.
-     * @return QR payload string.
-     */
-    public String getQrValue() {
-        return qrValue;
-    }
-
-    /**
-     * Updates the QR payload associated with the event.
-     * @param qrValue QR payload string to store.
-     */
-    public void setQrValue(String qrValue) {
-        this.qrValue = qrValue;
     }
 
     /**
@@ -916,11 +887,6 @@ public class Event {
         }
     }
 
-    public interface ParticipantsUpdatedCallback {
-        void onUpdated();
-        void onFailure(Exception e);
-    }
-
     public void startListenAllLists(StatusList.ListUpdateListener listener) {
         if (getWaitingList() != null) getWaitingList().startListening(listener);
         if (getPendingList() != null) getPendingList().startListening(listener);
@@ -1066,7 +1032,7 @@ public class Event {
     /**
      * Generates a string representation of the event object.
      * Useful when filtering for specific keywords.
-     * @return
+     * @return A string representation of the event object.
      */
     public String toString() {
         String tmp;

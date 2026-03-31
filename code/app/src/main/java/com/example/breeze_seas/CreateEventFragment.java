@@ -323,7 +323,6 @@ public class CreateEventFragment extends Fragment {
                 name,
                 details,
                 newImage[0],
-                "",  // TODO: QR Value
                 new Timestamp(new Date(regFromMillis)),
                 new Timestamp(new Date(regToMillis)),
                 null,
