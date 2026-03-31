@@ -229,35 +229,6 @@ public class UserDB {
     }
 
     /**
-     * Interface definition for a callback to be invoked when all users are loaded or fails.
-     */
-    public interface LoadUsersCallback {
-        void onSuccess(ArrayList<User> users);
-        void onFailure(Exception e);
-    }
-
-    /**
-     * Fetches all user documents from the "users" collection.
-     * Results are returned via the provided {@link LoadUsersCallback}.
-     *
-     * @param callback The callback listener to handle the retrieved list or errors.
-     */
-    public void getAllUsers(LoadUsersCallback callback) {
-        userRef.get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    ArrayList<User> users = new ArrayList<>();
-                    for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
-                        users.add(parseUser(doc));
-                    }
-                    callback.onSuccess(users);
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("DB_ERROR", "Error fetching all users", e);
-                    callback.onFailure(e);
-                });
-    }
-
-    /**
      * Fetches a user document from Firestore.
      * Results are returned via the provided {@link OnUserLoadedListener}.
      *

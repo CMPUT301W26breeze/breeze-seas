@@ -120,6 +120,7 @@ public class Notification {
      * different types of notifications.
      */
     public String getDisplayMessage() {
+        if (type == null) return content != null ? content : "";
         switch (type) {
             case WIN:
                 return "Congratulations! You won the lottery for " + eventName + "!";

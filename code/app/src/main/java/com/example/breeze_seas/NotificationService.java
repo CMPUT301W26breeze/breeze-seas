@@ -116,7 +116,13 @@ public class NotificationService {
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<Notification> notifications = new ArrayList<>();
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        notifications.add(doc.toObject(Notification.class));
+                        try {
+                            // toObject maps the "type" field to a NotificationType enum value.
+                            // There may be some notifications with unrecognized type?
+                            notifications.add(doc.toObject(Notification.class));
+                        } catch (RuntimeException e) {
+                            Log.w("DB_ERROR", "Skipping notification with unrecognised type: " + doc.getId(), e);
+                        }
                     }
                     listener.onNotificationLoaded(notifications);
                 })

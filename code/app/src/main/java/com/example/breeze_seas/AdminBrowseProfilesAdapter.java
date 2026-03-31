@@ -43,6 +43,17 @@ public class AdminBrowseProfilesAdapter extends RecyclerView.Adapter<AdminBrowse
     }
 
     /**
+     * Replaces the full user list from the LiveData source, then refilters.
+     * Called by the fragment whenever the LiveData updates.
+     *
+     * @param newUsers The updated list of users.
+     */
+    public void updateList(List<User> newUsers) {
+        fullList.clear();
+        fullList.addAll(newUsers);
+    }
+
+    /**
      * Filters the displayed list based on a search query.
      * Matches against display name, username, and device ID (case-insensitive).
      *
