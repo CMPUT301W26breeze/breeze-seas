@@ -182,6 +182,14 @@ public abstract class StatusList {
         if (user == null || user.getDeviceId() == null) {
             return;
         }
+
+        if (this.capacity > 0 && getSize() >= this.capacity) {
+            if (listener != null) {
+                listener.onError(new Exception("This list is currently full (" + capacity + ")."));
+            }
+            return;
+        }
+
         FirebaseFirestore db = DBConnector.getDb();
         DocumentReference participantRef = db.collection("events")
                 .document(event.getEventId())
