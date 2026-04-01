@@ -239,6 +239,9 @@ public abstract class StatusList {
                             user.setDeviceId(userDoc.getId());
                             if (!userIsInList(user)) {
                                 userList.add(user);
+                                if (listener != null) {
+                                    listener.onUpdate();
+                                }
                             }
                         }
                     }

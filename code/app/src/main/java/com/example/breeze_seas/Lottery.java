@@ -1,46 +1,31 @@
 package com.example.breeze_seas;
 
-
-import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
-import androidx.annotation.NonNull;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.viewpager2.widget.ViewPager2;
-
-import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.tabs.TabLayoutMediator;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
-
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
- /**
-  * Handles entrant selection process of an event by running a lottery
-  * to pick random entrants.
-  */
- 
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
+/**
+ * Handles entrant selection process of an event by running a lottery
+ * to pick random entrants.
+ */
 public class Lottery {
     private final Event event;
     private final WaitingList waitingList;
     private final int capacity;
 
-     /**
-      * Lottery constructor
-      * @param event {@link Event} object
-      */
+    /**
+     * Lottery constructor
+     * @param event {@link Event} object
+     */
     public Lottery(Event event) {
         this.event = event;
         this.capacity = event.getEventCapacity();
@@ -49,19 +34,13 @@ public class Lottery {
 
     /**
      * Executes the lottery selection process.
-     * <p>
-     * This method refreshes the {@code waitingList}, increments the {@code drawARound}
-     * counter in Firestore, shuffles the pool of users to ensure randomness, and
-     * moves a number of users (up to the {@code capacity}) into the {@code pendingList}.
-     * </p>
-     * @param finalListener The {@link StatusList.ListUpdateListener} to notify when the
-     * entire lottery process and all database changes are complete.
+     * @param finalListener The {@link StatusList.ListUpdateListener} to notify when complete.
      */
-
     public void onRunLottery(StatusList.ListUpdateListener finalListener) {
         FirebaseFirestore db = DBConnector.getDb();
+        String eventId = event.getEventId();
 
-        db.collection("events").document(event.getEventId())
+        db.collection("events").document(eventId)
                 .collection("participants")
                 .whereIn("status", java.util.Arrays.asList("pending", "accepted"))
                 .get()
@@ -75,7 +54,6 @@ public class Lottery {
                         return;
                     }
 
-
                     int remainingSpots = capacity - currentOccupancy;
                     List<User> pool = waitingList.getUserList();
 
@@ -84,28 +62,29 @@ public class Lottery {
                         return;
                     }
 
-
                     Collections.shuffle(pool);
                     int totalToSelect = Math.min(remainingSpots, pool.size());
 
 
-                    int BATCH_LIMIT = 450;
-                    final int[] writes = {0};
-                    final boolean[] batchError = {false};
+                    final List<User> winners = new ArrayList<>(pool.subList(0, totalToSelect));
 
 
-                    db.collection("events").document(event.getEventId())
+                    final AtomicInteger writesCompleted = new AtomicInteger(0);
+                    final AtomicBoolean hasFailed = new AtomicBoolean(false);
+                    final int BATCH_LIMIT = 450;
+
+                    db.collection("events").document(eventId)
                             .update("drawARound", FieldValue.increment(1));
 
                     for (int i = 0; i < totalToSelect; i += BATCH_LIMIT) {
                         WriteBatch batch = db.batch();
                         int end = Math.min(i + BATCH_LIMIT, totalToSelect);
-                        int currentBatchSize = end - i;
+                        final int currentBatchSize = end - i;
 
                         for (int j = i; j < end; j++) {
-                            User winner = pool.get(j);
+                            User winner = winners.get(j);
                             DocumentReference participantRef = db.collection("events")
-                                    .document(event.getEventId())
+                                    .document(eventId)
                                     .collection("participants")
                                     .document(winner.getDeviceId());
 
@@ -116,14 +95,16 @@ public class Lottery {
                         }
 
                         batch.commit().addOnCompleteListener(task -> {
+                            if (hasFailed.get()) return;
+
                             if (!task.isSuccessful()) {
-                                batchError[0] = true;
+                                hasFailed.set(true);
                                 if (finalListener != null) finalListener.onError(task.getException());
                                 return;
                             }
 
-                            writes[0] += currentBatchSize;
-                            if (writes[0] >= totalToSelect && !batchError[0]) {
+
+                            if (writesCompleted.addAndGet(currentBatchSize) >= totalToSelect) {
                                 if (finalListener != null) finalListener.onUpdate();
                             }
                         });
