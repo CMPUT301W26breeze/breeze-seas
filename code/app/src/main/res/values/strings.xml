@@ -62,6 +62,8 @@
     <string name="organize_title">Organize</string>
     <string name="organize_subtitle">Create events, manage entrants, and keep your organizer flow in one place.</string>
     <string name="organize_create_event">Create Event</string>
+    <string name="organize_event_type_public">Public</string>
+    <string name="organize_event_type_private">Private</string>
     <string name="organize_event_no_description">No event description added yet.</string>
     <string name="organize_event_open_preview">Open Preview</string>
     <string name="explore_title">Explore</string>

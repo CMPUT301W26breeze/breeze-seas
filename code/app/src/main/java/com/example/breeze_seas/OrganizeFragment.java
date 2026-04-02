@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -249,7 +250,7 @@ public class OrganizeFragment extends Fragment {
         static class VH extends RecyclerView.ViewHolder {
             FrameLayout ivPosterFrame;
             ImageView ivPoster;
-            TextView tvName, tvDates, tvCap, tvDetails, tvAction;
+            TextView tvName, tvTypeChip, tvDates, tvCap, tvDetails, tvAction;
 
             /**
              * Creates a ViewHolder for one organizer event row.
@@ -261,6 +262,7 @@ public class OrganizeFragment extends Fragment {
                 ivPosterFrame = itemView.findViewById(R.id.ivEventPosterFrame);
                 ivPoster = itemView.findViewById(R.id.ivEventPoster);
                 tvName = itemView.findViewById(R.id.tvEventName);
+                tvTypeChip = itemView.findViewById(R.id.tvEventTypeChip);
                 tvDates = itemView.findViewById(R.id.tvEventDates);
                 tvCap = itemView.findViewById(R.id.tvEventCapacity);
                 tvDetails = itemView.findViewById(R.id.tvEventDetails);
@@ -312,6 +314,16 @@ public class OrganizeFragment extends Fragment {
             }
 
             holder.tvName.setText(e.getName());
+            holder.tvTypeChip.setText(e.isPrivate()
+                    ? R.string.organize_event_type_private
+                    : R.string.organize_event_type_public);
+            holder.tvTypeChip.setBackgroundResource(e.isPrivate()
+                    ? R.drawable.bg_ticket_status_solid
+                    : R.drawable.bg_ticket_status_outline);
+            holder.tvTypeChip.setTextColor(ContextCompat.getColor(
+                    holder.itemView.getContext(),
+                    e.isPrivate() ? R.color.white : R.color.text_primary
+            ));
 
             SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.US);
             //sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
