@@ -1,11 +1,18 @@
 package com.example.breeze_seas;
 
+import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
+import android.view.LayoutInflater;
 import android.widget.ImageView;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -13,22 +20,19 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.datepicker.MaterialDatePicker;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 import com.google.firebase.Timestamp;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
+import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 import java.util.Map;
-import java.util.TimeZone;
 
 /**
  * OrganizerEventPreviewFragment displays one organizer-owned event and provides organizer actions
@@ -38,11 +42,14 @@ public class OrganizerEventPreviewFragment extends Fragment {
     private SessionViewModel viewModel;
     private OrganizeViewModel organizeViewModel;
     private Event currentEvent;
+    private boolean deleteInProgress = false;
 
     private ImageView posterImageView;
     private TextInputEditText nameInput;
     private TextInputEditText regFromInput;
     private TextInputEditText regToInput;
+    private TextInputEditText eventStartInput;
+    private TextInputEditText eventEndInput;
     private TextInputEditText capacityInput;
     private TextInputEditText waitingListCapacityInput;
     private TextInputEditText detailsInput;
@@ -50,10 +57,16 @@ public class OrganizerEventPreviewFragment extends Fragment {
 
     private Timestamp regStartDate;
     private Timestamp regEndDate;
+    private Timestamp eventStartDate;
+    private Timestamp eventEndDate;
     private Image poster;
     private Image newPoster;
     private String posterBase64 = "";
     private EventCommentsSectionController commentsSectionController;
+
+    private interface DateTimeSelectionListener {
+        void onSelected(@NonNull Timestamp timestamp);
+    }
 
     private final ActivityResultLauncher<String> pickImage =
             registerForActivityResult(new ActivityResultContracts.GetContent(), new androidx.activity.result.ActivityResultCallback<Uri>() {
@@ -95,11 +108,17 @@ public class OrganizerEventPreviewFragment extends Fragment {
         currentEvent.startListenAllLists(new StatusList.ListUpdateListener() {
             @Override
             public void onUpdate() {
+                if (deleteInProgress) {
+                    return;
+                }
                 populateFields(currentEvent);
             }
 
             @Override
             public void onError(Exception e) {
+                if (deleteInProgress) {
+                    return;
+                }
                 Log.e("Realtime DB", "Error in listener", e);
 
                 // If list classes listener breaks, other organizer functionalities break.
@@ -138,17 +157,29 @@ public class OrganizerEventPreviewFragment extends Fragment {
                 .getEventShown().observe(getViewLifecycleOwner(), e -> {
                     // Check if event still exists
                     if (e == null || e.getEventId() == null || e.getEventId().trim().isEmpty()) {
+                        if (deleteInProgress) {
+                            if (isAdded()) {
+                                requireActivity().getSupportFragmentManager().popBackStack();
+                            }
+                            return;
+                        }
 
                         // This happens when the EventHandler detects the event was deleted
                         // either by the organizer themselves or by other organizers or admin or database authorities
-                        Toast.makeText(requireContext(), "Event deleted.", Toast.LENGTH_SHORT).show();
+                        if (isAdded()) {
+                            Toast.makeText(requireContext(), "Event deleted.", Toast.LENGTH_SHORT).show();
+                        }
 
                         // Return to organize fragment
-                        requireActivity().getSupportFragmentManager().popBackStack();
+                        if (isAdded()) {
+                            requireActivity().getSupportFragmentManager().popBackStack();
+                        }
+                        return;
                     }
 
                     // Since reference to the object is the same, the details should be updated automatically.
                     // Populate views with values.
+                    currentEvent = e;
                     populateFields(currentEvent);
                 });
 
@@ -207,12 +238,27 @@ public class OrganizerEventPreviewFragment extends Fragment {
              */
             @Override
             public void onClick(View v) {
-                openDateRangePicker();
+                openRegistrationStartPicker();
             }
         };
         view.findViewById(R.id.organizer_event_preview_reg_period_button).setOnClickListener(dateClickListener);
         regFromInput.setOnClickListener(dateClickListener);
-        regToInput.setOnClickListener(dateClickListener);
+        regToInput.setOnClickListener(v -> openRegistrationEndPicker());
+
+        View.OnClickListener eventScheduleClickListener = new View.OnClickListener() {
+            /**
+             * Opens the event schedule picker for the organizer.
+             *
+             * @param v Schedule-related view that was tapped.
+             */
+            @Override
+            public void onClick(View v) {
+                openEventStartPicker();
+            }
+        };
+        view.findViewById(R.id.organizer_event_preview_event_period_button).setOnClickListener(eventScheduleClickListener);
+        eventStartInput.setOnClickListener(eventScheduleClickListener);
+        eventEndInput.setOnClickListener(v -> openEventEndPicker());
 
         view.findViewById(R.id.organizer_event_preview_save_button).setOnClickListener(new View.OnClickListener() {
             /**
@@ -318,6 +364,8 @@ public class OrganizerEventPreviewFragment extends Fragment {
         nameInput = view.findViewById(R.id.organizer_event_preview_name_input);
         regFromInput = view.findViewById(R.id.organizer_event_preview_reg_from_input);
         regToInput = view.findViewById(R.id.organizer_event_preview_reg_to_input);
+        eventStartInput = view.findViewById(R.id.organizer_event_preview_event_start_input);
+        eventEndInput = view.findViewById(R.id.organizer_event_preview_event_end_input);
         capacityInput = view.findViewById(R.id.organizer_event_preview_capacity_input);
         waitingListCapacityInput = view.findViewById(R.id.organizer_event_preview_waiting_list_capacity_input);
         detailsInput = view.findViewById(R.id.organizer_event_preview_details_input);
@@ -337,6 +385,8 @@ public class OrganizerEventPreviewFragment extends Fragment {
 
         regStartDate = event.getRegistrationStartTimestamp();
         regEndDate = event.getRegistrationEndTimestamp();
+        eventStartDate = event.getEventStartTimestamp();
+        eventEndDate = event.getEventEndTimestamp();
         poster = event.getImage();
         // Set newPoster to also the same object
         newPoster = poster;
@@ -350,8 +400,10 @@ public class OrganizerEventPreviewFragment extends Fragment {
         }
 
         nameInput.setText(event.getName());
-        regFromInput.setText(formatDate(regStartDate));
-        regToInput.setText(formatDate(regEndDate));
+        regFromInput.setText(EventMetadataUtils.formatDateTime(regStartDate));
+        regToInput.setText(EventMetadataUtils.formatDateTime(regEndDate));
+        eventStartInput.setText(EventMetadataUtils.formatDateTime(eventStartDate));
+        eventEndInput.setText(EventMetadataUtils.formatDateTime(eventEndDate));
         capacityInput.setText(event.getEventCapacity() < 0 ? "" : String.valueOf(event.getEventCapacity()));
         waitingListCapacityInput.setText(event.getWaitingListCapacity() < 0 ? "" : String.valueOf(event.getWaitingListCapacity()));
         detailsInput.setText(event.getDescription());
@@ -381,42 +433,135 @@ public class OrganizerEventPreviewFragment extends Fragment {
     }
 
     /**
-     * Opens the registration-range picker and updates the displayed range when confirmed.
+     * Opens the registration-start date-time picker.
      */
-    private void openDateRangePicker() {
-        MaterialDatePicker.Builder<androidx.core.util.Pair<Long, Long>> builder =
-                MaterialDatePicker.Builder.dateRangePicker()
-                        .setTheme(R.style.ThemeOverlay_Breezeseas_DateRangePicker)
-                        .setTitleText("Select registration period");
-
-        if (regStartDate != null && regEndDate != null) {
-            builder.setSelection(new androidx.core.util.Pair<>(regStartDate.toDate().getTime(), regEndDate.toDate().getTime()));
-        }
-
-        MaterialDatePicker<androidx.core.util.Pair<Long, Long>> picker = builder.build();
-        picker.addOnPositiveButtonClickListener(new com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener<androidx.core.util.Pair<Long, Long>>() {
-            /**
-             * Stores the selected registration range and updates the visible date fields.
-             *
-             * @param selection Selected registration start and end dates.
-             */
-            @Override
-            public void onPositiveButtonClick(androidx.core.util.Pair<Long, Long> selection) {
-                if (selection == null) {
-                    return;
+    private void openRegistrationStartPicker() {
+        openDateTimePicker(
+                "organizer_reg_start",
+                getString(R.string.create_event_registration_start_picker_title),
+                regStartDate,
+                timestamp -> {
+                    regStartDate = timestamp;
+                    regFromInput.setText(EventMetadataUtils.formatDateTime(regStartDate));
                 }
+        );
+    }
 
-                //SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.US);
-                //sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-                regStartDate = new Timestamp(new Date(selection.first));
-                regEndDate = new Timestamp(new Date(selection.second));
+    /**
+     * Opens the registration-end date-time picker.
+     */
+    private void openRegistrationEndPicker() {
+        openDateTimePicker(
+                "organizer_reg_end",
+                getString(R.string.create_event_registration_end_picker_title),
+                regEndDate,
+                timestamp -> {
+                    regEndDate = timestamp;
+                    regToInput.setText(EventMetadataUtils.formatDateTime(regEndDate));
+                }
+        );
+    }
 
-                regFromInput.setText(formatDate(regStartDate));
-                regToInput.setText(formatDate(regEndDate));
+    /**
+     * Opens the event-start date-time picker.
+     */
+    private void openEventStartPicker() {
+        openDateTimePicker(
+                "organizer_event_start",
+                getString(R.string.create_event_schedule_start_picker_title),
+                eventStartDate,
+                timestamp -> {
+                    eventStartDate = timestamp;
+                    eventStartInput.setText(EventMetadataUtils.formatDateTime(eventStartDate));
+                }
+        );
+    }
+
+    /**
+     * Opens the event-end date-time picker.
+     */
+    private void openEventEndPicker() {
+        openDateTimePicker(
+                "organizer_event_end",
+                getString(R.string.create_event_schedule_end_picker_title),
+                eventEndDate,
+                timestamp -> {
+                    eventEndDate = timestamp;
+                    eventEndInput.setText(EventMetadataUtils.formatDateTime(eventEndDate));
+                }
+        );
+    }
+
+    /**
+     * Opens a Material date picker followed by a time picker for one editable date-time field.
+     *
+     * @param tagPrefix Fragment-manager tag prefix for the picker dialogs.
+     * @param title Title shown on the picker surfaces.
+     * @param currentValue Existing timestamp to seed the pickers with.
+     * @param listener Callback that receives the combined timestamp.
+     */
+    private void openDateTimePicker(
+            @NonNull String tagPrefix,
+            @NonNull String title,
+            @Nullable Timestamp currentValue,
+            @NonNull DateTimeSelectionListener listener
+    ) {
+        Long currentMillis = currentValue == null ? null : currentValue.toDate().getTime();
+        MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker()
+                .setTheme(R.style.ThemeOverlay_Breezeseas_DateRangePicker)
+                .setTitleText(title)
+                .setSelection(EventMetadataUtils.toDatePickerSelection(currentMillis))
+                .build();
+
+        datePicker.addOnPositiveButtonClickListener(selection -> {
+            if (selection == null) {
+                return;
             }
+            openTimePicker(tagPrefix, title, currentMillis, selection, listener);
         });
 
-        picker.show(getParentFragmentManager(), "organizer_reg_range");
+        datePicker.show(getParentFragmentManager(), tagPrefix + "_date");
+    }
+
+    /**
+     * Opens the time portion of the organizer date-time picker flow.
+     *
+     * @param tagPrefix Fragment-manager tag prefix for the picker dialogs.
+     * @param title Title shown on the picker surface.
+     * @param currentMillis Existing millis to seed the picker with.
+     * @param selectedUtcDateMillis Date chosen from MaterialDatePicker.
+     * @param listener Callback that receives the combined timestamp.
+     */
+    private void openTimePicker(
+            @NonNull String tagPrefix,
+            @NonNull String title,
+            @Nullable Long currentMillis,
+            long selectedUtcDateMillis,
+            @NonNull DateTimeSelectionListener listener
+    ) {
+        Calendar calendar = Calendar.getInstance();
+        if (currentMillis != null) {
+            calendar.setTimeInMillis(currentMillis);
+        }
+
+        MaterialTimePicker timePicker = new MaterialTimePicker.Builder()
+                .setTitleText(title)
+                .setTimeFormat(DateFormat.is24HourFormat(requireContext())
+                        ? TimeFormat.CLOCK_24H
+                        : TimeFormat.CLOCK_12H)
+                .setHour(calendar.get(Calendar.HOUR_OF_DAY))
+                .setMinute(calendar.get(Calendar.MINUTE))
+                .build();
+
+        timePicker.addOnPositiveButtonClickListener(v -> listener.onSelected(
+                new Timestamp(new Date(EventMetadataUtils.combineUtcDateWithLocalTime(
+                        selectedUtcDateMillis,
+                        timePicker.getHour(),
+                        timePicker.getMinute()
+                )))
+        ));
+
+        timePicker.show(getParentFragmentManager(), tagPrefix + "_time");
     }
 
     /**
@@ -438,7 +583,27 @@ public class OrganizerEventPreviewFragment extends Fragment {
 
         // Registration Start and End Timestamps
         if (regStartDate == null || regEndDate == null) {
-            Toast.makeText(requireContext(), "Please set registration period", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.create_event_set_registration_period, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (eventStartDate == null || eventEndDate == null) {
+            Toast.makeText(requireContext(), R.string.create_event_set_schedule, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (regStartDate.toDate().getTime() >= regEndDate.toDate().getTime()) {
+            Toast.makeText(requireContext(), R.string.create_event_registration_order_error, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (eventStartDate.toDate().getTime() > eventEndDate.toDate().getTime()) {
+            Toast.makeText(requireContext(), R.string.create_event_schedule_order_error, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (regEndDate.toDate().getTime() > eventStartDate.toDate().getTime()) {
+            Toast.makeText(requireContext(), R.string.create_event_schedule_conflict_error, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -511,6 +676,8 @@ public class OrganizerEventPreviewFragment extends Fragment {
         currentEvent.setName(name);
         currentEvent.setRegistrationStartTimestamp(regStartDate);
         currentEvent.setRegistrationEndTimestamp(regEndDate);
+        currentEvent.setEventStartTimestamp(eventStartDate);
+        currentEvent.setEventEndTimestamp(eventEndDate);
         currentEvent.setEventCapacity(normalizedCapacity);
         currentEvent.setWaitingListCapacity(normalizedEventWaitingListCapacity);
         //currentEvent.isGeolocationEnforced(geoLocation);  // TODO: Remove geolocation modification??
@@ -545,23 +712,51 @@ public class OrganizerEventPreviewFragment extends Fragment {
             return;
         }
 
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle(R.string.organizer_event_preview_delete_title)
-                .setMessage(R.string.organizer_event_preview_delete_message)
-                .setNegativeButton(android.R.string.cancel, null)
-                .setPositiveButton(R.string.organizer_event_preview_delete_confirm, new android.content.DialogInterface.OnClickListener() {
-                    /**
-                     * Deletes the current event after the organizer confirms the action.
-                     *
-                     * @param dialog Dialog that collected the delete confirmation.
-                     * @param which Button identifier chosen by the user.
-                     */
-                    @Override
-                    public void onClick(android.content.DialogInterface dialog, int which) {
-                        deleteCurrentEvent();
-                    }
-                })
-                .show();
+        View dialogView = LayoutInflater.from(requireContext())
+                .inflate(R.layout.dialog_ticket_confirmation, null, false);
+
+        TextView titleView = dialogView.findViewById(R.id.dialog_title);
+        TextView messageView = dialogView.findViewById(R.id.dialog_message);
+        Button primaryButton = dialogView.findViewById(R.id.dialog_primary_button);
+        Button secondaryButton = dialogView.findViewById(R.id.dialog_secondary_button);
+
+        titleView.setText(R.string.organizer_event_preview_delete_title);
+        messageView.setText(R.string.organizer_event_preview_delete_message);
+        primaryButton.setText(R.string.organizer_event_preview_delete_confirm);
+        secondaryButton.setText(android.R.string.cancel);
+
+        Dialog dialog = new Dialog(requireContext());
+        dialog.setContentView(dialogView);
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        primaryButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Deletes the current event after the organizer confirms the action.
+             *
+             * @param v Primary confirmation button that was tapped.
+             */
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                deleteCurrentEvent();
+            }
+        });
+        secondaryButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Cancels the delete flow and closes the confirmation dialog.
+             *
+             * @param v Secondary cancel button that was tapped.
+             */
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
     }
 
     /**
@@ -571,18 +766,22 @@ public class OrganizerEventPreviewFragment extends Fragment {
         if (currentEvent == null) {
             return;
         }
+        deleteInProgress = true;
         // Delete Event
         EventDB.deleteEvent(currentEvent, new EventDB.EventMutationCallback() {
             @Override
             public void onSuccess() {
                 Log.d("Event DB", "Event deletion success!");
-                // If event is successfully deleted, the realtime listener from EventHandler should
-                // trigger the observers in this fragment, leading the user back to the organizer
-                // fragment.
+                currentEvent.stopListenAllLists();
+                organizeViewModel.getEventHandler().setEventShown(null);
+                if (viewModel != null) {
+                    viewModel.setEventShown(null);
+                }
             }
 
             @Override
             public void onFailure(Exception e) {
+                deleteInProgress = false;
                 Log.e("Event DB", "Unable to delete event", e);
                 Toast.makeText(requireContext(), "Deleting event failed. Please try again.", Toast.LENGTH_SHORT).show();
             }
@@ -744,16 +943,5 @@ public class OrganizerEventPreviewFragment extends Fragment {
         } catch (Exception ignored) {
             posterImageView.setImageResource(R.drawable.ic_image_placeholder);
         }
-    }
-
-    /**
-     * Formats a timestamp into the organizer preview date label.
-     *
-     * @param timestamp The timestamp to format.
-     * @return Display-ready date string.
-     */
-    private String formatDate(Timestamp timestamp) {
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.US);
-        return sdf.format(new Date(timestamp.toDate().getTime()));
     }
 }
