@@ -18,6 +18,8 @@
     <string name="edits_first_name">Edits first name</string>
     <string name="edits_user_name">Edits user name</string>
     <string name="profile_subtitle">Keep your identity details and notification preferences up to date.</string>
+    <string name="profile_choose_photo">Choose Photo</string>
+    <string name="profile_photo_content_description">Profile photo</string>
     <string name="get_started">Get Started</string>
     <string name="welcome_brand">Breeze</string>
     <string name="welcome_headline">Community events,\nwithout the rush.</string>

@@ -106,6 +106,7 @@ public class AdminBrowseProfilesAdapter extends RecyclerView.Adapter<AdminBrowse
         holder.tvUserName.setText("Name: " + getDisplayName(user));
         holder.tvUsername.setText("User Name: " + (user.getUserName() != null ? user.getUserName() : "-"));
         holder.tvDeviceId.setText("Device ID: " + (user.getDeviceId() != null ? user.getDeviceId() : "-"));
+        bindProfileImage(holder, user);
 
         holder.btnDelete.setOnClickListener(v -> {
             int currentPosition = holder.getBindingAdapterPosition();
@@ -118,6 +119,56 @@ public class AdminBrowseProfilesAdapter extends RecyclerView.Adapter<AdminBrowse
     @Override
     public int getItemCount() {
         return filteredList.size();
+    }
+
+    private void bindProfileImage(@NonNull ProfileViewHolder holder, @NonNull User user) {
+        holder.ivAvatar.setImageResource(R.drawable.ic_profile);
+        holder.ivAvatar.setTag(user.getDeviceId());
+
+        Image profileImage = user.getProfileImage();
+        if (profileImage != null) {
+            try {
+                holder.ivAvatar.setImageBitmap(profileImage.display());
+                return;
+            } catch (Exception ignored) {
+                holder.ivAvatar.setImageResource(R.drawable.ic_profile);
+            }
+        }
+
+        String imageDocId = user.getImageDocId();
+        if (imageDocId == null || imageDocId.trim().isEmpty()) {
+            return;
+        }
+
+        ImageDB.loadImage(imageDocId, new ImageDB.LoadImageCallback() {
+            @Override
+            public void onSuccess(Image image) {
+                Object boundTag = holder.ivAvatar.getTag();
+                if (boundTag == null || !boundTag.equals(user.getDeviceId())) {
+                    return;
+                }
+
+                user.setProfileImage(image);
+                if (image == null) {
+                    holder.ivAvatar.setImageResource(R.drawable.ic_profile);
+                    return;
+                }
+
+                try {
+                    holder.ivAvatar.setImageBitmap(image.display());
+                } catch (Exception ignored) {
+                    holder.ivAvatar.setImageResource(R.drawable.ic_profile);
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Object boundTag = holder.ivAvatar.getTag();
+                if (boundTag != null && boundTag.equals(user.getDeviceId())) {
+                    holder.ivAvatar.setImageResource(R.drawable.ic_profile);
+                }
+            }
+        });
     }
 
     private String getDisplayName(User user) {

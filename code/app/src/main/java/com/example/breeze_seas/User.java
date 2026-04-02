@@ -20,6 +20,8 @@ public class User {
     private boolean notificationEnabled;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+    private String imageDocId;
+    private Image profileImage;
 
 
     public User() {
@@ -34,6 +36,8 @@ public class User {
         this.notificationEnabled = true;
         this.createdAt = null;
         this.updatedAt = null;
+        this.imageDocId = null;
+        this.profileImage = null;
     }
 
     public User(String deviceId, String firstName, String lastName,
@@ -48,6 +52,8 @@ public class User {
         this.notificationEnabled = true;
         this.createdAt = null;
         this.updatedAt = null;
+        this.imageDocId = null;
+        this.profileImage = null;
     }
 
     public User(String deviceId, String firstName, String lastName,
@@ -62,6 +68,8 @@ public class User {
         this.notificationEnabled = true;
         this.createdAt = null;
         this.updatedAt = null;
+        this.imageDocId = null;
+        this.profileImage = null;
     }
 
     public String getFirstName() {
@@ -109,7 +117,11 @@ public class User {
     }
 
     public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber.replaceAll("[^0-9]", "");;
+        if (phoneNumber == null) {
+            this.phoneNumber = null;
+            return;
+        }
+        this.phoneNumber = phoneNumber.replaceAll("[^0-9]", "");
     }
 
     public boolean isAdmin() {
@@ -142,6 +154,28 @@ public class User {
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getImageDocId() {
+        return imageDocId;
+    }
+
+    public void setImageDocId(String imageDocId) {
+        this.imageDocId = imageDocId;
+        if (imageDocId == null || imageDocId.trim().isEmpty()) {
+            this.profileImage = null;
+        } else if (profileImage != null && !imageDocId.equals(profileImage.getImageId())) {
+            this.profileImage = null;
+        }
+    }
+
+    public Image getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(Image profileImage) {
+        this.profileImage = profileImage;
+        this.imageDocId = profileImage == null ? null : profileImage.getImageId();
     }
 
     /**

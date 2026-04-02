@@ -1,7 +1,7 @@
 package com.example.breeze_seas;
-import android.content.Context;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -12,6 +12,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -23,6 +25,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputLayout;
+
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,11 +45,22 @@ public class ProfileFragment extends Fragment {
             userNameLayout, emailLayout, phoneLayout;
     private ImageButton editFirstNameBtn, editLastNameBtn,
             editUserNameBtn, editEmailBtn, editPhoneBtn;
-    private MaterialButton saveBtn, deleteBtn;
+    private MaterialButton saveBtn, deleteBtn, choosePhotoBtn;
     private MaterialSwitch optOutSwitch;
+    private SessionViewModel viewModel;
+    private Image selectedProfileImage;
+    private boolean profileImageDirty = false;
 
     // Stores tap count for profile pic
     private int secretTapCount = 0;
+
+    private final ActivityResultLauncher<String> pickProfileImage =
+            registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
+                if (uri == null) {
+                    return;
+                }
+                handleSelectedProfileImage(uri);
+            });
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -78,8 +93,10 @@ public class ProfileFragment extends Fragment {
 
         saveBtn = view.findViewById(R.id.save_button);
         deleteBtn = view.findViewById(R.id.delete_profile_button);
+        choosePhotoBtn = view.findViewById(R.id.choose_profile_photo_button);
         optOutSwitch = view.findViewById(R.id.opt_out_switch);
 
+        bindProfileImage(null);
         return view;
     }
 
@@ -95,13 +112,13 @@ public class ProfileFragment extends Fragment {
 
             if (secretTapCount >= 5) {
                 secretTapCount = 0;
-
                 verifyAdminStatus();
             }
         });
 
+        choosePhotoBtn.setOnClickListener(v -> pickProfileImage.launch("image/*"));
+
         // Initialize the view model, get the deviceId, and fetch user data
-        SessionViewModel viewModel;
         viewModel = new ViewModelProvider(requireActivity()).get(SessionViewModel.class);
         viewModel.getAndroidID().observe(getViewLifecycleOwner(), deviceId -> {
             if (deviceId != null) {
@@ -111,70 +128,27 @@ public class ProfileFragment extends Fragment {
         });
 
         // Toggle first name field when edit icon is clicked
-        editFirstNameBtn.setOnClickListener(v -> {
-            toggleEditField(firstNameLayout);
-        });
+        editFirstNameBtn.setOnClickListener(v -> toggleEditField(firstNameLayout));
 
         // Toggle last name field when edit icon is clicked
-        editLastNameBtn.setOnClickListener(v -> {
-            toggleEditField(lastNameLayout);
-        });
+        editLastNameBtn.setOnClickListener(v -> toggleEditField(lastNameLayout));
 
         // Toggle username field when edit icon is clicked
-        editUserNameBtn.setOnClickListener(v -> {
-            toggleEditField(userNameLayout);
-        });
+        editUserNameBtn.setOnClickListener(v -> toggleEditField(userNameLayout));
 
         // Toggle email field when edit icon is clicked
-        editEmailBtn.setOnClickListener(v -> {
-            toggleEditField(emailLayout);
-        });
+        editEmailBtn.setOnClickListener(v -> toggleEditField(emailLayout));
 
         // Toggle phone number field when edit icon is clicked
-        editPhoneBtn.setOnClickListener(v -> {
-            toggleEditField(phoneLayout);
-        });
+        editPhoneBtn.setOnClickListener(v -> toggleEditField(phoneLayout));
 
         // Save button
         saveBtn.setOnClickListener(v -> {
             new MaterialAlertDialogBuilder(requireContext())
                     .setTitle("Save Changes")
                     .setMessage("Are you sure you want to save your changes?")
-                    .setPositiveButton("Yes", (dialog, which) -> {
-
-                        String firstNameInput = getInput(firstNameLayout);
-                        currentUser.setFirstName(firstNameInput);
-                        String lastNameInput = getInput(lastNameLayout);
-                        currentUser.setLastName(lastNameInput);
-                        String userNameInput = getInput(userNameLayout);
-                        currentUser.setUserName(userNameInput);
-                        String emailInput = getInput(emailLayout);
-                        if (!emailInput.contains("@")){
-                            Toast.makeText(getContext(), "Incorrect Email!",
-                                    Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        currentUser.setEmail(emailInput);
-                        String phoneInput = getInput(phoneLayout);
-                        if (!phoneInput.matches("^[0-9 ]*$")) {
-                            Toast.makeText(getContext(), "Incorrect Phone Number!",
-                                    Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        currentUser.setPhoneNumber(phoneInput);
-                        currentUser.setNotificationEnabled(optOutSwitch.isChecked());
-
-
-
-                        String deviceId = currentUser.getDeviceId();
-                        Map<String,Object> updates = mapUpdates();
-                        userDBInstance.updateUser(deviceId, updates);
-                        Toast.makeText(getContext(), "Profile Saved!",
-                                Toast.LENGTH_SHORT).show();
-                    })
-                    .setNegativeButton("No", (dialog, which) -> {
-                        dialog.dismiss();
-                    })
+                    .setPositiveButton("Yes", (dialog, which) -> persistProfileChanges())
+                    .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
                     .show();
         });
 
@@ -195,9 +169,7 @@ public class ProfileFragment extends Fragment {
                                 .replace(R.id.fragment_container, welcomeScreenFragment)
                                 .commit();
                     })
-                    .setNegativeButton("No", (dialog, which) -> {
-                        dialog.dismiss();
-                    })
+                    .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
                     .show();
 
         });
@@ -255,8 +227,13 @@ public class ProfileFragment extends Fragment {
         userDBInstance.getUser(deviceId, new UserDB.OnUserLoadedListener() {
             @Override
             public void onUserLoaded(User user) {
+                if (!isAdded() || user == null) {
+                    return;
+                }
 
                 currentUser = user;
+                selectedProfileImage = user.getProfileImage();
+                profileImageDirty = false;
 
                 // Fill the text fields
                 firstNameLayout.getEditText().setText(user.getFirstName());
@@ -267,8 +244,7 @@ public class ProfileFragment extends Fragment {
 
                 // Set the current state of the switch
                 optOutSwitch.setChecked(user.notificationEnabled());
-
-
+                bindProfileImage(user.getProfileImage());
             }
 
             @Override
@@ -291,8 +267,131 @@ public class ProfileFragment extends Fragment {
         updates.put("email", currentUser.getEmail());
         updates.put("phoneNumber", currentUser.getPhoneNumber());
         updates.put("notificationEnabled", currentUser.notificationEnabled());
+        updates.put("imageDocId", currentUser.getImageDocId());
 
         return updates;
+    }
+
+    private void handleSelectedProfileImage(@NonNull Uri uri) {
+        try {
+            String profileBase64 = ImageUtils.uriToCompressedBase64(requireContext(), uri);
+            Image nextImage;
+
+            if (currentUser != null
+                    && currentUser.getImageDocId() != null
+                    && !currentUser.getImageDocId().trim().isEmpty()) {
+                nextImage = new Image(currentUser.getImageDocId(), profileBase64);
+            } else {
+                nextImage = new Image(profileBase64);
+            }
+
+            selectedProfileImage = nextImage;
+            profileImageDirty = true;
+            bindProfileImage(nextImage);
+        } catch (IOException e) {
+            Toast.makeText(getContext(), "Failed to process image", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void bindProfileImage(@Nullable Image image) {
+        if (profileImageView == null) {
+            return;
+        }
+
+        profileImageView.setImageResource(R.drawable.ic_profile);
+        if (image == null) {
+            return;
+        }
+
+        try {
+            profileImageView.setImageBitmap(image.display());
+        } catch (Exception ignored) {
+            profileImageView.setImageResource(R.drawable.ic_profile);
+        }
+    }
+
+    private void persistProfileChanges() {
+        if (currentUser == null) {
+            Toast.makeText(getContext(), "Profile not loaded yet", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String firstNameInput = getInput(firstNameLayout);
+        currentUser.setFirstName(firstNameInput);
+        String lastNameInput = getInput(lastNameLayout);
+        currentUser.setLastName(lastNameInput);
+        String userNameInput = getInput(userNameLayout);
+        currentUser.setUserName(userNameInput);
+        String emailInput = getInput(emailLayout);
+        if (!emailInput.contains("@")){
+            Toast.makeText(getContext(), "Incorrect Email!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        currentUser.setEmail(emailInput);
+        String phoneInput = getInput(phoneLayout);
+        if (!phoneInput.matches("^[0-9 ]*$")) {
+            Toast.makeText(getContext(), "Incorrect Phone Number!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        currentUser.setPhoneNumber(phoneInput);
+        currentUser.setNotificationEnabled(optOutSwitch.isChecked());
+
+        saveBtn.setEnabled(false);
+
+        if (profileImageDirty && selectedProfileImage != null) {
+            Image imageToSave = selectedProfileImage;
+            ImageDB.saveImage(imageToSave, new ImageDB.ImageMutationCallback() {
+                @Override
+                public void onSuccess() {
+                    currentUser.setProfileImage(imageToSave);
+                    commitUserUpdate();
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Log.e("Profile", "Unable to upload profile image", e);
+                    if (isAdded()) {
+                        saveBtn.setEnabled(true);
+                        Toast.makeText(getContext(), "Failed to save profile photo", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+            return;
+        }
+
+        commitUserUpdate();
+    }
+
+    private void commitUserUpdate() {
+        String deviceId = currentUser.getDeviceId();
+        Map<String,Object> updates = mapUpdates();
+        userDBInstance.updateUser(deviceId, updates, new UserDB.UserMutationCallback() {
+            @Override
+            public void onSuccess() {
+                if (!isAdded()) {
+                    return;
+                }
+
+                profileImageDirty = false;
+                selectedProfileImage = currentUser.getProfileImage();
+                if (viewModel != null) {
+                    viewModel.setUser(currentUser);
+                }
+                saveBtn.setEnabled(true);
+                Toast.makeText(getContext(), "Profile Saved!", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e("Profile", "Profile update failed", e);
+                if (!isAdded()) {
+                    return;
+                }
+
+                saveBtn.setEnabled(true);
+                Toast.makeText(getContext(), "Failed to save profile", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /**
@@ -338,6 +437,3 @@ public class ProfileFragment extends Fragment {
     }
 
 }
-
-
-

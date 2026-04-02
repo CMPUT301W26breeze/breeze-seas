@@ -36,6 +36,11 @@ public class UserDB {
     // Holds the active Firestore snapshot listener so we can detach it later
     private ListenerRegistration usersListener;
 
+    public interface UserMutationCallback {
+        void onSuccess();
+        void onFailure(Exception e);
+    }
+
 
     public UserDB() {
         this.db = DBConnector.getDb();
@@ -60,6 +65,7 @@ public class UserDB {
         userData.put("userName", user.getUserName());
         userData.put("email", user.getEmail());
         userData.put("phoneNumber", user.getPhoneNumber());
+        userData.put("imageDocId", user.getImageDocId());
         userData.put("isAdmin", user.isAdmin());
         userData.put("notificationEnabled", user.notificationEnabled());
         userData.put("createdAt", FieldValue.serverTimestamp());
@@ -81,14 +87,33 @@ public class UserDB {
      * @param updates  A Map containing field names as keys and the new values to be updated.
      */
     public void updateUser(String deviceId, Map<String, Object> updates) {
+        updateUser(deviceId, updates, null);
+    }
+
+    /**
+     * Updates specific fields of an existing user document and reports the result.
+     *
+     * @param deviceId The unique identifier of the user to update.
+     * @param updates A Map containing field names as keys and the new values to be updated.
+     * @param callback Optional callback receiving success or failure.
+     */
+    public void updateUser(String deviceId, Map<String, Object> updates, @Nullable UserMutationCallback callback) {
         updates.put("updatedAt", FieldValue.serverTimestamp());
 
         userRef.document(deviceId)
                 .update(updates)
-                .addOnSuccessListener(aVoid ->
-                        Log.d("DB", "Update successful"))
-                .addOnFailureListener(e ->
-                        Log.e("DB", "Update failed", e));
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("DB", "Update successful");
+                    if (callback != null) {
+                        callback.onSuccess();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("DB", "Update failed", e);
+                    if (callback != null) {
+                        callback.onFailure(e);
+                    }
+                });
     }
 
 
@@ -127,6 +152,11 @@ public class UserDB {
                                         if (Objects.equals(event.getOrganizerId(), deviceId)) {
                                             batch.delete(eventRef);
                                         }
+                                    }
+
+                                    if (user != null && user.getImageDocId() != null
+                                            && !user.getImageDocId().trim().isEmpty()) {
+                                        batch.delete(db.collection("images").document(user.getImageDocId()));
                                     }
 
                                     // The user document deletion
@@ -239,14 +269,14 @@ public class UserDB {
         userRef.document(deviceId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        listener.onUserLoaded(parseUser(documentSnapshot));
+                        deliverUserWithImage(parseUser(documentSnapshot), listener);
                     } else {
                         userRef.whereEqualTo("deviceId", deviceId)
                                 .limit(1)
                                 .get()
                                 .addOnSuccessListener(querySnapshot -> {
                                     if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                                        listener.onUserLoaded(parseUser(querySnapshot.getDocuments().get(0)));
+                                        deliverUserWithImage(parseUser(querySnapshot.getDocuments().get(0)), listener);
                                     } else {
                                         listener.onUserLoaded(null);
                                     }
@@ -261,6 +291,38 @@ public class UserDB {
                     Log.e("DB_ERROR", "Error fetching user", e);
                     listener.onError(e);
                 });
+    }
+
+    /**
+     * Loads the user's profile image when an image reference exists before returning the user.
+     *
+     * @param user User loaded from the Firestore document.
+     * @param listener Callback receiving the fully populated user.
+     */
+    private void deliverUserWithImage(@Nullable User user, OnUserLoadedListener listener) {
+        if (user == null) {
+            listener.onUserLoaded(null);
+            return;
+        }
+
+        if (user.getImageDocId() == null || user.getImageDocId().trim().isEmpty()) {
+            listener.onUserLoaded(user);
+            return;
+        }
+
+        ImageDB.loadImage(user.getImageDocId(), new ImageDB.LoadImageCallback() {
+            @Override
+            public void onSuccess(Image image) {
+                user.setProfileImage(image);
+                listener.onUserLoaded(user);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e("DB_ERROR", "Error loading user profile image", e);
+                listener.onUserLoaded(user);
+            }
+        });
     }
 
     /**
@@ -283,6 +345,7 @@ public class UserDB {
         String fullName = documentSnapshot.getString("name");
         String email = documentSnapshot.getString("email");
         String phoneNumber = documentSnapshot.getString("phoneNumber");
+        String imageDocId = documentSnapshot.getString("imageDocId");
         Boolean isAdmin = documentSnapshot.getBoolean("isAdmin");
         Boolean notificationEnabled = documentSnapshot.getBoolean("notificationEnabled");
 
@@ -298,6 +361,7 @@ public class UserDB {
             user.setEmail(email);
         }
         user.setPhoneNumber(phoneNumber);
+        user.setImageDocId(imageDocId);
         user.setAdmin(Boolean.TRUE.equals(isAdmin));
         user.setNotificationEnabled(notificationEnabled == null || notificationEnabled);
         user.setCreatedAt(documentSnapshot.getTimestamp("createdAt"));

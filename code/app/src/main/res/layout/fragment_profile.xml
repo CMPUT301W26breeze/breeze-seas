@@ -64,11 +64,21 @@
                             android:id="@+id/profile_image"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:contentDescription="Profile image"
+                            android:contentDescription="@string/profile_photo_content_description"
                             android:scaleType="centerCrop"
+                            android:src="@drawable/ic_profile"
                             app:shapeAppearanceOverlay="@style/CircleImage" />
                     </FrameLayout>
                 </FrameLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/choose_profile_photo_button"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="14dp"
+                    android:text="@string/profile_choose_photo" />
 
                 <FrameLayout
                     android:layout_width="match_parent"
