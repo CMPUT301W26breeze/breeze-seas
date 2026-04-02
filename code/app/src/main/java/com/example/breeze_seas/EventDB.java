@@ -252,7 +252,9 @@ public class EventDB {
         return  eventRef.whereLessThan("registrationStartTimestamp", Timestamp.now())
                 .whereGreaterThan("registrationEndTimestamp", Timestamp.now())
                 .whereEqualTo("isPrivate", false)  // Public only events
-                .whereNotEqualTo("organizerId", userId)
+                .where(Filter.or(
+                        Filter.equalTo("organizerId", userId),
+                        Filter.arrayContains("coOrganizerId", userId)))
                 .orderBy("registrationEndTimestamp");
     }
 
