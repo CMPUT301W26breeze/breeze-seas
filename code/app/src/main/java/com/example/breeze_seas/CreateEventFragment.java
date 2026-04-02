@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -21,13 +22,13 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 import com.google.firebase.Timestamp;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
 
 /**
  * CreateEventFragment collects organizer input for a new event and submits it through
@@ -41,14 +42,20 @@ public class CreateEventFragment extends Fragment {
     private LinearLayout posterPlaceholder;
     private View privateEventRow;
 
-    private TextInputEditText etRegFrom, etRegTo, etEventName, etEventDetails, etCapacity, etWaitingListCapacity;
+    private TextInputEditText etRegFrom, etRegTo, etEventStart, etEventEnd, etEventName, etEventDetails, etCapacity, etWaitingListCapacity;
     private SwitchMaterial swGeo;
     private SwitchMaterial swPrivate;
     private SessionViewModel viewModel;
 
     private Long regFromMillis = null;
     private Long regToMillis = null;
+    private Long eventStartMillis = null;
+    private Long eventEndMillis = null;
     private String posterBase64 = "";
+
+    private interface DateTimeSelectionListener {
+        void onSelected(long millis);
+    }
 
     private final ActivityResultLauncher<String> pickImage =
             registerForActivityResult(new ActivityResultContracts.GetContent(), new androidx.activity.result.ActivityResultCallback<Uri>() {
@@ -120,9 +127,12 @@ public class CreateEventFragment extends Fragment {
         View cardPoster = view.findViewById(R.id.cardPoster);
         View btnAddImage = view.findViewById(R.id.btnAddImage);
         View btnRegPeriod = view.findViewById(R.id.btnRegPeriod);
+        View btnEventPeriod = view.findViewById(R.id.btnEventPeriod);
 
         etRegFrom = view.findViewById(R.id.etRegFrom);
         etRegTo = view.findViewById(R.id.etRegTo);
+        etEventStart = view.findViewById(R.id.etEventStart);
+        etEventEnd = view.findViewById(R.id.etEventEnd);
         etEventName = view.findViewById(R.id.etEventName);
         etEventDetails = view.findViewById(R.id.etEventDetails);
         etCapacity = view.findViewById(R.id.etCapacity);
@@ -152,20 +162,13 @@ public class CreateEventFragment extends Fragment {
         cardPoster.setOnClickListener(pickPoster);
         btnAddImage.setOnClickListener(pickPoster);
 
-        View.OnClickListener pickRange = new View.OnClickListener() {
-            /**
-             * Opens the registration-date range picker.
-             *
-             * @param v Date-related view that was tapped.
-             */
-            @Override
-            public void onClick(View v) {
-                openDateRangePicker();
-            }
-        };
-        btnRegPeriod.setOnClickListener(pickRange);
-        etRegFrom.setOnClickListener(pickRange);
-        etRegTo.setOnClickListener(pickRange);
+        btnRegPeriod.setOnClickListener(v -> openRegistrationStartPicker());
+        etRegFrom.setOnClickListener(v -> openRegistrationStartPicker());
+        etRegTo.setOnClickListener(v -> openRegistrationEndPicker());
+
+        btnEventPeriod.setOnClickListener(v -> openEventStartPicker());
+        etEventStart.setOnClickListener(v -> openEventStartPicker());
+        etEventEnd.setOnClickListener(v -> openEventEndPicker());
 
         view.findViewById(R.id.btnCreate).setOnClickListener(new View.OnClickListener() {
             /**
@@ -206,40 +209,134 @@ public class CreateEventFragment extends Fragment {
     }
 
     /**
-     * Opens the registration-date picker and stores the selected date range.
+     * Opens the registration-start date-time picker.
      */
-    private void openDateRangePicker() {
-        MaterialDatePicker.Builder<androidx.core.util.Pair<Long, Long>> builder =
-                MaterialDatePicker.Builder.dateRangePicker()
-                        .setTheme(R.style.ThemeOverlay_Breezeseas_DateRangePicker)
-                        .setTitleText("Select registration period");
+    private void openRegistrationStartPicker() {
+        openDateTimePicker(
+                "create_reg_start",
+                getString(R.string.create_event_registration_start_picker_title),
+                regFromMillis,
+                millis -> {
+                    regFromMillis = millis;
+                    etRegFrom.setText(EventMetadataUtils.formatDateTime(millis));
+                }
+        );
+    }
 
-        if (regFromMillis != null && regToMillis != null) {
-            builder.setSelection(new androidx.core.util.Pair<>(regFromMillis, regToMillis));
-        }
+    /**
+     * Opens the registration-end date-time picker.
+     */
+    private void openRegistrationEndPicker() {
+        openDateTimePicker(
+                "create_reg_end",
+                getString(R.string.create_event_registration_end_picker_title),
+                regToMillis,
+                millis -> {
+                    regToMillis = millis;
+                    etRegTo.setText(EventMetadataUtils.formatDateTime(millis));
+                }
+        );
+    }
 
-        MaterialDatePicker<androidx.core.util.Pair<Long, Long>> picker = builder.build();
+    /**
+     * Opens the event-start date-time picker.
+     */
+    private void openEventStartPicker() {
+        openDateTimePicker(
+                "create_event_start",
+                getString(R.string.create_event_schedule_start_picker_title),
+                eventStartMillis,
+                millis -> {
+                    eventStartMillis = millis;
+                    etEventStart.setText(EventMetadataUtils.formatDateTime(millis));
+                }
+        );
+    }
 
-        picker.addOnPositiveButtonClickListener(new com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener<androidx.core.util.Pair<Long, Long>>() {
-            /**
-             * Stores the selected registration range and updates the visible date fields.
-             *
-             * @param selection Selected registration start and end dates.
-             */
-            @Override
-            public void onPositiveButtonClick(androidx.core.util.Pair<Long, Long> selection) {
-                if (selection == null) return;
-                regFromMillis = selection.first;
-                regToMillis = selection.second;
+    /**
+     * Opens the event-end date-time picker.
+     */
+    private void openEventEndPicker() {
+        openDateTimePicker(
+                "create_event_end",
+                getString(R.string.create_event_schedule_end_picker_title),
+                eventEndMillis,
+                millis -> {
+                    eventEndMillis = millis;
+                    etEventEnd.setText(EventMetadataUtils.formatDateTime(millis));
+                }
+        );
+    }
 
-                SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.US);
-                sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-                etRegFrom.setText(sdf.format(new Date(regFromMillis)));
-                etRegTo.setText(sdf.format(new Date(regToMillis)));
+    /**
+     * Opens a Material date picker followed by a time picker for one date-time field.
+     *
+     * @param tagPrefix Fragment-manager tag prefix for the picker dialogs.
+     * @param title Title shown on the picker surfaces.
+     * @param currentMillis Existing millis to seed the pickers with.
+     * @param listener Callback that receives the combined local timestamp.
+     */
+    private void openDateTimePicker(
+            @NonNull String tagPrefix,
+            @NonNull String title,
+            @Nullable Long currentMillis,
+            @NonNull DateTimeSelectionListener listener
+    ) {
+        MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker()
+                .setTheme(R.style.ThemeOverlay_Breezeseas_DateRangePicker)
+                .setTitleText(title)
+                .setSelection(EventMetadataUtils.toDatePickerSelection(currentMillis))
+                .build();
+
+        datePicker.addOnPositiveButtonClickListener(selection -> {
+            if (selection == null) {
+                return;
             }
+            openTimePicker(tagPrefix, title, currentMillis, selection, listener);
         });
 
-        picker.show(getParentFragmentManager(), "reg_range");
+        datePicker.show(getParentFragmentManager(), tagPrefix + "_date");
+    }
+
+    /**
+     * Opens the time portion of the date-time picker flow.
+     *
+     * @param tagPrefix Fragment-manager tag prefix for the picker dialogs.
+     * @param title Title shown on the picker surface.
+     * @param currentMillis Existing millis to seed the picker with.
+     * @param selectedUtcDateMillis Date chosen from MaterialDatePicker.
+     * @param listener Callback that receives the combined local timestamp.
+     */
+    private void openTimePicker(
+            @NonNull String tagPrefix,
+            @NonNull String title,
+            @Nullable Long currentMillis,
+            long selectedUtcDateMillis,
+            @NonNull DateTimeSelectionListener listener
+    ) {
+        Calendar calendar = Calendar.getInstance();
+        if (currentMillis != null) {
+            calendar.setTimeInMillis(currentMillis);
+        }
+
+        MaterialTimePicker timePicker = new MaterialTimePicker.Builder()
+                .setTitleText(title)
+                .setTimeFormat(DateFormat.is24HourFormat(requireContext())
+                        ? TimeFormat.CLOCK_24H
+                        : TimeFormat.CLOCK_12H)
+                .setHour(calendar.get(Calendar.HOUR_OF_DAY))
+                .setMinute(calendar.get(Calendar.MINUTE))
+                .build();
+
+        timePicker.addOnPositiveButtonClickListener(v -> listener.onSelected(
+                EventMetadataUtils.combineUtcDateWithLocalTime(
+                        selectedUtcDateMillis,
+                        timePicker.getHour(),
+                        timePicker.getMinute()
+                )
+        ));
+
+        timePicker.show(getParentFragmentManager(), tagPrefix + "_time");
     }
 
     /**
@@ -257,7 +354,27 @@ public class CreateEventFragment extends Fragment {
         }
 
         if (regFromMillis == null || regToMillis == null) {
-            Toast.makeText(requireContext(), "Please set registration period", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.create_event_set_registration_period, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (eventStartMillis == null || eventEndMillis == null) {
+            Toast.makeText(requireContext(), R.string.create_event_set_schedule, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (regFromMillis >= regToMillis) {
+            Toast.makeText(requireContext(), R.string.create_event_registration_order_error, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (eventStartMillis > eventEndMillis) {
+            Toast.makeText(requireContext(), R.string.create_event_schedule_order_error, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (regToMillis > eventStartMillis) {
+            Toast.makeText(requireContext(), R.string.create_event_schedule_conflict_error, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -325,8 +442,8 @@ public class CreateEventFragment extends Fragment {
                 newImage[0],
                 new Timestamp(new Date(regFromMillis)),
                 new Timestamp(new Date(regToMillis)),
-                null,
-                null,
+                new Timestamp(new Date(eventStartMillis)),
+                new Timestamp(new Date(eventEndMillis)),
                 swGeo.isChecked(),
                 normalizedCapacity,
                 normalizedEventWaitingListCapacity

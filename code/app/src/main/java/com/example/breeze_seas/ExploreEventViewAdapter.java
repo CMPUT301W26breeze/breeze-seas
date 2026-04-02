@@ -14,10 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.Timestamp;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 public class ExploreEventViewAdapter extends RecyclerView.Adapter<ExploreEventViewAdapter.ExploreEventViewHolder> {
@@ -127,9 +124,6 @@ public class ExploreEventViewAdapter extends RecyclerView.Adapter<ExploreEventVi
     }
 
     private String formatDate(Timestamp timestamp) {
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.US);
-        return sdf.format(new Date(timestamp.toDate().getTime()));
-
-
+        return EventMetadataUtils.formatDateTime(timestamp);
     }
 }

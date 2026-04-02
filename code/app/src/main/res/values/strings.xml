@@ -94,8 +94,15 @@
     <string name="create_event_details_label">Event Details</string>
     <string name="create_event_details_hint">Tell entrants what this event is about.</string>
     <string name="create_event_registration_label">Registration Period</string>
+    <string name="create_event_registration_start_picker_title">Registration opens</string>
+    <string name="create_event_registration_end_picker_title">Registration closes</string>
     <string name="create_event_from">From</string>
     <string name="create_event_to">To</string>
+    <string name="create_event_schedule_label">Event Schedule</string>
+    <string name="create_event_schedule_start_picker_title">Event starts</string>
+    <string name="create_event_schedule_end_picker_title">Event ends</string>
+    <string name="create_event_starts">Starts</string>
+    <string name="create_event_ends">Ends</string>
     <string name="create_event_capacity_label">Event Capacity</string>
     <string name="create_event_capacity_hint">Size of event</string>
     <string name="create_event_waiting_list_capacity_label">Waiting List Capacity (Optional)</string>
@@ -115,6 +122,11 @@
     <string name="create_event_visibility_cancel">Cancel</string>
     <string name="create_event_public_success">Event created</string>
     <string name="create_event_private_success">Private event created</string>
+    <string name="create_event_set_registration_period">Please set registration start and end.</string>
+    <string name="create_event_set_schedule">Please set the event start and end.</string>
+    <string name="create_event_registration_order_error">Registration must close after it opens.</string>
+    <string name="create_event_schedule_order_error">The event must end after it starts.</string>
+    <string name="create_event_schedule_conflict_error">Registration must close before the event begins.</string>
     <string name="send">Send</string>
     <string name="notifications_inbox_label">Inbox</string>
     <string name="notification_text">Enter your announcement here</string>
