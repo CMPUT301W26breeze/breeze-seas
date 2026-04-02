@@ -129,6 +129,23 @@
                 android:text="Select Co-Organizers"
                 android:textColor="@color/text_primary"
                 android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/organizer_event_preview_invite_button"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_profile_field_shell"
+                android:drawableStart="@drawable/ic_notification"
+                android:drawablePadding="10dp"
+                android:fontFamily="@font/inter_medium"
+                android:gravity="center_vertical"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:text="@string/private_event_invite_menu_button"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp"
+                android:visibility="gone" />
         </LinearLayout>
 
         <TextView

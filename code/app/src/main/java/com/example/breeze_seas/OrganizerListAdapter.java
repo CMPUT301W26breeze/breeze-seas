@@ -17,6 +17,15 @@ public class OrganizerListAdapter extends ArrayAdapter<User> {
     private final String statusLabel;
     private final boolean highlightedStatus;
 
+    /**
+     * Creates a reusable organizer-side user list adapter.
+     *
+     * @param context Row inflation context.
+     * @param resource Layout resource for each row.
+     * @param entrants Mutable list of users shown in the list.
+     * @param statusLabel Label rendered in the trailing status chip.
+     * @param highlightedStatus Whether the chip should use the emphasized style.
+     */
     public OrganizerListAdapter(Context context, int resource, ArrayList<User> entrants, @NonNull String statusLabel, boolean highlightedStatus){
         super(context,resource,entrants);
         this.statusLabel = statusLabel;
@@ -53,10 +62,7 @@ public class OrganizerListAdapter extends ArrayAdapter<User> {
                 nameView.setText(entrant.getDeviceId());
             }
 
-            String secondaryText = entrant.getEmail();
-            if (secondaryText == null || secondaryText.trim().isEmpty()) {
-                secondaryText = entrant.getDeviceId();
-            }
+            String secondaryText = buildSecondaryText(entrant);
             detailView.setText(secondaryText);
             statusView.setText(statusLabel);
             statusView.setBackgroundResource(highlightedStatus
@@ -67,5 +73,42 @@ public class OrganizerListAdapter extends ArrayAdapter<User> {
                     : R.color.text_primary));
         }
         return convertView;
+    }
+
+    /**
+     * Builds the secondary row text shown under the user's name.
+     *
+     * <p>This prefers email and phone together when both are present so organizer pickers can
+     * disambiguate similarly named users more easily.
+     *
+     * @param entrant User currently being rendered.
+     * @return One-line secondary label for the row.
+     */
+    @NonNull
+    private String buildSecondaryText(@NonNull User entrant) {
+        String email = clean(entrant.getEmail());
+        String phoneNumber = clean(entrant.getPhoneNumber());
+
+        if (!email.isEmpty() && !phoneNumber.isEmpty()) {
+            return email + " • " + phoneNumber;
+        }
+        if (!email.isEmpty()) {
+            return email;
+        }
+        if (!phoneNumber.isEmpty()) {
+            return phoneNumber;
+        }
+        return entrant.getDeviceId() == null ? "" : entrant.getDeviceId();
+    }
+
+    /**
+     * Normalizes optional text values for display logic.
+     *
+     * @param value Raw optional text.
+     * @return Trimmed text or an empty string when unavailable.
+     */
+    @NonNull
+    private String clean(@Nullable String value) {
+        return value == null ? "" : value.trim();
     }
 }

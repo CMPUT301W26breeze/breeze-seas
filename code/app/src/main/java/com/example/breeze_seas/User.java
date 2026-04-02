@@ -109,7 +109,11 @@ public class User {
     }
 
     public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber.replaceAll("[^0-9]", "");;
+        if (phoneNumber == null) {
+            this.phoneNumber = null;
+            return;
+        }
+        this.phoneNumber = phoneNumber.replaceAll("[^0-9]", "");
     }
 
     public boolean isAdmin() {
