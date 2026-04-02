@@ -280,6 +280,18 @@ public class OrganizerEventPreviewFragment extends Fragment {
                 openCoOrganizerFragment();           // Open the new screen
             }
         });
+        view.findViewById(R.id.organizer_event_preview_invite_button).setOnClickListener(new View.OnClickListener() {
+            /**
+             * Opens the private-event invite picker for the current event.
+             *
+             * @param v Invite button that was tapped.
+             */
+            @Override
+            public void onClick(View v) {
+                actionMenu.setVisibility(View.GONE);
+                openPrivateEventInviteFragment();
+            }
+        });
 
         commentsSectionController = new EventCommentsSectionController(this, view);
     }
@@ -332,6 +344,10 @@ public class OrganizerEventPreviewFragment extends Fragment {
         ((android.widget.TextView) root.findViewById(R.id.organizer_event_preview_title)).setText(event.getName());
         ((android.widget.TextView) root.findViewById(R.id.organizer_event_preview_subtitle))
                 .setText(R.string.organizer_event_preview_subtitle_text);
+        View privateInviteButton = root.findViewById(R.id.organizer_event_preview_invite_button);
+        if (privateInviteButton != null) {
+            privateInviteButton.setVisibility(event.isPrivate() ? View.VISIBLE : View.GONE);
+        }
 
         nameInput.setText(event.getName());
         regFromInput.setText(formatDate(regStartDate));
@@ -691,6 +707,24 @@ public class OrganizerEventPreviewFragment extends Fragment {
                     Toast.LENGTH_SHORT
             ).show();
         }
+    }
+
+    /**
+     * Opens the private-event invite picker for the current event.
+     */
+    private void openPrivateEventInviteFragment() {
+        if (currentEvent == null) {
+            Toast.makeText(requireContext(), "Event not loaded yet", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!currentEvent.isPrivate()) {
+            Toast.makeText(requireContext(), R.string.private_event_invite_private_only, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (viewModel != null) {
+            viewModel.setEventShown(currentEvent);
+        }
+        ((MainActivity) requireActivity()).openSecondaryFragment(new PrivateEventInviteFragment());
     }
 
 
