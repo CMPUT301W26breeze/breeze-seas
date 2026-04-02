@@ -47,6 +47,7 @@ public class EventDetailsFragment extends Fragment {
     private AcceptedList acceptedList;
     private DeclinedList declinedList;
     private User user;
+    ProgressBar progressBar;
     private EventCommentsSectionController commentsSectionController;
 
 
@@ -54,8 +55,23 @@ public class EventDetailsFragment extends Fragment {
             registerForActivityResult(new androidx.activity.result.contract.ActivityResultContracts.RequestPermission(), isGranted -> {
                 joinWaitingListButton.setEnabled(true);
                 if (isGranted) {
+                    progressBar.setVisibility(View.VISIBLE);
+                    joinWaitingListButton.setEnabled(false);
 
-                    joinWaitingListButton.performClick();
+                    waitingList.determineLocation(requireContext(), user, new StatusList.ListUpdateListener() {
+                        @Override
+                        public void onUpdate() {
+                            progressBar.setVisibility(View.GONE);
+                            joinWaitingListButton.setEnabled(true);
+                            refreshTickets();
+                        }
+                        @Override
+                        public void onError(Exception e) {
+                            progressBar.setVisibility(View.GONE);
+                            joinWaitingListButton.setEnabled(true);
+                            Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 } else {
                     Toast.makeText(requireContext(), "Location permission is required for this event.", Toast.LENGTH_LONG).show();
                 }
@@ -198,7 +214,7 @@ public class EventDetailsFragment extends Fragment {
 
         // TODO: Fix logic as list classes are now real time, consistent with the database.
 
-        ProgressBar progressBar = view.findViewById(R.id.event_details_loading_progress_bar);
+        progressBar = view.findViewById(R.id.event_details_loading_progress_bar);
         joinWaitingListButton = view.findViewById(R.id.event_details_join_waitlist_button);
         joinWaitingListButton.setOnClickListener(v -> {
             int waitingListCapacity = waitingList.getCapacity();
@@ -206,38 +222,39 @@ public class EventDetailsFragment extends Fragment {
                 Toast.makeText(requireContext(), "The waiting list is full.", Toast.LENGTH_SHORT).show();
                 return;
             }
-            boolean locationEnforced = eventShown.isGeolocationEnforced();
-            boolean hasPermission = androidx.core.app.ActivityCompat.checkSelfPermission(requireContext(),
-                    android.Manifest.permission.ACCESS_FINE_LOCATION)
-                    == android.content.pm.PackageManager.PERMISSION_GRANTED;
-
-
-            if (locationEnforced && !hasPermission) {
-                requestPermissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION);
-                return;
-            }
-
 
             TermsAndCondition termsDialog = new TermsAndCondition(() -> {
-                progressBar.setVisibility(View.VISIBLE);
-                joinWaitingListButton.setEnabled(false);
+                boolean locationEnforced = eventShown.isGeolocationEnforced();
+                boolean hasPermission = androidx.core.app.ActivityCompat.checkSelfPermission(requireContext(),
+                        android.Manifest.permission.ACCESS_FINE_LOCATION) == android.content.pm.PackageManager.PERMISSION_GRANTED;
 
+                if (locationEnforced && !hasPermission) {
+                    requestPermissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION);
+                } else {
+                    progressBar.setVisibility(View.VISIBLE);
+                    joinWaitingListButton.setEnabled(false);
 
-                waitingList.determineLocation(requireContext(), user, new StatusList.ListUpdateListener() {
-                    @Override
-                    public void onUpdate() {
-                        progressBar.setVisibility(View.GONE);
-                        joinWaitingListButton.setEnabled(true);
-                        refreshTickets();
-                    }
-                    @Override
-                    public void onError(Exception e) {
-                        progressBar.setVisibility(View.GONE);
-                        joinWaitingListButton.setEnabled(true);
-                        Toast.makeText(getContext(), "Failed to join: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+                    waitingList.determineLocation(requireContext(), user, new StatusList.ListUpdateListener() {
+                        @Override
+                        public void onUpdate() {
+                            if (isAdded()) {
+                                progressBar.setVisibility(View.GONE);
+                                joinWaitingListButton.setEnabled(true);
+                                refreshTickets();
+                            }
+                        }
+                        @Override
+                        public void onError(Exception e) {
+                            if (isAdded()) {
+                                progressBar.setVisibility(View.GONE);
+                                joinWaitingListButton.setEnabled(true);
+                                Toast.makeText(getContext(), "Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                }
             }, eventShown);
+
             termsDialog.show(getParentFragmentManager(), "TermsDialog");
         });
 

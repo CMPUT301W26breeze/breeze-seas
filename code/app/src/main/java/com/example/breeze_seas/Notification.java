@@ -130,6 +130,8 @@ public class Notification {
             case ANNOUNCEMENT_WAITLIST:
             case ANNOUNCEMENT_CANCELLED:
                 return content;
+            case CO_ORG_INVITE:
+                return "You have been invited to be a Co-Organizer for " + eventName + "!";
             default:
                 return content;
         }

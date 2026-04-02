@@ -200,6 +200,14 @@ public class OrganizerEventPreviewFragment extends Fragment {
             }
         });
 
+        view.findViewById(R.id.organizer_event_preview_coorg_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                actionMenu.setVisibility(View.GONE); // Close the menu
+                openCoOrganizerFragment();           // Open the new screen
+            }
+        });
+
         commentsSectionController = new EventCommentsSectionController(this, view);
         resolveAndLoadEvent();
     }
@@ -524,6 +532,33 @@ public class OrganizerEventPreviewFragment extends Fragment {
             ).show();
         }
 
+    }
+
+    private void openCoOrganizerFragment() {
+        if (currentEvent == null) {
+            Toast.makeText(requireContext(), "Event not loaded yet", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            Class<?> fragmentClass = Class.forName("com.example.breeze_seas.CoOrganizerFragment");
+            Object instance = fragmentClass.getDeclaredConstructor().newInstance();
+            if (!(instance instanceof Fragment)) {
+                throw new IllegalStateException("CoOrganizerFragment is not a Fragment");
+            }
+
+            Fragment fragment = (Fragment) instance;
+            if (viewModel != null) {
+                viewModel.setEventShown(currentEvent);
+            }
+            ((MainActivity) requireActivity()).openSecondaryFragment(fragment);
+        } catch (Exception e) {
+            Toast.makeText(
+                    requireContext(),
+                    "Not available",
+                    Toast.LENGTH_SHORT
+            ).show();
+        }
     }
 
 

@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,6 +17,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,15 +35,14 @@ public class NotificationFragment extends Fragment {
     private RecyclerView notificationsRecycler;
     private LinearLayout optOutStateLayout, emptyStateLayout;
     private List<Notification> notifications = new ArrayList<>();
-    private NotificationEntryAdapter adapter =
-            new NotificationEntryAdapter(notifications);
+    private NotificationEntryAdapter adapter;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_notifications_inbox,
                 container, false);
-
+        adapter = new NotificationEntryAdapter(notifications, this::onNotificationClicked);
         notificationsRecycler = view.findViewById(R.id.notifications_recycler);
         notificationsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         notificationsRecycler.setAdapter(adapter);
@@ -50,6 +52,31 @@ public class NotificationFragment extends Fragment {
 
         return view;
     }
+
+    private void onNotificationClicked(Notification notification) {
+        if (notification.getType() == NotificationType.CO_ORG_INVITE) {
+            new android.app.AlertDialog.Builder(requireContext())
+                    .setTitle("Event Invitation")
+                    .setMessage("Accept invitation for " + notification.getEventName() + "?")
+                    .setPositiveButton("Accept", (dialog, which) -> {
+
+
+                        FirebaseFirestore db = DBConnector.getDb();
+                        db.collection("events").document(notification.getEventId())
+                                .update("coOrganizerId", com.google.firebase.firestore.FieldValue.arrayUnion(notification.getUserId()))
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(getContext(), "Accepted!", Toast.LENGTH_SHORT).show();
+                                    notification.setSeen(true);
+                                    adapter.notifyDataSetChanged();
+                                });
+                    })
+                    .setNegativeButton("Dismiss", (dialog, which) -> {
+                        dialog.dismiss();
+                    })
+                    .show();
+        }
+    }
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {

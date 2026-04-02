@@ -113,6 +113,22 @@
                 android:text="@string/view_map"
                 android:textColor="@color/text_primary"
                 android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/organizer_event_preview_coorg_button"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_profile_field_shell"
+                android:drawableStart="@drawable/ic_person"
+                android:drawablePadding="10dp"
+                android:fontFamily="@font/inter_medium"
+                android:gravity="center_vertical"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:text="Select Co-Organizers"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
         </LinearLayout>
 
         <TextView

@@ -37,14 +37,12 @@ public class ListDialogFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        String[] options = {"Make Co-Organizer", "Remove Entrant"};
+        String[] options = {"Remove Entrant"};
 
         return new AlertDialog.Builder(requireContext())
                 .setTitle("Options for " + user.getUserName())
                 .setItems(options, (dialog, value) -> {
                     if (value == 0) {
-                        currentList.promoteUser(user.getDeviceId(), null);
-                    } else if (value == 1) {
                         deleteDialog();
                     }
                 })

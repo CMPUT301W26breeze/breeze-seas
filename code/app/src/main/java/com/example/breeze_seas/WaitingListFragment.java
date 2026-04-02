@@ -1,7 +1,6 @@
 package com.example.breeze_seas;
 
 
-import static com.example.breeze_seas.NotificationType.ANNOUNCEMENT_WAITLIST;
 import static com.example.breeze_seas.NotificationType.LOSS;
 import static com.example.breeze_seas.NotificationType.WIN;
 

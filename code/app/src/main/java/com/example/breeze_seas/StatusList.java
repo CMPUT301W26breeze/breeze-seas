@@ -182,6 +182,14 @@ public abstract class StatusList {
         if (user == null || user.getDeviceId() == null) {
             return;
         }
+
+        if (this.capacity > 0 && getSize() >= this.capacity) {
+            if (listener != null) {
+                listener.onError(new Exception("This list is currently full (" + capacity + ")."));
+            }
+            return;
+        }
+
         FirebaseFirestore db = DBConnector.getDb();
         DocumentReference participantRef = db.collection("events")
                 .document(event.getEventId())
@@ -231,6 +239,9 @@ public abstract class StatusList {
                             user.setDeviceId(userDoc.getId());
                             if (!userIsInList(user)) {
                                 userList.add(user);
+                                if (listener != null) {
+                                    listener.onUpdate();
+                                }
                             }
                         }
                     }
@@ -259,47 +270,6 @@ public abstract class StatusList {
         participantRef.delete()
                 .addOnSuccessListener(aVoid -> {
                     if (listener != null) listener.onUpdate();
-                })
-                .addOnFailureListener(e -> {
-                    if (listener != null) listener.onError(e);
-                });
-    }
-
-
-    /**
-     * Promotes a participant to a co-organizer.
-     * Uses a WriteBatch to ensure the user is added to the event's co-organizer array
-     * and removed from the participant list at the exact same time.
-     * @param deviceId The ID of the user to promote.
-     * @param listener Callback for result.
-     */
-    public void promoteUser(String deviceId, ListUpdateListener listener) {
-        if (deviceId == null) {
-            return;
-        }
-
-        FirebaseFirestore db = DBConnector.getDb();
-        DocumentReference eventRef = db.collection("events").document(event.getEventId());
-        DocumentReference participantRef = eventRef.collection("participants").document(deviceId);
-
-        WriteBatch batch = db.batch();
-        // Add ID to co-organizers array in main Event doc
-        batch.update(eventRef, "coOrganizerId", FieldValue.arrayUnion(deviceId));
-        // Remove participant document from the sub-collection
-        batch.delete(participantRef);
-
-        batch.commit()
-                .addOnSuccessListener(aVoid -> {
-                    if (event.getCoOrganizerId() == null) {
-                        event.setCoOrganizerId(new ArrayList<>());
-                    }
-                    if (!event.getCoOrganizerId().contains(deviceId)) {
-                        event.getCoOrganizerId().add(deviceId);
-                    }
-
-                    if (listener != null) {
-                        listener.onUpdate();
-                    }
                 })
                 .addOnFailureListener(e -> {
                     if (listener != null) listener.onError(e);
