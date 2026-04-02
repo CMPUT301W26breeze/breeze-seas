@@ -76,23 +76,16 @@
             android:src="@drawable/ic_welcome_ticket_wave" />
     </LinearLayout>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/welcome_screen_start_button"
+        style="@style/Widget.Breezeseas.Button.Primary"
         android:layout_width="0dp"
         android:layout_height="54dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="38dp"
-        android:background="@drawable/bg_welcome_primary_button"
-        android:backgroundTint="@null"
-        android:fontFamily="@font/inter_semibold"
-        android:paddingStart="18dp"
-        android:paddingEnd="18dp"
         android:text="@string/get_started"
-        android:textAllCaps="false"
-        android:textColor="@android:color/white"
         android:textSize="16sp"
-        app:backgroundTint="@null"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

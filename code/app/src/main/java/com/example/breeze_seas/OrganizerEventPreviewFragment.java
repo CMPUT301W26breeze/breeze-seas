@@ -1,6 +1,5 @@
 package com.example.breeze_seas;
 
-import android.app.AlertDialog;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -18,6 +17,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.Timestamp;
@@ -545,7 +545,7 @@ public class OrganizerEventPreviewFragment extends Fragment {
             return;
         }
 
-        new AlertDialog.Builder(requireContext())
+        new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.organizer_event_preview_delete_title)
                 .setMessage(R.string.organizer_event_preview_delete_message)
                 .setNegativeButton(android.R.string.cancel, null)

@@ -1,7 +1,6 @@
 package com.example.breeze_seas;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -17,6 +16,8 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 /*** MainActivity is the container for the app's main navigation.
  *
@@ -310,7 +311,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showFatalAuthError() {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle("Authentication Error")
                 .setMessage("Firebase authentication failed. The app will now close.")
                 .setCancelable(false)
@@ -321,7 +322,6 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 }
-
 
 
 

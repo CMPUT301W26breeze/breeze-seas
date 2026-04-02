@@ -2,6 +2,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/surface_subtle"
+    android:clipToPadding="false"
     android:gravity="center_horizontal"
     android:orientation="vertical"
     android:padding="20dp">
@@ -10,62 +12,58 @@
         android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/inter_semibold"
         android:text="Event Created!"
-        android:textSize="22sp"
-        android:textStyle="bold" />
+        android:textColor="@color/text_primary"
+        android:textSize="30sp" />
 
     <TextView
         android:id="@+id/tvEventName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Event Name" />
+        android:fontFamily="@font/inter_regular"
+        android:text="Event Name"
+        android:textColor="@color/text_secondary"
+        android:textSize="15sp" />
 
-    <ImageView
-        android:id="@+id/ivQr"
-        android:layout_width="280dp"
-        android:layout_height="280dp"
-        android:layout_marginTop="20dp" />
+    <FrameLayout
+        android:layout_width="320dp"
+        android:layout_height="320dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/bg_welcome_hero_shell"
+        android:padding="20dp">
 
-    <Button
+        <ImageView
+            android:id="@+id/ivQr"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnManageEntrants"
+        style="@style/Widget.Breezeseas.Button.Secondary"
         android:layout_width="match_parent"
         android:layout_height="54dp"
         android:layout_marginTop="20dp"
-        android:background="@drawable/bg_welcome_primary_button"
-        android:backgroundTint="@null"
-        app:backgroundTint="@null"
-        android:fontFamily="@font/inter_semibold"
         android:text="Manage Entrants"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
         android:textSize="15sp" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnSaveQr"
+        style="@style/Widget.Breezeseas.Button.Primary"
         android:layout_width="match_parent"
         android:layout_height="54dp"
         android:layout_marginTop="12dp"
-        android:background="@drawable/bg_welcome_primary_button"
-        android:backgroundTint="@null"
-        app:backgroundTint="@null"
-        android:fontFamily="@font/inter_semibold"
         android:text="@string/view_qr_code_save_button"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
         android:textSize="15sp" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnClose"
+        style="@style/Widget.Breezeseas.Button.Secondary"
         android:layout_width="match_parent"
         android:layout_height="54dp"
         android:layout_marginTop="12dp"
-        android:background="@drawable/bg_welcome_primary_button"
-        android:backgroundTint="@null"
-        app:backgroundTint="@null"
-        android:fontFamily="@font/inter_semibold"
         android:text="Close"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
         android:textSize="15sp" />
 </LinearLayout>

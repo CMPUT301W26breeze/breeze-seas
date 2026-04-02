@@ -1,6 +1,5 @@
 package com.example.breeze_seas;
 
-import android.app.AlertDialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -15,11 +14,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.Timestamp;
 
 import java.text.SimpleDateFormat;
@@ -128,7 +129,7 @@ public class OrganizeFragment extends Fragment {
         View dialogView = LayoutInflater.from(requireContext())
                 .inflate(R.layout.dialog_create_event_visibility, null, false);
 
-        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+        AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
                 .setView(dialogView)
                 .create();
 
@@ -340,9 +341,10 @@ public class OrganizeFragment extends Fragment {
             holder.tvCap.setText(cap == null || cap < 0
                     ? "Waiting list cap: Unlimited"
                     : "Waiting list cap: " + cap);
-            holder.tvDetails.setText(e.getDescription().trim().isEmpty()
+            String description = e.getDescription() == null ? "" : e.getDescription();
+            holder.tvDetails.setText(description.trim().isEmpty()
                     ? holder.itemView.getContext().getString(R.string.organize_event_no_description)
-                    : e.getDescription());
+                    : description);
             holder.tvAction.setText(R.string.organize_event_open_preview);
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 /**
@@ -376,6 +378,9 @@ public class OrganizeFragment extends Fragment {
          */
         @NonNull
         private String formatTimestamp(@NonNull SimpleDateFormat sdf, @Nullable Timestamp timestamp) {
+            if (timestamp == null) {
+                return "Not set";
+            }
             return sdf.format(new Date(timestamp.toDate().getTime()));
         }
     }

@@ -18,6 +18,7 @@
     <string name="edits_first_name">Edits first name</string>
     <string name="edits_user_name">Edits user name</string>
     <string name="profile_subtitle">Keep your identity details and notification preferences up to date.</string>
+    <string name="profile_account_label">Account</string>
     <string name="profile_choose_photo">Choose Photo</string>
     <string name="profile_photo_content_description">Profile photo</string>
     <string name="get_started">Get Started</string>
@@ -63,6 +64,7 @@
     <string name="organizer_event_preview_delete_confirm">Delete</string>
     <string name="organize_title">Organize</string>
     <string name="organize_subtitle">Create events, manage entrants, and keep your organizer flow in one place.</string>
+    <string name="organize_active_events_label">Active events</string>
     <string name="organize_create_event">Create Event</string>
     <string name="organize_event_type_public">Public</string>
     <string name="organize_event_type_private">Private</string>
@@ -114,6 +116,7 @@
     <string name="create_event_public_success">Event created</string>
     <string name="create_event_private_success">Private event created</string>
     <string name="send">Send</string>
+    <string name="notifications_inbox_label">Inbox</string>
     <string name="notification_text">Enter your announcement here</string>
     <string name="view_map">View Map</string>
     <string name="send_announcement_back">Go back</string>

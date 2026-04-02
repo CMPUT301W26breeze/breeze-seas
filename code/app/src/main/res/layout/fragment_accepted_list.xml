@@ -52,19 +52,14 @@
         app:layout_constraintStart_toStartOf="@id/accepted_list_shell"
         app:layout_constraintTop_toTopOf="@id/accepted_list_shell" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_export_csv"
+        style="@style/Widget.Breezeseas.Button.Primary"
         android:layout_width="0dp"
         android:layout_height="52dp"
         android:layout_marginTop="16dp"
-        android:background="@drawable/bg_welcome_primary_button"
-        android:backgroundTint="@null"
-        android:fontFamily="@font/inter_medium"
         android:text="Export CSV"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
         android:textSize="14sp"
-        app:backgroundTint="@null"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

@@ -106,18 +106,13 @@
             android:textSize="12sp" />
     </LinearLayout>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/create_event_visibility_cancel"
+        style="@style/Widget.Breezeseas.Button.Secondary"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="18dp"
-        android:background="@drawable/bg_ticket_status_outline"
-        android:backgroundTint="@null"
-        android:fontFamily="@font/inter_medium"
         android:text="@string/create_event_visibility_cancel"
-        android:textAllCaps="false"
-        android:textColor="@color/text_primary"
-        android:textSize="14sp"
-        app:backgroundTint="@null" />
+        android:textSize="14sp" />
 
 </LinearLayout>

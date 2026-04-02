@@ -1,6 +1,5 @@
 package com.example.breeze_seas;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -11,6 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.FirebaseNetworkException;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 
@@ -192,14 +192,14 @@ public class SignUpFragment extends Fragment {
         // Posted by Marwa Eltayeb, modified by community. See post 'Timeline' for change history
         // Retrieved 2026-03-09, License - CC BY-SA 4.0
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
         builder.setMessage(msg);
         builder.setPositiveButton("I understand", (dialogInterface, i) -> {
             dialogInterface.dismiss();
         });
 
         // Show the dialog
-        final AlertDialog alertDialog = builder.create();
+        final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
 

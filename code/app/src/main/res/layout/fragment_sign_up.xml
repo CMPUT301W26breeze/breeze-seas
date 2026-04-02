@@ -35,9 +35,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
-            android:fontFamily="@font/inter_semibold"
+            android:textAppearance="@style/TextAppearance.Breezeseas.ScreenTitle"
             android:text="@string/signup_title"
-            android:textColor="@color/text_primary"
             android:textSize="32sp" />
 
         <TextView
@@ -45,10 +44,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:fontFamily="@font/inter_regular"
-            android:lineSpacingExtra="2dp"
+            android:textAppearance="@style/TextAppearance.Breezeseas.ScreenSubtitle"
             android:text="@string/signup_subtitle"
-            android:textColor="@color/text_secondary"
             android:textSize="15sp" />
 
         <LinearLayout
@@ -248,21 +245,14 @@
                 android:textColor="@color/text_secondary"
                 android:textSize="13sp" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/signup_confirm_button"
+                style="@style/Widget.Breezeseas.Button.Primary"
                 android:layout_width="match_parent"
                 android:layout_height="54dp"
                 android:layout_marginTop="22dp"
-                android:background="@drawable/bg_welcome_primary_button"
-                android:backgroundTint="@null"
-                android:fontFamily="@font/inter_semibold"
-                android:paddingStart="18dp"
-                android:paddingEnd="18dp"
                 android:text="@string/signup_continue"
-                android:textAllCaps="false"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"
-                app:backgroundTint="@null" />
+                android:textSize="16sp" />
 
         </LinearLayout>
 

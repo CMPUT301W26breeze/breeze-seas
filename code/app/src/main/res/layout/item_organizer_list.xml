@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
-    android:background="@drawable/bg_profile_field_shell"
+    android:background="@drawable/bg_tickets_tab_shell"
     android:gravity="center_vertical"
     android:minHeight="84dp"
     android:orientation="horizontal"
@@ -12,7 +12,7 @@
     <TextView
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:background="@drawable/bg_ticket_status_outline"
+        android:background="@drawable/bg_soft_surface"
         android:gravity="center"
         android:text="•"
         android:textColor="@color/text_primary"

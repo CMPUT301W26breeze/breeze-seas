@@ -6,9 +6,9 @@
     android:background="@color/surface_subtle"
     android:clipToPadding="false"
     android:fillViewport="true"
-    android:paddingStart="16dp"
-    android:paddingTop="16dp"
-    android:paddingEnd="16dp"
+    android:paddingStart="20dp"
+    android:paddingTop="20dp"
+    android:paddingEnd="20dp"
     android:paddingBottom="120dp">
 
     <LinearLayout
@@ -17,28 +17,16 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/profile_title"
-            android:layout_width="match_parent"
+            android:id="@+id/profile_section_label"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/inter_semibold"
-            android:text="Profile"
-            android:textColor="@color/text_primary"
-            android:textSize="24sp" />
-
-        <TextView
-            android:id="@+id/profile_subtitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:fontFamily="@font/inter_regular"
-            android:text="@string/profile_subtitle"
-            android:textColor="@color/text_secondary"
-            android:textSize="14sp" />
+            android:text="@string/profile_account_label"
+            android:textAppearance="@style/TextAppearance.Breezeseas.SectionLabel" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="10dp"
             android:background="@drawable/bg_profile_panel_shell"
             android:orientation="vertical">
 
@@ -73,9 +61,9 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/choose_profile_photo_button"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    style="@style/Widget.Breezeseas.Button.Secondary"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/button_small_height"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="14dp"
                     android:text="@string/profile_choose_photo" />
@@ -327,27 +315,19 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/save_button"
+                    style="@style/Widget.Breezeseas.Button.Primary"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/button_height"
                     android:layout_marginTop="20dp"
-                    android:backgroundTint="@color/black"
-                    android:text="@string/save"
-                    android:textAllCaps="false"
-                    android:textColor="@android:color/white"
-                    app:cornerRadius="18dp" />
+                    android:text="@string/save" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/delete_profile_button"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    style="@style/Widget.Breezeseas.Button.Destructive"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/button_height"
                     android:layout_marginTop="12dp"
-                    android:text="Delete Profile"
-                    android:textAllCaps="false"
-                    android:textColor="@color/text_primary"
-                    app:cornerRadius="18dp"
-                    app:rippleColor="#22000000"
-                    app:strokeColor="@color/grey_border" />
+                    android:text="Delete Profile" />
 
             </LinearLayout>
         </LinearLayout>

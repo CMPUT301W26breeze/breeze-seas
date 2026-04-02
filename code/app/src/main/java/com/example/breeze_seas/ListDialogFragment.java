@@ -1,13 +1,12 @@
 package com.example.breeze_seas;
 
-import static androidx.core.content.ContentProviderCompat.requireContext;
-
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 /**
  * A DialogFragment that provides organizer actions of removing entrants
@@ -39,7 +38,7 @@ public class ListDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         String[] options = {"Remove Entrant"};
 
-        return new AlertDialog.Builder(requireContext())
+        return new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Options for " + user.getUserName())
                 .setItems(options, (dialog, value) -> {
                     if (value == 0) {
@@ -55,7 +54,7 @@ public class ListDialogFragment extends DialogFragment {
      * Displays a confirmation alert before proceeding with a user deletion.
      */
     private void deleteDialog() {
-        new AlertDialog.Builder(requireContext())
+        new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Remove Entrant")
                 .setMessage("Are you sure you want to remove " + user.getUserName() + "?")
                 .setPositiveButton("Remove", (d, w) -> {

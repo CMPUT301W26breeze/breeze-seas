@@ -1,10 +1,10 @@
 package com.example.breeze_seas;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 
 public class TermsAndCondition extends DialogFragment {
@@ -47,7 +47,7 @@ public class TermsAndCondition extends DialogFragment {
 
         sb.append(FOOTER);
 
-        return new AlertDialog.Builder(getActivity())
+        return new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Terms and Conditions")
                 .setMessage(sb.toString())
                 .setPositiveButton("Accept", (dialog, id) -> listener.onAccept())

@@ -179,19 +179,14 @@
                 android:textColor="@color/text_secondary"
                 android:textSize="13sp" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/send_button"
+                style="@style/Widget.Breezeseas.Button.Primary"
                 android:layout_width="match_parent"
                 android:layout_height="54dp"
                 android:layout_marginTop="22dp"
-                android:background="@drawable/bg_welcome_primary_button"
-                android:backgroundTint="@null"
-                android:fontFamily="@font/inter_semibold"
                 android:text="@string/send"
-                android:textAllCaps="false"
-                android:textColor="@color/white"
-                android:textSize="15sp"
-                app:backgroundTint="@null" />
+                android:textSize="15sp" />
         </LinearLayout>
     </LinearLayout>
 

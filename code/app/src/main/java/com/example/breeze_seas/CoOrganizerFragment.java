@@ -1,6 +1,5 @@
 package com.example.breeze_seas;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -175,7 +175,7 @@ public class CoOrganizerFragment extends Fragment {
     }
 
     private void promoteUser(User user) {
-        new AlertDialog.Builder(requireContext())
+        new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Promote User")
                 .setMessage("Add " + user.getUserName() + " as a Co-Organizer?")
                 .setPositiveButton("Confirm", (d, w) -> promoteInDb(user))

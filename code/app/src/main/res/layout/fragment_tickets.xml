@@ -5,34 +5,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/surface_subtle"
-    android:paddingHorizontal="16dp"
+    android:paddingHorizontal="20dp"
     android:paddingTop="16dp"
     android:paddingBottom="8dp">
-
-    <TextView
-        android:id="@+id/tickets_title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/inter_semibold"
-        android:gravity="start"
-        android:text="Your Tickets"
-        android:textColor="@color/text_primary"
-        android:textSize="24sp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
 
     <LinearLayout
         android:id="@+id/tickets_tab_shell"
         android:layout_width="0dp"
         android:layout_height="56dp"
-        android:layout_marginTop="12dp"
         android:background="@drawable/bg_tickets_tab_shell"
         android:elevation="8dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="4dp"
-        app:layout_constraintTop_toBottomOf="@id/tickets_title"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 

@@ -4,11 +4,12 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_marginBottom="14dp"
-    android:background="@drawable/bg_profile_field_shell"
+    android:background="@drawable/bg_welcome_hero_shell"
     android:clickable="true"
+    android:elevation="8dp"
     android:focusable="true"
     android:orientation="vertical"
-    android:padding="18dp">
+    android:padding="20dp">
 
     <FrameLayout
         android:id="@+id/ivEventPosterFrame"
@@ -41,9 +42,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:fontFamily="@font/inter_semibold"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textAppearance="@style/TextAppearance.Breezeseas.CardTitle"
             android:text="Event Name"
-            android:textColor="@color/text_primary"
             android:textSize="20sp" />
 
         <TextView
@@ -52,14 +54,16 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:background="@drawable/bg_ticket_status_outline"
-            android:fontFamily="@font/inter_medium"
-            android:paddingStart="12dp"
-            android:paddingTop="7dp"
-            android:paddingEnd="12dp"
-            android:paddingBottom="7dp"
+            android:gravity="center"
+            android:minHeight="30dp"
+            android:minWidth="68dp"
+            android:paddingStart="11dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="11dp"
+            android:paddingBottom="6dp"
+            android:textAppearance="@style/TextAppearance.Breezeseas.SurfaceChip"
             android:text="@string/organize_event_type_public"
-            android:textColor="@color/text_primary"
-            android:textSize="12sp" />
+            android:textSize="11sp" />
 
     </LinearLayout>
 

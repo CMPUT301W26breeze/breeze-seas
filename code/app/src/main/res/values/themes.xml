@@ -28,6 +28,9 @@
         <item name="colorSurfaceVariant">#FFFFFF</item>
         <item name="colorSurfaceContainer">#FFFFFF</item>
         <item name="colorSurfaceContainerHigh">#FFFFFF</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.Breezeseas.MaterialAlertDialog</item>
+        <item name="alertDialogTheme">@style/ThemeOverlay.Breezeseas.MaterialAlertDialog</item>
+        <item name="android:alertDialogTheme">@style/ThemeOverlay.Breezeseas.MaterialAlertDialog</item>
 
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->

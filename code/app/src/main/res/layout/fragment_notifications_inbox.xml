@@ -5,51 +5,36 @@
     android:layout_height="match_parent"
     android:background="@color/surface_subtle"
     android:paddingStart="20dp"
-    android:paddingTop="20dp"
+    android:paddingTop="16dp"
     android:paddingEnd="20dp">
 
     <TextView
-        android:id="@+id/notificationTitle"
+        android:id="@+id/notificationSectionLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/inter_bold"
-        android:text="Notifications"
-        android:textColor="@color/text_primary"
-        android:textSize="34sp"
+        android:text="@string/notifications_inbox_label"
+        android:textAppearance="@style/TextAppearance.Breezeseas.SectionLabel"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/notificationSubtitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:fontFamily="@font/inter_regular"
-        android:text="Recent updates from your events, invitations, and lotteries."
-        android:textColor="@color/text_secondary"
-        android:textSize="15sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/notificationTitle" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/notifications_recycler"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:clipToPadding="false"
-        android:layout_marginTop="18dp"
+        android:layout_marginTop="12dp"
         android:paddingBottom="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/notificationSubtitle" />
+        app:layout_constraintTop_toBottomOf="@id/notificationSectionLabel" />
 
     <LinearLayout
         android:id="@+id/notifications_opt_out_state"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="4dp"
-        android:background="@drawable/bg_tickets_tab_shell"
+        android:background="@drawable/bg_welcome_hero_shell"
         android:gravity="center_horizontal"
         android:orientation="vertical"
         android:padding="28dp"
@@ -57,7 +42,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/notificationSubtitle">
+        app:layout_constraintTop_toBottomOf="@id/notificationSectionLabel">
 
         <FrameLayout
             android:layout_width="72dp"
@@ -76,7 +61,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
-            android:fontFamily="@font/inter_bold"
+            android:fontFamily="@font/inter_semibold"
             android:gravity="center"
             android:text="Your notifications are turned off"
             android:textColor="@color/text_primary"
@@ -99,7 +84,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="4dp"
-        android:background="@drawable/bg_tickets_tab_shell"
+        android:background="@drawable/bg_welcome_hero_shell"
         android:gravity="center_horizontal"
         android:orientation="vertical"
         android:padding="28dp"
@@ -107,7 +92,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/notificationSubtitle">
+        app:layout_constraintTop_toBottomOf="@id/notificationSectionLabel">
 
         <FrameLayout
             android:layout_width="72dp"
@@ -126,7 +111,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
-            android:fontFamily="@font/inter_bold"
+            android:fontFamily="@font/inter_semibold"
             android:gravity="center"
             android:text="No notifications for you right now."
             android:textColor="@color/text_primary"

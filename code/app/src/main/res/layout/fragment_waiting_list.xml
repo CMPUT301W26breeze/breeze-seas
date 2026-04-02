@@ -40,36 +40,26 @@
             android:padding="8dp" />
     </FrameLayout>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_run_lottery"
+        style="@style/Widget.Breezeseas.Button.Primary"
         android:layout_width="0dp"
         android:layout_height="52dp"
         android:layout_marginTop="16dp"
-        android:background="@drawable/bg_welcome_primary_button"
-        android:backgroundTint="@null"
-        android:fontFamily="@font/inter_medium"
         android:text="Run Lottery"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
         android:textSize="14sp"
-        app:backgroundTint="@null"
         app:layout_constraintBottom_toTopOf="@id/back_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/back_btn"
+        style="@style/Widget.Breezeseas.Button.Secondary"
         android:layout_width="0dp"
         android:layout_height="52dp"
         android:layout_marginTop="10dp"
-        android:background="@drawable/bg_ticket_status_outline"
-        android:backgroundTint="@null"
-        android:fontFamily="@font/inter_medium"
         android:text="Back"
-        android:textAllCaps="false"
-        android:textColor="@color/text_primary"
         android:textSize="14sp"
-        app:backgroundTint="@null"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

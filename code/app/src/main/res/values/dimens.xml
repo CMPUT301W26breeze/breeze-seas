@@ -13,4 +13,12 @@
     <dimen name="bottom_nav_item_padding_horizontal">10dp</dimen>
     <dimen name="bottom_nav_item_padding_vertical">7dp</dimen>
     <dimen name="bottom_nav_content_clearance">12dp</dimen>
+    <dimen name="screen_horizontal_padding">20dp</dimen>
+    <dimen name="screen_vertical_padding">20dp</dimen>
+    <dimen name="screen_bottom_padding">32dp</dimen>
+    <dimen name="surface_padding">20dp</dimen>
+    <dimen name="button_corner_radius">18dp</dimen>
+    <dimen name="button_height">52dp</dimen>
+    <dimen name="button_small_height">46dp</dimen>
+    <dimen name="dialog_corner_radius">28dp</dimen>
 </resources>

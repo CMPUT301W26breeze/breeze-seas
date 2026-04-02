@@ -222,10 +222,10 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/save_button"
+            style="@style/Widget.Breezeseas.Button.Primary"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/button_height"
             android:text="@string/save"
-            android:backgroundTint="@color/black"
             android:layout_marginTop="16dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -234,9 +234,9 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/ap_admin_dashboard_button"
-            style="@style/Widget.Material3.Button.TonalButton"
+            style="@style/Widget.Breezeseas.Button.Secondary"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/button_height"
             android:text="Admin Dashboard"
             android:layout_marginTop="16dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -245,13 +245,10 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/delete_profile_button"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+            style="@style/Widget.Breezeseas.Button.Destructive"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/button_height"
             android:text="Delete Profile"
-            android:textColor="@color/design_default_color_error"
-            app:strokeColor="@color/design_default_color_error"
-            app:rippleColor="#22FF0000"
             android:layout_marginTop="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

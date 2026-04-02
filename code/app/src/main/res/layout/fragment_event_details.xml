@@ -47,9 +47,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="22dp"
-            android:fontFamily="@font/inter_semibold"
+            android:textAppearance="@style/TextAppearance.Breezeseas.ScreenTitle"
             android:text="Event Name"
-            android:textColor="@color/text_primary"
             android:textSize="30sp" />
 
         <FrameLayout
@@ -73,19 +72,14 @@
                 app:shapeAppearanceOverlay="@style/RoundedCorners.EventDetails" />
         </FrameLayout>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/event_details_view_QRCode_button"
+            style="@style/Widget.Breezeseas.Button.Secondary"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginTop="16dp"
-            android:background="@drawable/bg_ticket_status_outline"
-            android:backgroundTint="@null"
-            android:fontFamily="@font/inter_medium"
             android:text="View QR Code"
-            android:textAllCaps="false"
-            android:textColor="@color/text_primary"
-            android:textSize="14sp"
-            app:backgroundTint="@null" />
+            android:textSize="14sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -218,19 +212,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/event_details_join_waitlist_button"
+                    style="@style/Widget.Breezeseas.Button.Primary"
                     android:layout_width="match_parent"
                     android:layout_height="52dp"
-                    android:background="@drawable/bg_welcome_primary_button"
-                    android:backgroundTint="@null"
-                    android:fontFamily="@font/inter_medium"
                     android:text="Join Waiting List"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white"
                     android:textSize="14sp"
-                    android:visibility="gone"
-                    app:backgroundTint="@null" />
+                    android:visibility="gone" />
 
                 <ProgressBar
                     android:id="@+id/event_details_loading_progress_bar"
@@ -242,56 +231,41 @@
 
             </FrameLayout>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/event_details_leave_waitlist_button"
+                style="@style/Widget.Breezeseas.Button.Secondary"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:background="@drawable/bg_ticket_status_outline"
-                android:backgroundTint="@null"
-                android:fontFamily="@font/inter_medium"
                 android:text="Leave Waiting List"
-                android:textAllCaps="false"
-                android:textColor="@color/text_primary"
                 android:textSize="14sp"
-                android:visibility="gone"
-                app:backgroundTint="@null" />
+                android:visibility="gone" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/event_details_accept_invite_button"
+                    style="@style/Widget.Breezeseas.Button.Primary"
                     android:layout_width="0dp"
                     android:layout_height="52dp"
                     android:layout_marginEnd="6dp"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_welcome_primary_button"
-                    android:backgroundTint="@null"
-                    android:fontFamily="@font/inter_medium"
                     android:text="Accept"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white"
                     android:textSize="14sp"
-                    android:visibility="gone"
-                    app:backgroundTint="@null" />
+                    android:visibility="gone" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/event_details_decline_invite_button"
+                    style="@style/Widget.Breezeseas.Button.Secondary"
                     android:layout_width="0dp"
                     android:layout_height="52dp"
                     android:layout_marginStart="6dp"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_ticket_status_outline"
-                    android:backgroundTint="@null"
-                    android:fontFamily="@font/inter_medium"
                     android:text="Decline"
-                    android:textAllCaps="false"
-                    android:textColor="@color/text_primary"
                     android:textSize="14sp"
-                    android:visibility="gone"
-                    app:backgroundTint="@null" />
+                    android:visibility="gone" />
             </LinearLayout>
         </LinearLayout>
 
