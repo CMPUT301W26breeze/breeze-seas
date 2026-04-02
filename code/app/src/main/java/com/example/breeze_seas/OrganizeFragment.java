@@ -59,8 +59,13 @@ public class OrganizeFragment extends Fragment {
         // Setup EventHandler class if necessary
         organizeViewModel = new ViewModelProvider(requireActivity()).get(OrganizeViewModel.class);
         if (!organizeViewModel.eventHandlerIsInitialized()) {
-            organizeViewModel.setEventHandler(new EventHandler(getContext().getApplicationContext(),
-                    EventDB.getAllEventsOrganizedByUserQuery(user), false));
+            organizeViewModel.setEventHandler(new EventHandler(
+                    getActivity(),
+                    getContext().getApplicationContext(),
+                    EventDB.getAllEventsOrganizedByUserQuery(user),
+                    viewModel.getAndroidID().getValue(),
+                    false,
+                    false));
         }
         // Save reference to EventHandler list of events
         events = organizeViewModel.getEventHandler().getEvents().getValue();
