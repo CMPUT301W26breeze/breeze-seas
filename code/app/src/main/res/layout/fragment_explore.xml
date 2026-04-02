@@ -68,6 +68,7 @@
                 android:paddingEnd="14dp">
 
                 <TextView
+                    android:id="@+id/explore_filter_button_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/inter_medium"

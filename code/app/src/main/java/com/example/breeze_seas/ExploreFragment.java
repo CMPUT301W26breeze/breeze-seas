@@ -44,6 +44,7 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
     private TextView noEventsText;
     private View scanQRCodeBtn;
     private View filterButton;
+    private TextView filterButtonLabel;
     private EditText searchInput;
     private EventHandler exploreEventHandler;
     private Handler mhandler = new Handler();
@@ -114,6 +115,12 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        updateFilterButtonLabel();
+    }
+
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
@@ -125,6 +132,7 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
         noEventsText = view.findViewById(R.id.explore_no_events_found_text);
         scanQRCodeBtn = view.findViewById(R.id.explore_QRCode_floating_button);
         filterButton = view.findViewById(R.id.explore_filter_button);
+        filterButtonLabel = view.findViewById(R.id.explore_filter_button_label);
         searchInput = view.findViewById(R.id.explore_search_input);
         scanQRCodeBtn.setOnClickListener(v -> {
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
@@ -141,6 +149,7 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
         filterButton.setOnClickListener(v ->
                 ((MainActivity) requireActivity()).openSecondaryFragment(new FilterFragment())
         );
+        updateFilterButtonLabel();
 
         RecyclerView eventsView = view.findViewById(R.id.explore_recycler_view_events);
         adapter = new ExploreEventViewAdapter(
@@ -200,5 +209,19 @@ public class ExploreFragment extends Fragment implements RecyclerViewClickListen
         } else {
             noEventsText.setVisibility(View.GONE);
         }
+    }
+
+    /**
+     * Updates the Explore filter label to reflect how many advanced filters are active.
+     */
+    private void updateFilterButtonLabel() {
+        if (filterButtonLabel == null || exploreEventHandler == null) {
+            return;
+        }
+
+        int activeFilterCount = exploreEventHandler.getActiveFilterCount();
+        filterButtonLabel.setText(activeFilterCount > 0
+                ? getString(R.string.explore_filter_active, activeFilterCount)
+                : getString(R.string.explore_filter));
     }
 }

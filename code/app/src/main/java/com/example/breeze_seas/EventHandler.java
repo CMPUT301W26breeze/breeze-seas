@@ -46,6 +46,14 @@ public class EventHandler {
     private final Query query;
     private final HashMap<String, Event> queryHashMapOfEvents = new HashMap<String, Event>();
     private String keywordString = "";
+    @Nullable
+    private Long availabilityStartMillis = null;
+    @Nullable
+    private Long availabilityEndMillis = null;
+    @Nullable
+    private Integer minCapacityFilter = null;
+    @Nullable
+    private Integer maxCapacityFilter = null;
     private final MutableLiveData<ArrayList<Event>> filteredListOfEventsData = new MutableLiveData<>(new ArrayList<Event>());
     private final MutableLiveData<Event> eventShownData = new MutableLiveData<>();
 
@@ -147,12 +155,55 @@ public class EventHandler {
      * @return true if event matches filter, otherwise false.
      */
     private boolean matchesFilter(Event e) {
-        // Check if title or description contains keyword
-        if (e.toString().contains(keywordString)) {
+        return e.toString().contains(keywordString)
+                && matchesAvailabilityFilter(e)
+                && matchesCapacityFilter(e);
+    }
+
+    /**
+     * Checks whether the event schedule overlaps the selected availability window.
+     * Events without a schedule are excluded only when the availability filter is active.
+     * @param e Event object.
+     * @return true if the event falls within the chosen availability window.
+     */
+    private boolean matchesAvailabilityFilter(Event e) {
+        if (availabilityStartMillis == null && availabilityEndMillis == null) {
             return true;
-        } else {
+        }
+
+        if (e.getEventStartTimestamp() == null && e.getEventEndTimestamp() == null) {
             return false;
         }
+
+        long eventStartMillis = (e.getEventStartTimestamp() != null)
+                ? e.getEventStartTimestamp().toDate().getTime()
+                : Objects.requireNonNull(e.getEventEndTimestamp()).toDate().getTime();
+        long eventEndMillis = (e.getEventEndTimestamp() != null)
+                ? e.getEventEndTimestamp().toDate().getTime()
+                : eventStartMillis;
+        long filterStartMillis = (availabilityStartMillis == null) ? Long.MIN_VALUE : availabilityStartMillis;
+        long filterEndMillis = (availabilityEndMillis == null) ? Long.MAX_VALUE : availabilityEndMillis;
+
+        return eventEndMillis >= filterStartMillis && eventStartMillis <= filterEndMillis;
+    }
+
+    /**
+     * Checks whether the event capacity is inside the selected capacity range.
+     * @param e Event object.
+     * @return true if the event capacity matches the selected range.
+     */
+    private boolean matchesCapacityFilter(Event e) {
+        int eventCapacity = e.getEventCapacity();
+
+        if (minCapacityFilter != null && eventCapacity < minCapacityFilter) {
+            return false;
+        }
+
+        if (maxCapacityFilter != null && eventCapacity > maxCapacityFilter) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -164,6 +215,101 @@ public class EventHandler {
         filter();
         sort();
         post();
+    }
+
+    /**
+     * Applies the advanced Explore filters and refreshes the filtered event list.
+     * @param availabilityStartMillis Start of the selected availability window, or null.
+     * @param availabilityEndMillis End of the selected availability window, or null.
+     * @param minCapacityFilter Minimum capacity filter, or null.
+     * @param maxCapacityFilter Maximum capacity filter, or null.
+     */
+    public void setAdvancedFilters(@Nullable Long availabilityStartMillis,
+                                   @Nullable Long availabilityEndMillis,
+                                   @Nullable Integer minCapacityFilter,
+                                   @Nullable Integer maxCapacityFilter) {
+        this.availabilityStartMillis = availabilityStartMillis;
+        this.availabilityEndMillis = availabilityEndMillis;
+        this.minCapacityFilter = minCapacityFilter;
+        this.maxCapacityFilter = maxCapacityFilter;
+        filter();
+        sort();
+        post();
+    }
+
+    /**
+     * Clears all advanced Explore filters and refreshes the list.
+     */
+    public void clearAdvancedFilters() {
+        setAdvancedFilters(null, null, null, null);
+    }
+
+    /**
+     * Returns the currently selected availability start.
+     * @return Start of the selected availability window, or null.
+     */
+    @Nullable
+    public Long getAvailabilityStartMillis() {
+        return availabilityStartMillis;
+    }
+
+    /**
+     * Returns the currently selected availability end.
+     * @return End of the selected availability window, or null.
+     */
+    @Nullable
+    public Long getAvailabilityEndMillis() {
+        return availabilityEndMillis;
+    }
+
+    /**
+     * Returns the selected minimum event capacity filter.
+     * @return Minimum capacity filter, or null.
+     */
+    @Nullable
+    public Integer getMinCapacityFilter() {
+        return minCapacityFilter;
+    }
+
+    /**
+     * Returns the selected maximum event capacity filter.
+     * @return Maximum capacity filter, or null.
+     */
+    @Nullable
+    public Integer getMaxCapacityFilter() {
+        return maxCapacityFilter;
+    }
+
+    /**
+     * Returns whether any advanced Explore filter is active.
+     * @return true if at least one advanced filter is set.
+     */
+    public boolean hasAdvancedFilters() {
+        return availabilityStartMillis != null
+                || availabilityEndMillis != null
+                || minCapacityFilter != null
+                || maxCapacityFilter != null;
+    }
+
+    /**
+     * Returns the number of advanced Explore filters that are currently active.
+     * Date range counts as a single filter pill.
+     * @return Number of active advanced filters.
+     */
+    public int getActiveFilterCount() {
+        int count = 0;
+
+        if (availabilityStartMillis != null || availabilityEndMillis != null) {
+            count++;
+        }
+        if (minCapacityFilter != null) {
+            count++;
+        }
+        if (maxCapacityFilter != null) {
+            count++;
+        }
+
+        return count;
     }
 
     /**
@@ -451,6 +597,7 @@ public class EventHandler {
         // Check if listener is active
         if (eventHandlerListener != null) {
             eventHandlerListener.remove();
+            eventHandlerListener = null;
         }
     }
 }
