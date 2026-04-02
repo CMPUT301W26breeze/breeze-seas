@@ -4,7 +4,7 @@
     android:id="@+id/event_details_wrapper"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/surface_subtle"
     android:clipToPadding="false"
     android:fillViewport="true"
     android:paddingStart="20dp"
