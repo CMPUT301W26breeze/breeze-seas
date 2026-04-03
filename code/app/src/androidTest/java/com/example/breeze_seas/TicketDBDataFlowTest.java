@@ -253,6 +253,43 @@ public class TicketDBDataFlowTest {
         assertTrue(ticketDb.getPastTickets().isEmpty());
     }
 
+    /**
+     * Verifies that a private event invite is classified as an active action-required ticket and
+     * preserves the private-event flag needed by the invitation decision flow.
+     *
+     * @throws Exception When reflection-based cache setup fails.
+     */
+    @Test
+    public void recomputeTicketsFromRealtimeCache_privateInviteCreatesActionRequiredActiveTicket() throws Exception {
+        Timestamp eventStart = new Timestamp(new Date(1893459600000L)); // Tue, Jan 1 2030 5:00 PM UTC
+        Timestamp timeJoined = new Timestamp(new Date(1893373200000L));
+
+        DocumentSnapshot eventDocument = mock(DocumentSnapshot.class);
+        when(eventDocument.exists()).thenReturn(true);
+        when(eventDocument.getId()).thenReturn("event-private-invite");
+        when(eventDocument.getString("name")).thenReturn("Private Gallery Opening");
+        when(eventDocument.getString("location")).thenReturn("South Studio");
+        when(eventDocument.getBoolean("isPrivate")).thenReturn(true);
+        when(eventDocument.getTimestamp("eventStartTimestamp")).thenReturn(eventStart);
+
+        putIntoPrivateMap("participantEntries", "event-private-invite",
+                newParticipantEntry("event-private-invite", "invited", timeJoined));
+        putIntoPrivateMap("eventSnapshots", "event-private-invite", eventDocument);
+
+        invokePrivateMethod("recomputeTicketsFromRealtimeCache");
+
+        assertEquals(1, ticketDb.getActiveTickets().size());
+        assertTrue(ticketDb.getAttendingTickets().isEmpty());
+        assertTrue(ticketDb.getPastTickets().isEmpty());
+
+        TicketUIModel activeTicket = ticketDb.getActiveTickets().get(0);
+        assertEquals("event-private-invite", activeTicket.getEventId());
+        assertEquals("Private Gallery Opening", activeTicket.getTitle());
+        assertEquals(TicketUIModel.Status.ACTION_REQUIRED, activeTicket.getStatus());
+        assertTrue(activeTicket.isPrivateEvent());
+        assertEquals(EventMetadataUtils.formatDateTime(eventStart), activeTicket.getDateLabel());
+    }
+
     private void resetTicketDbState() throws Exception {
         clearPrivateCollection("listeners");
         clearPrivateCollection("activeTickets");
