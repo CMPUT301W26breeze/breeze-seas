@@ -180,4 +180,55 @@ public class EventDataFlowTest {
         assertTrue(hydratedEvent.getAllOrganizerId().contains("coorg-1"));
         assertTrue(hydratedEvent.getAllOrganizerId().contains("coorg-2"));
     }
+
+    /**
+     * Verifies that organizer membership helpers distinguish the lead organizer from co-organizers
+     * while still treating both as valid organizers for organizer-side access flows.
+     */
+    @Test
+    public void organizerMembershipChecks_distinguishLeadAndCoOrganizers() {
+        Timestamp createdTimestamp = new Timestamp(new Date(1893286800000L));
+        Timestamp modifiedTimestamp = new Timestamp(new Date(1893290400000L));
+        ArrayList<String> coOrganizers = new ArrayList<>();
+        coOrganizers.add("coorg-1");
+        coOrganizers.add("coorg-2");
+        Event event = new Event(
+                "event-membership",
+                false,
+                "lead-organizer",
+                coOrganizers,
+                "Organizer Planning Event",
+                "Internal organizer planning event",
+                null,
+                createdTimestamp,
+                modifiedTimestamp,
+                null,
+                null,
+                null,
+                null,
+                false,
+                10,
+                0,
+                0,
+                null,
+                null,
+                null,
+                null
+        );
+        User leadOrganizer = new User("lead-organizer", "Lead", "Organizer", "lead", "lead@example.com", false);
+        User coOrganizer = new User("coorg-1", "Co", "Organizer", "coorg", "coorg@example.com", false);
+        User outsider = new User("outsider", "Out", "Sider", "outsider", "outsider@example.com", false);
+
+        assertTrue(event.userIsOrganizer(leadOrganizer));
+        assertFalse(event.userIsOrganizer(coOrganizer));
+        assertFalse(event.userIsOrganizer(outsider));
+
+        assertFalse(event.userIsCoOrganizer(leadOrganizer));
+        assertTrue(event.userIsCoOrganizer(coOrganizer));
+        assertFalse(event.userIsCoOrganizer(outsider));
+
+        assertTrue(event.userIsAnOrganizer(leadOrganizer));
+        assertTrue(event.userIsAnOrganizer(coOrganizer));
+        assertFalse(event.userIsAnOrganizer(outsider));
+    }
 }
