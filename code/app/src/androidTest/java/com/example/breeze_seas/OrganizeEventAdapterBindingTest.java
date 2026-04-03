@@ -169,4 +169,50 @@ public class OrganizeEventAdapterBindingTest {
                 holder.tvAction.getText().toString()
         );
     }
+
+    /**
+     * Verifies that organizer events missing registration dates still bind a safe "Not set"
+     * fallback into the Organize event card instead of showing broken or empty date text.
+     */
+    @Test
+    public void onBindViewHolder_missingRegistrationDatesShowsNotSetFallback() {
+        ContextThemeWrapper context = new ContextThemeWrapper(
+                ApplicationProvider.getApplicationContext(),
+                R.style.Theme_Breezeseas
+        );
+        Timestamp createdTimestamp = new Timestamp(new Date(1893286800000L));
+        Timestamp modifiedTimestamp = new Timestamp(new Date(1893290400000L));
+        Map<String, Object> eventMap = new HashMap<>();
+        eventMap.put("eventId", "organize-missing-dates-event");
+        eventMap.put("isPrivate", false);
+        eventMap.put("organizerId", "organizer-device-id");
+        eventMap.put("coOrganizerId", new ArrayList<>());
+        eventMap.put("name", "Date TBD Event");
+        eventMap.put("description", "Schedule still being finalized.");
+        eventMap.put("createdTimestamp", createdTimestamp);
+        eventMap.put("modifiedTimestamp", modifiedTimestamp);
+        eventMap.put("registrationStartTimestamp", null);
+        eventMap.put("registrationEndTimestamp", null);
+        eventMap.put("eventStartTimestamp", null);
+        eventMap.put("eventEndTimestamp", null);
+        eventMap.put("geolocationEnforced", false);
+        eventMap.put("eventCapacity", 15);
+        eventMap.put("waitingListCapacity", 4);
+        eventMap.put("drawARound", 0);
+        Event event = new Event(eventMap);
+
+        OrganizeFragment.EventAdapter adapter = new OrganizeFragment.EventAdapter(
+                Collections.singletonList(event),
+                selectedEvent -> { }
+        );
+        FrameLayout parent = new FrameLayout(context);
+        OrganizeFragment.EventAdapter.VH holder = adapter.onCreateViewHolder(parent, 0);
+
+        adapter.onBindViewHolder(holder, 0);
+
+        assertEquals("Date TBD Event", holder.tvName.getText().toString());
+        assertEquals("Reg: Not set \u2192 Not set", holder.tvDates.getText().toString());
+        assertEquals("Waiting list cap: 4", holder.tvCap.getText().toString());
+        assertEquals("Schedule still being finalized.", holder.tvDetails.getText().toString());
+    }
 }
