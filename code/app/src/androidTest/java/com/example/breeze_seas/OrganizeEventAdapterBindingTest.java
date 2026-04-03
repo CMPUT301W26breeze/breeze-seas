@@ -215,4 +215,86 @@ public class OrganizeEventAdapterBindingTest {
         assertEquals("Waiting list cap: 4", holder.tvCap.getText().toString());
         assertEquals("Schedule still being finalized.", holder.tvDetails.getText().toString());
     }
+
+    /**
+     * Verifies that tapping an organizer event card dispatches the exact bound event to the
+     * click listener so the preview flow opens the correct event.
+     */
+    @Test
+    public void onBindViewHolder_clickDispatchesBoundEvent() {
+        ContextThemeWrapper context = new ContextThemeWrapper(
+                ApplicationProvider.getApplicationContext(),
+                R.style.Theme_Breezeseas
+        );
+        Timestamp createdTimestamp = new Timestamp(new Date(1893286800000L));
+        Timestamp modifiedTimestamp = new Timestamp(new Date(1893290400000L));
+        Event firstEvent = new Event(buildEventMap(
+                "event-first",
+                false,
+                "First Event",
+                "First description",
+                createdTimestamp,
+                modifiedTimestamp
+        ));
+        Event secondEvent = new Event(buildEventMap(
+                "event-second",
+                true,
+                "Second Event",
+                "Second description",
+                createdTimestamp,
+                modifiedTimestamp
+        ));
+        Event[] clickedEvent = new Event[1];
+
+        OrganizeFragment.EventAdapter adapter = new OrganizeFragment.EventAdapter(
+                java.util.Arrays.asList(firstEvent, secondEvent),
+                selectedEvent -> clickedEvent[0] = selectedEvent
+        );
+        FrameLayout parent = new FrameLayout(context);
+        OrganizeFragment.EventAdapter.VH holder = adapter.onCreateViewHolder(parent, 0);
+
+        adapter.onBindViewHolder(holder, 1);
+        holder.itemView.performClick();
+
+        assertEquals(secondEvent, clickedEvent[0]);
+    }
+
+    /**
+     * Builds a minimal organizer event map for adapter-binding tests.
+     *
+     * @param eventId Event identifier used by the adapter.
+     * @param isPrivate Whether the event is private.
+     * @param name Display name rendered on the event card.
+     * @param description Description rendered on the event card.
+     * @param createdTimestamp Event creation timestamp.
+     * @param modifiedTimestamp Event modification timestamp.
+     * @return Firestore-shaped event data for adapter tests.
+     */
+    private Map<String, Object> buildEventMap(
+            String eventId,
+            boolean isPrivate,
+            String name,
+            String description,
+            Timestamp createdTimestamp,
+            Timestamp modifiedTimestamp
+    ) {
+        Map<String, Object> eventMap = new HashMap<>();
+        eventMap.put("eventId", eventId);
+        eventMap.put("isPrivate", isPrivate);
+        eventMap.put("organizerId", "organizer-device-id");
+        eventMap.put("coOrganizerId", new ArrayList<>());
+        eventMap.put("name", name);
+        eventMap.put("description", description);
+        eventMap.put("createdTimestamp", createdTimestamp);
+        eventMap.put("modifiedTimestamp", modifiedTimestamp);
+        eventMap.put("registrationStartTimestamp", null);
+        eventMap.put("registrationEndTimestamp", null);
+        eventMap.put("eventStartTimestamp", null);
+        eventMap.put("eventEndTimestamp", null);
+        eventMap.put("geolocationEnforced", false);
+        eventMap.put("eventCapacity", 20);
+        eventMap.put("waitingListCapacity", 2);
+        eventMap.put("drawARound", 0);
+        return eventMap;
+    }
 }
