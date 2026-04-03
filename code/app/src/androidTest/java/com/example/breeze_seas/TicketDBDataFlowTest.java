@@ -211,6 +211,48 @@ public class TicketDBDataFlowTest {
         assertEquals(EventMetadataUtils.formatDateTime(eventStart), attendingTicket.getDateLabel());
     }
 
+    /**
+     * Verifies that removing a waiting-list participant row clears the related ticket from the
+     * Active tab instead of leaving stale cached data behind.
+     *
+     * @throws Exception When reflection-based cache setup fails.
+     */
+    @Test
+    public void applyLocalParticipantRemoval_waitingTicketRemovesItFromActiveList() throws Exception {
+        Timestamp eventStart = new Timestamp(new Date(1893459600000L)); // Tue, Jan 1 2030 5:00 PM UTC
+        Timestamp timeJoined = new Timestamp(new Date(1893373200000L));
+
+        DocumentSnapshot eventDocument = mock(DocumentSnapshot.class);
+        when(eventDocument.exists()).thenReturn(true);
+        when(eventDocument.getId()).thenReturn("event-leave");
+        when(eventDocument.getString("name")).thenReturn("Leave Waitlist Event");
+        when(eventDocument.getString("location")).thenReturn("North Hall");
+        when(eventDocument.getBoolean("isPrivate")).thenReturn(false);
+        when(eventDocument.getTimestamp("eventStartTimestamp")).thenReturn(eventStart);
+
+        putIntoPrivateMap("participantEntries", "event-leave",
+                newParticipantEntry("event-leave", "waiting", timeJoined));
+        putIntoPrivateMap("eventSnapshots", "event-leave", eventDocument);
+
+        invokePrivateMethod("recomputeTicketsFromRealtimeCache");
+
+        assertEquals(1, ticketDb.getActiveTickets().size());
+        assertTrue(ticketDb.getAttendingTickets().isEmpty());
+        assertTrue(ticketDb.getPastTickets().isEmpty());
+        assertEquals(TicketUIModel.Status.PENDING, ticketDb.getActiveTickets().get(0).getStatus());
+
+        Method applyLocalRemoval = TicketDB.class.getDeclaredMethod(
+                "applyLocalParticipantRemoval",
+                String.class
+        );
+        applyLocalRemoval.setAccessible(true);
+        applyLocalRemoval.invoke(ticketDb, "event-leave");
+
+        assertTrue(ticketDb.getActiveTickets().isEmpty());
+        assertTrue(ticketDb.getAttendingTickets().isEmpty());
+        assertTrue(ticketDb.getPastTickets().isEmpty());
+    }
+
     private void resetTicketDbState() throws Exception {
         clearPrivateCollection("listeners");
         clearPrivateCollection("activeTickets");
