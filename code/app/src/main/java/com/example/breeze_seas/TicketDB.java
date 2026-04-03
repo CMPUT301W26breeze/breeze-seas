@@ -17,7 +17,6 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -540,6 +539,18 @@ public final class TicketDB {
         String dateLabel = buildDateLabel(eventDocument, timeJoined);
         String locationLabel = buildLocationLabel(eventDocument);
         boolean privateEvent = Boolean.TRUE.equals(eventDocument.getBoolean("isPrivate"));
+        boolean eventEnded = hasEventEnded(eventDocument);
+
+        if (eventEnded && !isArchivedStatus(status)) {
+            return LoadedTicket.forPast(new PastEventUIModel(
+                    title,
+                    dateLabel,
+                    locationLabel,
+                    "Past",
+                    "This event has already happened.",
+                    R.drawable.ic_clock
+            ));
+        }
 
         switch (status) {
             case "waiting":
@@ -602,38 +613,49 @@ public final class TicketDB {
      */
     @NonNull
     private String buildDateLabel(@NonNull DocumentSnapshot eventDocument, @Nullable Timestamp timeJoined) {
-        Timestamp displayTimestamp = eventDocument.getTimestamp("eventStartDate");
+        Timestamp displayTimestamp = eventDocument.getTimestamp("eventStartTimestamp");
         if (displayTimestamp == null) {
-            displayTimestamp = eventDocument.getTimestamp("eventStart");
+            displayTimestamp = eventDocument.getTimestamp("eventEndTimestamp");
         }
         if (displayTimestamp == null) {
-            displayTimestamp = eventDocument.getTimestamp("eventEndDate");
+            displayTimestamp = eventDocument.getTimestamp("registrationEndTimestamp");
         }
         if (displayTimestamp == null) {
-            displayTimestamp = eventDocument.getTimestamp("eventEnd");
-        }
-        if (displayTimestamp == null) {
-            displayTimestamp = eventDocument.getTimestamp("registrationEndDate");
-        }
-        if (displayTimestamp == null) {
-            displayTimestamp = eventDocument.getTimestamp("registrationCloseAt");
-        }
-        if (displayTimestamp == null) {
-            displayTimestamp = eventDocument.getTimestamp("registrationStartDate");
-        }
-        if (displayTimestamp == null) {
-            displayTimestamp = eventDocument.getTimestamp("registrationOpenAt");
+            displayTimestamp = eventDocument.getTimestamp("registrationStartTimestamp");
         }
         if (displayTimestamp == null) {
             displayTimestamp = timeJoined;
         }
 
-        if (displayTimestamp == null) {
-            return "Date unavailable";
-        }
+        return displayTimestamp == null
+                ? "Date unavailable"
+                : EventMetadataUtils.formatDateTime(displayTimestamp);
+    }
 
-        Date displayDate = displayTimestamp.toDate();
-        return new SimpleDateFormat("EEE, MMM d • h:mm a", Locale.US).format(displayDate);
+    /**
+     * Returns whether a tracked event has already ended and should render in the Past tab.
+     *
+     * @param eventDocument Event metadata document tied to the current ticket.
+     * @return {@code true} when the event end or start timestamp is already behind the current time.
+     */
+    private boolean hasEventEnded(@NonNull DocumentSnapshot eventDocument) {
+        Timestamp eventEnd = eventDocument.getTimestamp("eventEndTimestamp");
+        if (eventEnd == null) {
+            eventEnd = eventDocument.getTimestamp("eventStartTimestamp");
+        }
+        return eventEnd != null && eventEnd.toDate().before(new Date());
+    }
+
+    /**
+     * Returns whether a participant status already belongs to the archived Past tab.
+     *
+     * @param status Normalized participant status.
+     * @return {@code true} when the status is already archived.
+     */
+    private boolean isArchivedStatus(@NonNull String status) {
+        return "declined".equals(status)
+                || "cancelled".equals(status)
+                || "not_selected".equals(status);
     }
 
     /**

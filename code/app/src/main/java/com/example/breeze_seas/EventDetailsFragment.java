@@ -16,10 +16,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 public class EventDetailsFragment extends Fragment {
     private ImageView returnButton;
     private TextView eventTitle;
@@ -325,8 +321,8 @@ public class EventDetailsFragment extends Fragment {
         handlePoster(eventShown.getImage());
         eventCapacity.setText(fmt("Capacity:", String.valueOf(eventShown.getEventCapacity())));
         eventWaitingListCount.setText(fmt("Currently in Waiting List:", String.valueOf(waitingList.getSize())));
-        eventStartDate.setText(fmt("Starts:", formatTimestamp(eventShown.getRegistrationStartTimestamp())));
-        eventEndDate.setText(fmt("Ends:", formatTimestamp(eventShown.getRegistrationEndTimestamp())));
+        eventStartDate.setText(fmt("Starts:", EventMetadataUtils.formatDateTime(eventShown.getEventStartTimestamp())));
+        eventEndDate.setText(fmt("Ends:", EventMetadataUtils.formatDateTime(eventShown.getEventEndTimestamp())));
         eventDescription.setText(eventShown.getDescription());
     }
 
@@ -385,17 +381,6 @@ public class EventDetailsFragment extends Fragment {
      */
     private String fmt(String header, String value) {
         return header + "\n" + value;
-    }
-
-    /**
-     * Formats a Firestore timestamp to show on the user view of event page.
-     *
-     * @param timestamp Firestore timestamp object to format into date.
-     * @return Date string
-     */
-    private String formatTimestamp(com.google.firebase.Timestamp timestamp) {
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.US);
-        return sdf.format(new Date(timestamp.toDate().getTime()));
     }
 
     /**

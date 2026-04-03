@@ -381,8 +381,8 @@ public class EventHandler {
 
         // Check if event is presently shown
         // Event ID matches
-        Event eventShown = eventShownData.getValue();
-        if (eventShown != null && eventId.equals(eventShown.getEventId())) {
+        Event shownEvent = eventShownData.getValue();
+        if (shownEvent != null && eventId.equals(shownEvent.getEventId())) {
             postShownDelete();  // Trigger observers
         }
     }
