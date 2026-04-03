@@ -159,6 +159,58 @@ public class TicketDBDataFlowTest {
         assertEquals(EventMetadataUtils.formatDateTime(eventStart), pastTicket.getDateLabel());
     }
 
+    /**
+     * Verifies that applying an accepted participant-status update moves a future public event
+     * from the Active tab into the Attending tab.
+     *
+     * @throws Exception When reflection-based cache setup fails.
+     */
+    @Test
+    public void applyLocalParticipantStatusUpdate_pendingToAcceptedMovesTicketToAttending() throws Exception {
+        Timestamp eventStart = new Timestamp(new Date(1893459600000L)); // Tue, Jan 1 2030 5:00 PM UTC
+        Timestamp timeJoined = new Timestamp(new Date(1893373200000L));
+
+        DocumentSnapshot eventDocument = mock(DocumentSnapshot.class);
+        when(eventDocument.exists()).thenReturn(true);
+        when(eventDocument.getId()).thenReturn("event-transition");
+        when(eventDocument.getString("name")).thenReturn("Invite-Only Concert");
+        when(eventDocument.getString("location")).thenReturn("Grand Hall");
+        when(eventDocument.getBoolean("isPrivate")).thenReturn(false);
+        when(eventDocument.getTimestamp("eventStartTimestamp")).thenReturn(eventStart);
+
+        putIntoPrivateMap("participantEntries", "event-transition",
+                newParticipantEntry("event-transition", "pending", timeJoined));
+        putIntoPrivateMap("eventSnapshots", "event-transition", eventDocument);
+
+        invokePrivateMethod("recomputeTicketsFromRealtimeCache");
+
+        assertEquals(1, ticketDb.getActiveTickets().size());
+        assertTrue(ticketDb.getAttendingTickets().isEmpty());
+        assertTrue(ticketDb.getPastTickets().isEmpty());
+        assertEquals(TicketUIModel.Status.ACTION_REQUIRED, ticketDb.getActiveTickets().get(0).getStatus());
+
+        Method applyLocalUpdate = TicketDB.class.getDeclaredMethod(
+                "applyLocalParticipantStatusUpdate",
+                String.class,
+                String.class
+        );
+        applyLocalUpdate.setAccessible(true);
+        applyLocalUpdate.invoke(ticketDb, "event-transition", "accepted");
+
+        assertTrue(ticketDb.getActiveTickets().isEmpty());
+        assertTrue(ticketDb.getPastTickets().isEmpty());
+        assertEquals(1, ticketDb.getAttendingTickets().size());
+
+        AttendingTicketUIModel attendingTicket = ticketDb.getAttendingTickets().get(0);
+        assertEquals("event-transition", attendingTicket.getEventId());
+        assertEquals("Invite-Only Concert", attendingTicket.getTitle());
+        assertEquals("Grand Hall", attendingTicket.getLocationLabel());
+        assertEquals("Confirmed entry", attendingTicket.getTicketTypeLabel());
+        assertEquals("Show this ticket during event check-in.", attendingTicket.getEntryNote());
+        assertEquals("Open QR pass", attendingTicket.getActionLabel());
+        assertEquals(EventMetadataUtils.formatDateTime(eventStart), attendingTicket.getDateLabel());
+    }
+
     private void resetTicketDbState() throws Exception {
         clearPrivateCollection("listeners");
         clearPrivateCollection("activeTickets");
