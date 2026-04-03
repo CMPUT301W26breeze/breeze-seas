@@ -133,4 +133,51 @@ public class EventDataFlowTest {
         assertEquals(-1, hydratedEvent.getWaitingListCapacity());
         assertEquals(0, hydratedEvent.getDrawARound());
     }
+
+    /**
+     * Verifies that co-organizer identifiers survive the Firestore map round trip so organizer
+     * membership data remains available to the Organize landing page and event preview.
+     */
+    @Test
+    public void toMapAndLoadMap_preservesCoOrganizerIds() {
+        Timestamp createdTimestamp = new Timestamp(new Date(1893286800000L));
+        Timestamp modifiedTimestamp = new Timestamp(new Date(1893290400000L));
+        ArrayList<String> coOrganizers = new ArrayList<>();
+        coOrganizers.add("coorg-1");
+        coOrganizers.add("coorg-2");
+
+        Event originalEvent = new Event(
+                "event-coorganizers",
+                false,
+                "lead-organizer",
+                coOrganizers,
+                "Team Planning Session",
+                "Organizer-only planning event",
+                null,
+                createdTimestamp,
+                modifiedTimestamp,
+                null,
+                null,
+                null,
+                null,
+                false,
+                25,
+                5,
+                0,
+                null,
+                null,
+                null,
+                null
+        );
+
+        Map<String, Object> serializedEvent = originalEvent.toMap();
+        Event hydratedEvent = new Event(serializedEvent);
+
+        assertEquals("lead-organizer", hydratedEvent.getOrganizerId());
+        assertEquals(coOrganizers, hydratedEvent.getCoOrganizerId());
+        assertEquals(3, hydratedEvent.getAllOrganizerId().size());
+        assertTrue(hydratedEvent.getAllOrganizerId().contains("lead-organizer"));
+        assertTrue(hydratedEvent.getAllOrganizerId().contains("coorg-1"));
+        assertTrue(hydratedEvent.getAllOrganizerId().contains("coorg-2"));
+    }
 }
