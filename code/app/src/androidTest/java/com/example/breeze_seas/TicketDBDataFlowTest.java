@@ -119,6 +119,46 @@ public class TicketDBDataFlowTest {
         assertTrue(ticketDb.getPastTickets().isEmpty());
     }
 
+    /**
+     * Verifies that an ended event is moved into the Past tab even when the participant status
+     * would normally map to Attending.
+     *
+     * @throws Exception When reflection-based cache setup fails.
+     */
+    @Test
+    public void recomputeTicketsFromRealtimeCache_endedAcceptedEventCreatesPastTicket() throws Exception {
+        Timestamp eventStart = new Timestamp(new Date(1714867200000L)); // Sun, May 5 2024 12:00 AM UTC
+        Timestamp eventEnd = new Timestamp(new Date(1714953600000L));   // Mon, May 6 2024 12:00 AM UTC
+        Timestamp timeJoined = new Timestamp(new Date(1714780800000L));
+
+        DocumentSnapshot eventDocument = mock(DocumentSnapshot.class);
+        when(eventDocument.exists()).thenReturn(true);
+        when(eventDocument.getId()).thenReturn("event-past");
+        when(eventDocument.getString("name")).thenReturn("Past Concert");
+        when(eventDocument.getString("location")).thenReturn("Old Arena");
+        when(eventDocument.getBoolean("isPrivate")).thenReturn(false);
+        when(eventDocument.getTimestamp("eventStartTimestamp")).thenReturn(eventStart);
+        when(eventDocument.getTimestamp("eventEndTimestamp")).thenReturn(eventEnd);
+
+        putIntoPrivateMap("participantEntries", "event-past",
+                newParticipantEntry("event-past", "accepted", timeJoined));
+        putIntoPrivateMap("eventSnapshots", "event-past", eventDocument);
+
+        invokePrivateMethod("recomputeTicketsFromRealtimeCache");
+
+        assertTrue(ticketDb.getActiveTickets().isEmpty());
+        assertTrue(ticketDb.getAttendingTickets().isEmpty());
+        assertEquals(1, ticketDb.getPastTickets().size());
+
+        PastEventUIModel pastTicket = ticketDb.getPastTickets().get(0);
+        assertEquals("Past Concert", pastTicket.getTitle());
+        assertEquals("Old Arena", pastTicket.getLocationLabel());
+        assertEquals("Past", pastTicket.getStatusLabel());
+        assertEquals("This event has already happened.", pastTicket.getDetailLabel());
+        assertEquals(R.drawable.ic_clock, pastTicket.getIconResId());
+        assertEquals(EventMetadataUtils.formatDateTime(eventStart), pastTicket.getDateLabel());
+    }
+
     private void resetTicketDbState() throws Exception {
         clearPrivateCollection("listeners");
         clearPrivateCollection("activeTickets");
