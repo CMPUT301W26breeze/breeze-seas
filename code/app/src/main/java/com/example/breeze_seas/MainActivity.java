@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, fragment)
-                .commit();
+                .commitNow();
     }
 
     public void openSecondaryFragment(Fragment fragment) {
