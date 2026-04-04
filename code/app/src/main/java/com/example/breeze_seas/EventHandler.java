@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -359,6 +360,87 @@ public class EventHandler {
     }
 
     /**
+     * Helper method to add an event object to the hashmap.
+     * @param map Map object to generate the event from and to add to the hashmap.
+     */
+    private void addEvent(Map<String, Object> map) {
+        Event e = new Event(map);
+        // Because firebase does not have an arrayNotContains operation.
+        // We must manually filter out co-organizers.
+        // Check if user is a coOrganizer for this event
+        if (hideCoOrganizerEvents && userIsCoOrganizer(e)) {
+            Log.d("EventHandler Class", "Event is being co-organized, discarding... " + map);
+            return;  // Skip adding event to hashmap
+        }
+
+        // Add to query hashmap
+        queryHashMapOfEvents.put(e.getEventId(), e);
+
+        // Attach image listeners if applicable
+        Object tmpImageDocId = map.get("imageDocId");
+        if (tmpImageDocId != null) {
+            attachImageListener(e,
+                    tmpImageDocId.toString());
+        }
+
+        // Successfully added event to hashmap
+        return;
+    }
+
+    /**
+     * Helper method to modify an event in the hashmap.
+     * @param eventId EventId of event object to modify.
+     * @param map Map object to update the event object with new information.
+     */
+    private void modifyEvent(String eventId, Map<String, Object> map) {
+        // Helper variables
+        Event eventTmp;
+        Object tmpImageDocId;
+
+        // First Identify which event object is different
+        eventTmp = findEventById(eventId);
+
+        // Edge case: event object previously removed because user is a co-organizer.
+        // However, now the user is no longer the organizer for the event.
+        // In Firebase's eyes, the document is modified.
+        // findEventById would not be able to find the event, returning null.
+        if (eventTmp == null && hideCoOrganizerEvents) {
+            addEvent(map);
+            return;
+        }
+
+        // Load new values
+        eventTmp.loadMap(map);
+
+        // This check is after event object loads the new values.
+        // Check if user is a coOrganizer for this event.
+        if (hideCoOrganizerEvents && userIsCoOrganizer(eventTmp)) {
+            Log.d("EventHandler Class", "Event is now being co-organized, removing... " + map);
+            removeEventById(eventTmp.getEventId());
+            return;  // Skip logic below.
+        }
+
+        // Edge case: image uploaded or gone?
+        tmpImageDocId = map.get("imageDocId");
+        // imageDocId exists
+        if (tmpImageDocId != null) {
+            attachImageListener(eventTmp,
+                    tmpImageDocId.toString());
+        }
+        // No imageDocId
+        if (tmpImageDocId == null) {
+            removeImageListener(eventTmp.getEventId());
+        }
+
+        // Check if event is presently shown
+        // This is to update the event in EventDetailsFragment
+        // The check relies on object reference, which should work
+        if (eventTmp == eventShownData.getValue()) {
+            postShown();  // Trigger observers
+        }
+    }
+
+    /**
      * Helper method to remove the event object from query hashmap.
      * Called by the realtime listeners when an event document is removed or
      * when an event document becomes co organized by the user.
@@ -495,85 +577,30 @@ public class EventHandler {
                     removeAllImageListeners();
 
                     // Message and exit app
-                    Toast.makeText(context, "EventHandler failed to load events.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "EventHandler failed to fetch events.", Toast.LENGTH_SHORT).show();
                     if (activity.get() != null) {
                         activity.get().finish();
                     }
                     return;  // This will automatically close listener
                 }
 
-                // Handle each new event
-                Event eventTmp;
-                Object tmpImageDocId;
                 for (DocumentChange dc : eventDocs.getDocumentChanges()) {
                     switch (dc.getType()) {
                         case ADDED:
-                            // Create event
-                            eventTmp = new Event(dc.getDocument().getData());
-                            
-                            // Because firebase does not have an arrayNotContains operation.
-                            // We must manually filter out co-organizers.
-                            // Check if user is a coOrganizer for this event
-                            if (hideCoOrganizerEvents && userIsCoOrganizer(eventTmp)) {
-                                break;  // Skip adding event to hashmap
-                            }
-
-                            // Log to logcat
                             Log.d("EventHandler Class", "New event: " + dc.getDocument().getData());
-
-                            // Add to query hashmap
-                            queryHashMapOfEvents.put(eventTmp.getEventId(), eventTmp);
-
-                            // Attach image listeners if applicable
-                            tmpImageDocId = dc.getDocument().getData().get("imageDocId");
-                            if (tmpImageDocId != null) {
-                                attachImageListener(eventTmp,
-                                                    tmpImageDocId.toString());
-                            }
+                            // Create event
+                            addEvent(dc.getDocument().getData());
                             break;
 
                         case MODIFIED:
-                            // Modify event
-                            // First Identify which event object is different
-                            eventTmp = findEventById(dc.getDocument().getId());
-
-                            // Load new values
-                            eventTmp.loadMap(dc.getDocument().getData());
-
-                            // Edge case: image uploaded or gone?
-                            tmpImageDocId = dc.getDocument().getData().get("imageDocId");
-                            // imageDocId exists
-                            if (tmpImageDocId != null) {
-                                attachImageListener(eventTmp,
-                                        tmpImageDocId.toString());
-                            }
-                            // No imageDocId
-                            if (tmpImageDocId == null) {
-                                removeImageListener(eventTmp.getEventId());
-                            }
-
-                            // This check is after event object loads the new values.
-                            // Check if user is a coOrganizer for this event.
-                            if (hideCoOrganizerEvents && userIsCoOrganizer(eventTmp)) {
-                                Log.d("EventHandler Class", "Removed event: " + dc.getDocument().getData());
-                                removeEventById(eventTmp.getEventId());
-                                break;  // Skip logic below.
-                            }
-
-                            // Log to logcat
                             Log.d("EventHandler Class", "Modified event: " + dc.getDocument().getData());
-
-                            // Check if event is presently shown
-                            // This is to update the event in EventDetailsFragment
-                            // The check relies on object reference, which should work
-                            if (eventTmp == eventShownData.getValue()) {
-                                postShown();  // Trigger observers
-                            }
+                            // Modify event
+                            modifyEvent(dc.getDocument().getId(), dc.getDocument().getData());
                             break;
 
                         case REMOVED:
                             Log.d("EventHandler Class", "Removed event: " + dc.getDocument().getData());
-                            // Delete
+                            // Delete event
                             removeEventById(dc.getDocument().getId());
                             break;
                     }
@@ -582,10 +609,6 @@ public class EventHandler {
                 filter();
                 sort();
                 post();
-
-                // Unassign reference
-                eventTmp = null;
-                tmpImageDocId = null;
             }
         });
     }
