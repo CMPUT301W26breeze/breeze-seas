@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 
@@ -65,17 +66,23 @@ public class AdminBrowseEventsFragment extends Fragment {
                     .addToBackStack(null)
                     .commit();
         }, event -> {
-            adminViewModel.deleteEvent(event, new EventDB.EventMutationCallback() {
-                @Override
-                public void onSuccess() { }
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Delete event")
+                    .setMessage("\"" + event.getName() + "\" and all its data will be permanently deleted.")
+                    .setPositiveButton("Delete", (dialog, which) ->
+                            adminViewModel.deleteEvent(event, new EventDB.EventMutationCallback() {
+                                @Override
+                                public void onSuccess() { }
 
-                @Override
-                public void onFailure(Exception e) {
-                    if (getContext() != null) {
-                        Toast.makeText(getContext(), "Failed to delete event", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
+                                @Override
+                                public void onFailure(Exception e) {
+                                    if (getContext() != null) {
+                                        Toast.makeText(getContext(), "Failed to delete event", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            }))
+                    .setNegativeButton("Cancel", null)
+                    .show();
         });
 
         recyclerView.setAdapter(adapter);

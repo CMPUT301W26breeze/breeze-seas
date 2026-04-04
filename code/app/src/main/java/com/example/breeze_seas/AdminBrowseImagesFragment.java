@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 
@@ -44,17 +45,23 @@ public class AdminBrowseImagesFragment extends Fragment {
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
 
         adapter = new AdminBrowseImagesAdapter(new ArrayList<>(), image -> {
-            adminViewModel.deleteImage(image, new ImageDB.ImageMutationCallback() {
-                @Override
-                public void onSuccess() { }
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Delete image")
+                    .setMessage("This image will be permanently deleted.")
+                    .setPositiveButton("Delete", (dialog, which) ->
+                            adminViewModel.deleteImage(image, new ImageDB.ImageMutationCallback() {
+                                @Override
+                                public void onSuccess() { }
 
-                @Override
-                public void onFailure(Exception e) {
-                    if (getContext() != null) {
-                        Toast.makeText(getContext(), "Failed to delete image", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
+                                @Override
+                                public void onFailure(Exception e) {
+                                    if (getContext() != null) {
+                                        Toast.makeText(getContext(), "Failed to delete image", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            }))
+                    .setNegativeButton("Cancel", null)
+                    .show();
         });
 
         recyclerView.setAdapter(adapter);

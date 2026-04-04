@@ -20,6 +20,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
+import com.google.android.gms.tasks.Tasks;
+
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -101,9 +103,9 @@ public class EventDB {
     /**
      * Deletes an event and all of its data from the database.
      *
-     * <p>Fetches every document in the event's "participants" subcollection, then uses
-     * a {@link WriteBatch} to delete all participant documents, the event's poster image
-     * (if one exists), and the event document itself.
+     * <p>Fetches every document in the event's "participants" and "comments" subcollections,
+     * then uses a {@link WriteBatch} to delete all participant documents, all comment documents,
+     * the event's poster image (if one exists), and the event document itself.
      * Either everything is deleted or nothing is.</p>
      *
      * @param event    The event to delete.
@@ -115,20 +117,31 @@ public class EventDB {
                 .collection("participants")
                 .get()
                 .addOnSuccessListener(participantSnapshots -> {
-                    WriteBatch batch = db.batch();
+                    // Fetch comments after participants so both are ready before committing the batch
+                    eventRef.document(event.getEventId())
+                            .collection("comments")
+                            .get()
+                            .addOnSuccessListener(commentSnapshots -> {
+                                WriteBatch batch = db.batch();
 
-                    for (QueryDocumentSnapshot doc : participantSnapshots) {
-                        batch.delete(doc.getReference());
-                    }
+                                for (QueryDocumentSnapshot doc : participantSnapshots) {
+                                    batch.delete(doc.getReference());
+                                }
 
-                    // Include the poster image in the batch if the event has one
-                    if (event.getImage() != null && event.getImage().getImageId() != null) {
-                        batch.delete(db.collection("images").document(event.getImage().getImageId()));
-                    }
+                                for (QueryDocumentSnapshot doc : commentSnapshots) {
+                                    batch.delete(doc.getReference());
+                                }
 
-                    batch.delete(eventRef.document(event.getEventId()));
-                    batch.commit()
-                            .addOnSuccessListener(unused -> callback.onSuccess())
+                                // Include the poster image in the batch if the event has one
+                                if (event.getImage() != null && event.getImage().getImageId() != null) {
+                                    batch.delete(db.collection("images").document(event.getImage().getImageId()));
+                                }
+
+                                batch.delete(eventRef.document(event.getEventId()));
+                                batch.commit()
+                                        .addOnSuccessListener(unused -> callback.onSuccess())
+                                        .addOnFailureListener(callback::onFailure);
+                            })
                             .addOnFailureListener(callback::onFailure);
                 })
                 .addOnFailureListener(callback::onFailure);

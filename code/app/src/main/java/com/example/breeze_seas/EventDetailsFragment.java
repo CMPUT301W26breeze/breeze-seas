@@ -308,7 +308,7 @@ public class EventDetailsFragment extends Fragment {
         });
 
         commentsSectionController = new EventCommentsSectionController(this, view);
-        commentsSectionController.bind(eventShown, user);
+        commentsSectionController.bind(eventShown, user, false, user != null && user.isAdmin());
         updateView();
         showOption(user);
     }

@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
@@ -50,9 +51,16 @@ public class AdminBrowseProfilesFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         adapter = new AdminBrowseProfilesAdapter(new ArrayList<>(), (user, position) -> {
-            // Runs a multistep batch (participant records, owned events, then the user document).
-            // The listener removes the user from the live list once Firestore confirms deletion.
-            adminViewModel.deleteUser(user.getDeviceId());
+            String name = (user.getFirstName() + " " + user.getLastName()).trim();
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Delete profile")
+                    .setMessage("\"" + name + "\" and all associated data will be permanently deleted.")
+                    .setPositiveButton("Delete", (dialog, which) ->
+                            // Runs a multistep batch (participant records, owned events, then the user document).
+                            // The listener removes the user from the live list once Firestore confirms deletion.
+                            adminViewModel.deleteUser(user.getDeviceId()))
+                    .setNegativeButton("Cancel", null)
+                    .show();
         });
 
         recyclerView.setAdapter(adapter);

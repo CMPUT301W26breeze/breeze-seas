@@ -47,6 +47,8 @@ public final class EventCommentsSectionController {
     @Nullable
     private Boolean organizerViewerOverride;
 
+    private boolean canAdminComments;
+
     @Nullable
     private String listeningEventId;
 
@@ -120,6 +122,22 @@ public final class EventCommentsSectionController {
     public void bind(@Nullable Event event, @Nullable User user, boolean organizerViewerOverride) {
         this.organizerViewerOverride = organizerViewerOverride;
         bind(event, user);
+    }
+
+    /**
+     * Attaches the current event/user context with admin moderation mode enabled.
+     * When {@code canAdminComments} is {@code true}, delete is shown on all comments
+     * regardless of whether the author is an organizer or entrant.
+     *
+     * @param event Event whose comments should be displayed.
+     * @param user Current signed-in app user, if available.
+     * @param organizerViewerOverride Whether the current screen should behave as organizer view.
+     * @param canAdminComments Whether all comments should show a delete button.
+     */
+    public void bind(@Nullable Event event, @Nullable User user, boolean organizerViewerOverride, boolean canAdminComments) {
+        this.canAdminComments = canAdminComments;
+        adapter.setCanAdminComments(canAdminComments);
+        bind(event, user, organizerViewerOverride);
     }
 
     /**

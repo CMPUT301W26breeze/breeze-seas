@@ -31,6 +31,7 @@ public class EventCommentsAdapter extends RecyclerView.Adapter<EventCommentsAdap
 
     private final List<EventCommentUIModel> comments = new ArrayList<>();
     private boolean canModerateEntrantComments;
+    private boolean canAdminComments;
     private final OnDeleteCommentClickListener deleteCommentClickListener;
 
     /**
@@ -54,6 +55,18 @@ public class EventCommentsAdapter extends RecyclerView.Adapter<EventCommentsAdap
      */
     public void setCanModerateEntrantComments(boolean canModerateEntrantComments) {
         this.canModerateEntrantComments = canModerateEntrantComments;
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Updates whether admin delete controls should be shown on all comments.
+     * When {@code true}, delete is visible on both entrant and organizer comments.
+     * Intended for admins who can remove any comment regardless of author role.
+     *
+     * @param canAdminComments {@code true} when the current viewer can delete any comment.
+     */
+    public void setCanAdminComments(boolean canAdminComments) {
+        this.canAdminComments = canAdminComments;
         notifyDataSetChanged();
     }
 
@@ -107,7 +120,7 @@ public class EventCommentsAdapter extends RecyclerView.Adapter<EventCommentsAdap
             holder.roleChipView.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.text_primary));
         }
 
-        boolean showDelete = canModerateEntrantComments && !comment.isAuthorOrganizer();
+        boolean showDelete = canAdminComments || (canModerateEntrantComments && !comment.isAuthorOrganizer());
         holder.deleteView.setVisibility(showDelete ? View.VISIBLE : View.GONE);
         holder.deleteView.setOnClickListener(showDelete
                 ? new View.OnClickListener() {
