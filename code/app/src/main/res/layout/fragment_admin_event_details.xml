@@ -1,155 +1,173 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:background="?attr/colorSurface">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/event_details_wrapper"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/event_details_fragment_container"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_weight="7">
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/event_details_event_title"
-            android:layout_width="wrap_content"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/aed_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@android:drawable/ic_menu_revert"
+            app:title="Event Details" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:text="&lt;Event Name&gt;"
-            android:textSize="24sp"
-            app:layout_constraintBottom_toTopOf="@id/event_details_event_photo"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_weight="2" />
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="32dp">
 
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/event_details_event_photo"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="30dp"
-            android:layout_marginEnd="30dp"
-            android:background="@color/black"
-            app:layout_constraintBottom_toBottomOf="@id/event_details_event_info_wrapper"
-            app:layout_constraintDimensionRatio="1.0"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/event_details_event_title"
-            app:shapeAppearanceOverlay="@style/RoundedCorners.EventDetails"
-            app:layout_constraintVertical_weight="5"/>
+            <!-- Poster -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_profile_field_shell"
+                android:clipChildren="true"
+                android:clipToPadding="true">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/event_details_event_info_wrapper"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/event_details_event_description"
-            app:layout_constraintTop_toBottomOf="@id/event_details_event_photo"
-            app:layout_constraintVertical_weight="3"
-            android:layout_marginTop="5dp">
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/aed_iv_poster"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    app:shapeAppearance="@style/RoundedCorners.ExploreEventEntry" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/event_details_view_QRCode_button"
-                android:layout_width="wrap_content"
+            </FrameLayout>
+
+            <!-- Event name -->
+            <TextView
+                android:id="@+id/aed_tv_name"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:backgroundTint="@color/black"
-                android:text="View QR Code"
-                android:textStyle="bold"
-                app:cornerRadius="10dp"
-                app:layout_constraintBottom_toTopOf="@+id/event_details_event_capacity"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.1"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/inter_semibold"
+                android:textColor="@color/text_primary"
+                android:textSize="22sp" />
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/event_details_event_capacity"
-                android:layout_width="wrap_content"
+            <!-- Description -->
+            <TextView
+                android:id="@+id/aed_tv_description"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Capacity:\n50"
-                app:layout_constraintBottom_toTopOf="@+id/event_details_event_waiting_list_count"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.1"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/event_details_view_QRCode_button" />
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/inter_regular"
+                android:textColor="@color/text_secondary"
+                android:textSize="15sp" />
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/event_details_event_waiting_list_count"
-                android:layout_width="wrap_content"
+            <!-- Info pills -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Currently in Waiting List:\n131"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.14"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/event_details_event_capacity" />
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/event_details_even_start_date"
-                android:layout_width="wrap_content"
+                <TextView
+                    android:id="@+id/aed_tv_capacity"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_profile_field_shell"
+                    android:fontFamily="@font/inter_medium"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="8dp"
+                    android:textColor="@color/text_primary"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/aed_tv_waiting_list"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_profile_field_shell"
+                    android:fontFamily="@font/inter_medium"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="8dp"
+                    android:textColor="@color/text_primary"
+                    android:textSize="13sp" />
+
+            </LinearLayout>
+
+            <!-- Registration closes -->
+            <TextView
+                android:id="@+id/aed_tv_reg_closes"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Starts:\nMarch 7th, 2026"
-                app:layout_constraintBottom_toTopOf="@+id/event_details_event_end_date"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.9"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_profile_field_shell"
+                android:fontFamily="@font/inter_medium"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="8dp"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/event_details_event_end_date"
-                android:layout_width="wrap_content"
+            <!-- Organizer -->
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="Ends:\nApril 6th, 2026"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.87"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/event_details_even_start_date" />
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/inter_semibold"
+                android:text="Organizer"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp" />
 
+            <TextView
+                android:id="@+id/aed_tv_organizer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_profile_field_shell"
+                android:fontFamily="@font/inter_regular"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="10dp"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            <!-- Co-organizers (hidden when empty) -->
+            <TextView
+                android:id="@+id/aed_tv_coorganizers_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:fontFamily="@font/inter_semibold"
+                android:text="Co-organizers"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:visibility="gone" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/event_details_event_description"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="30dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginEnd="30dp"
-            android:layout_marginBottom="5dp"
-            android:background="@color/grey_border"
-            android:gravity="left"
-            android:padding="8dp"
-            android:text="&lt;Insert Event Description Here&gt;"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/event_details_event_info_wrapper"
-            app:layout_constraintVertical_weight="3"/>
+            <TextView
+                android:id="@+id/aed_tv_coorganizers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_profile_field_shell"
+                android:fontFamily="@font/inter_regular"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="10dp"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
+                android:visibility="gone" />
 
+            <!-- Comments -->
+            <include layout="@layout/include_event_comments_section" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/event_details_fragment_container"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintVertical_weight="1"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/event_details_wrapper"
-        tools:layout="@layout/item_event_details_join_waitlist"/>
+    </androidx.core.widget.NestedScrollView>
 
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

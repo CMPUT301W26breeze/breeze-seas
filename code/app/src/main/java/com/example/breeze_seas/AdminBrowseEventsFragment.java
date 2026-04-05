@@ -60,7 +60,6 @@ public class AdminBrowseEventsFragment extends Fragment {
 
         adapter = new AdminBrowseEventsAdapter(new ArrayList<>(), event -> {
             sessionViewModel.setEventShown(event);
-            // TODO: Complete AdminEventDetailsFragment
             requireActivity().getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new AdminEventDetailsFragment())
                     .addToBackStack(null)
