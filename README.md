@@ -1,28 +1,30 @@
 # Breeze Seas
 
 <div align="center">
-  <p><strong>Android event discovery and lottery-based registration platform</strong></p>
-  <p>Built for CMPUT 301, Introduction to Software Engineering, at the University of Alberta</p>
-  <p>
-    <a href="https://cmput301w26breeze.github.io/breeze-seas/">Live Documentation Site</a>
-    ·
-    <a href="https://cmput301w26breeze.github.io/breeze-seas/javadoc/">API Reference</a>
-    ·
-    <a href="https://github.com/CMPUT301W26breeze/breeze-seas/wiki">Project Wiki</a>
-    ·
-    <a href="LICENSE">License</a>
-  </p>
+<img src="https://img.shields.io/badge/platform-Android-2ea44f" alt="Platform">
+<img src="https://img.shields.io/badge/language-Java%2011-0b5fff" alt="Language">
+<img src="https://img.shields.io/badge/backend-Firebase-ff8c00" alt="Backend">
+<img src="https://img.shields.io/badge/minSdk-24-5c6370" alt="Min SDK">
+<img src="https://img.shields.io/badge/license-GPL--3.0--or--later-7a1fa2" alt="License">
+
+<strong>Android event discovery and lottery-based registration platform</strong>
+
+Built for CMPUT 301, Introduction to Software Engineering, at the University of Alberta
+
+
+<a href="https://cmput301w26breeze.github.io/breeze-seas/">Live Documentation Site</a>
+·
+<a href="https://cmput301w26breeze.github.io/breeze-seas/javadoc/">API Reference</a>
+·
+<a href="https://github.com/CMPUT301W26breeze/breeze-seas/wiki">Project Wiki</a>
+·
+<a href="LICENSE">License</a>
+
 </div>
 
-![Platform](https://img.shields.io/badge/platform-Android-2ea44f)
-![Language](https://img.shields.io/badge/language-Java%2011-0b5fff)
-![Backend](https://img.shields.io/badge/backend-Firebase-ff8c00)
-![Min SDK](https://img.shields.io/badge/minSdk-24-5c6370)
-![License](https://img.shields.io/badge/license-GPL--3.0--or--later-7a1fa2)
-
+<br>
 Breeze Seas is an Android application for managing event discovery, registrations, and high-demand admissions through a fair lottery workflow. The project supports three distinct user experiences: entrants discovering and joining events, organizers managing event operations, and administrators overseeing platform-wide activity.
 
-Your site is live at [https://cmput301w26breeze.github.io/breeze-seas/](https://cmput301w26breeze.github.io/breeze-seas/).
 
 ## Documentation
 
@@ -61,7 +63,6 @@ Your site is live at [https://cmput301w26breeze.github.io/breeze-seas/](https://
 - Java 11
 - Gradle Kotlin DSL
 - Firebase Authentication and Firestore
-- Google Maps and location services
 - CameraX, ML Kit barcode scanning, and ZXing
 - osmdroid and OpenCSV
 
@@ -99,7 +100,6 @@ breeze-seas/
 ├── code/
 │   ├── app/
 │   │   ├── src/main/java/com/example/breeze_seas/
-│   │   │   ├── activities/
 │   │   │   ├── fragments/
 │   │   │   │   ├── entrant/
 │   │   │   │   ├── organizer/
