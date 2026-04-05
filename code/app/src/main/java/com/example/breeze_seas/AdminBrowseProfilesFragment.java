@@ -75,12 +75,12 @@ public class AdminBrowseProfilesFragment extends Fragment {
             @Override public void afterTextChanged(Editable s) {}
         });
 
-        // Observe live list
+        // Observe live list — admins are filtered out inside the adapter
         adminViewModel.getUsers().observe(getViewLifecycleOwner(), users -> {
             int previousCount = adapter.getItemCount();
             adapter.updateList(users);
             adapter.filter(currentQuery);
-            if (users.size() < previousCount) {
+            if (adapter.getItemCount() < previousCount) {
                 Toast.makeText(getContext(), "Profile deleted", Toast.LENGTH_SHORT).show();
             }
         });

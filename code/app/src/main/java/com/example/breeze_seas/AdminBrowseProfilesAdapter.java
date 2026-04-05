@@ -55,6 +55,7 @@ public class AdminBrowseProfilesAdapter extends RecyclerView.Adapter<AdminBrowse
 
     /**
      * Filters the displayed list based on a search query.
+     * Admin accounts are always excluded regardless of query.
      * Matches against display name, username, and device ID (case-insensitive).
      *
      * @param query The search string to filter by.
@@ -62,10 +63,13 @@ public class AdminBrowseProfilesAdapter extends RecyclerView.Adapter<AdminBrowse
     public void filter(String query) {
         filteredList.clear();
         if (query == null || query.trim().isEmpty()) {
-            filteredList.addAll(fullList);
+            for (User user : fullList) {
+                if (!user.isAdmin()) filteredList.add(user);
+            }
         } else {
             String lower = query.trim().toLowerCase();
             for (User user : fullList) {
+                if (user.isAdmin()) continue;
                 String displayName = getDisplayName(user).toLowerCase();
                 String userName = user.getUserName() != null ? user.getUserName().toLowerCase() : "";
                 String deviceId = user.getDeviceId() != null ? user.getDeviceId().toLowerCase() : "";
