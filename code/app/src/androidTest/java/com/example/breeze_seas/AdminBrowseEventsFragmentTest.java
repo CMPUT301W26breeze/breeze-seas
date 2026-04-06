@@ -23,6 +23,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Instrumentation tests for the admin event-browsing flow and its navigation behavior.
+ */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class AdminBrowseEventsFragmentTest {

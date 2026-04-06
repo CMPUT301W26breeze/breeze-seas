@@ -29,6 +29,9 @@ import androidx.fragment.app.DialogFragment;
  */
 public class InvitationActionDialogFragment extends DialogFragment {
 
+    /**
+     * Handles the accept/decline decision emitted by the action-required invitation dialog.
+     */
     public interface Listener {
         void onAccept(@NonNull TicketUIModel ticket);
         void onDecline(@NonNull TicketUIModel ticket);

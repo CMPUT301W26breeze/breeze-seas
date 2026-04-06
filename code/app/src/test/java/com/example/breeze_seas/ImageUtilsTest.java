@@ -13,6 +13,9 @@ import org.robolectric.RobolectricTestRunner;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+/**
+ * Robolectric tests for base64, bitmap, and scaling helpers in {@link ImageUtils}.
+ */
 @RunWith(RobolectricTestRunner.class)
 public class ImageUtilsTest {
 

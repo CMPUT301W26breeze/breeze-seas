@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Instrumentation tests for the admin profile-browsing screen and its list filtering behavior.
+ */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class AdminBrowseProfilesFragmentTest {

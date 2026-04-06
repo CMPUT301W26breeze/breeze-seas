@@ -17,6 +17,9 @@ import com.google.firebase.Timestamp;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Binds event cards for the Explore list and routes taps back to the hosting screen.
+ */
 public class ExploreEventViewAdapter extends RecyclerView.Adapter<ExploreEventViewAdapter.ExploreEventViewHolder> {
     private final Context context;
     private final List<Event> eventList;

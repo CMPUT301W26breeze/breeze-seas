@@ -17,6 +17,9 @@ import java.util.List;
  */
 public class AdminBrowseImagesAdapter extends RecyclerView.Adapter<AdminBrowseImagesAdapter.ImageViewHolder> {
 
+    /**
+     * Receives delete actions for one image tile in the admin image browser.
+     */
     public interface OnImageDeleteListener {
         void onImageDelete(Image image);
     }
@@ -72,6 +75,9 @@ public class AdminBrowseImagesAdapter extends RecyclerView.Adapter<AdminBrowseIm
         notifyDataSetChanged();
     }
 
+    /**
+     * Holds the image preview and delete affordance for one admin gallery tile.
+     */
     public static class ImageViewHolder extends RecyclerView.ViewHolder {
         ImageView ivImage;
         ImageButton btnDelete;

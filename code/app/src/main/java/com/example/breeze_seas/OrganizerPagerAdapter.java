@@ -4,6 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+/**
+ * Supplies the organizer list fragments for the waiting, pending, accepted, and declined tabs.
+ */
 public class OrganizerPagerAdapter extends FragmentStateAdapter {
 
     private static final int NUM_TABS = 4;

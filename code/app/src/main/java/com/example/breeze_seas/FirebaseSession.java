@@ -20,6 +20,9 @@ public final class FirebaseSession {
     private FirebaseSession() {
     }
 
+    /**
+     * Receives the result of the anonymous-auth bootstrap used before Firestore access.
+     */
     public interface OnReadyListener {
         void onReady();
         void onError(@NonNull Exception e);

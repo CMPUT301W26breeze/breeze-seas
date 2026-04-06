@@ -7,6 +7,9 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Unit tests for ticket-state to tab mappings used by the Tickets UI.
+ */
 public class TicketTabMapperTest {
 
     @Test

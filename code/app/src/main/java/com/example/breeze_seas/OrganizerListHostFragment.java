@@ -10,6 +10,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
+/**
+ * Hosts the organizer entrant-status tabs and keeps the selected tab in sync with the pager.
+ */
 public class OrganizerListHostFragment extends Fragment {
     private static final String STATE_SELECTED_TAB = "state_selected_tab";
 
