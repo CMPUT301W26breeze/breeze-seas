@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.EditText;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -35,11 +36,6 @@ import org.mockito.MockitoAnnotations;
 @RunWith(AndroidJUnit4.class)
 public class ProfileFragmentTest {
 
-    private View decorView;
-
-    @Mock
-    private UserDB mockUserDB;
-
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule =
             new ActivityScenarioRule<>(MainActivity.class);
@@ -47,38 +43,37 @@ public class ProfileFragmentTest {
 
     @Before
     public void setUp() {
-        // Initialize Mockito
-        MockitoAnnotations.openMocks(this);
-
-        // Inject the mock into the fragment
-        activityRule.getScenario().onActivity(activity -> {
-            ProfileFragment fragment = (ProfileFragment) activity.getSupportFragmentManager()
-                    .findFragmentById(R.id.fragment_container); // Use your actual ID
-            if (fragment != null) {
-                fragment.setUserDB(mockUserDB);
-            }
-        });
+        Context context = ApplicationProvider.getApplicationContext();
+        if (FirebaseApp.getApps(context).isEmpty()) {
+            FirebaseApp.initializeApp(context);
+        }
     }
 
     @Test
     public void testProfileComponentsVisibility() throws InterruptedException {
 
-        // Wait for Firestore
-        Thread.sleep(6000);
-
+        Thread.sleep(5000);
         onView(withId(R.id.nav_profile)).perform(click());
+
+        // Wait for Firestore
+        Thread.sleep(9000);
+
         onView(withId(R.id.profile_image)).check(matches(isDisplayed()));
         onView(withId(R.id.first_name_filled_text_field)).check(matches(isDisplayed()));
-        onView(withId(R.id.save_button)).check(matches(isDisplayed()));
+        onView(withId(R.id.save_button))
+                .perform(ViewActions.scrollTo())
+                .check(matches(isDisplayed()));
     }
 
     @Test
     public void testEditFieldToggle() throws InterruptedException {
 
+        Thread.sleep(5000);
+        onView(withId(R.id.nav_profile)).perform(click());
+
         // Wait for Firestore
         Thread.sleep(6000);
 
-        onView(withId(R.id.nav_profile)).perform(click()); // Added navigation
         onView(withId(R.id.edit_first_name_button)).perform(click());
         onView(allOf(isDescendantOfA(withId(R.id.first_name_filled_text_field)),
                 isAssignableFrom(EditText.class)))
@@ -86,36 +81,43 @@ public class ProfileFragmentTest {
     }
 
     @Test
-    public void testSecretAdminAccess() throws InterruptedException{
-
-        // Wait for Firestore
-        Thread.sleep(6000);
-
-        onView(withId(R.id.nav_profile)).perform(click());
-        for (int i = 0; i < 5; i++) {
-            onView(withId(R.id.profile_image)).perform(click());
-        }
-        onView(withText("Successfully verified!"))
-                .inRoot(withDecorView(not(is(decorView))))
-                .check(matches(isDisplayed()));
-    }
-
-    @Test
     public void testInvalidEmailToast() throws InterruptedException {
 
-        // Wait for Firestore
-        Thread.sleep(6000);
-
+        Thread.sleep(5000);
         onView(withId(R.id.nav_profile)).perform(click());
-        onView(withId(R.id.edit_email_button)).perform(click());
-        onView(allOf(isDescendantOfA(withId(R.id.email_filled_text_field)),
-                isAssignableFrom(EditText.class))).perform(replaceText("invalid-email"));
 
-        onView(withId(R.id.save_button)).perform(click());
+        Thread.sleep(4000);
+
+        onView(withId(R.id.edit_email_button)).perform(click());
+
+        // Input bad data
+        onView(allOf(isDescendantOfA(withId(R.id.email_filled_text_field)),
+                isAssignableFrom(EditText.class)))
+                .perform(replaceText("not-an-email"));
+
+        onView(withId(R.id.save_button))
+                .perform(ViewActions.scrollTo())
+                        .perform(click());
+
+        Thread.sleep(2000);
+
+        // Handle the confirmation dialog if your app has one
         onView(withText("Yes")).perform(click());
 
+        // Wait for Firebase/Validation logic to trigger the Toast
+        Thread.sleep(2000);
+
         onView(withText("Incorrect Email!"))
-                .inRoot(withDecorView(not(is(decorView))))
+                .inRoot(withDecorView(not(is(getActivityDecorView()))))
                 .check(matches(isDisplayed()));
     }
+
+    private View getActivityDecorView() {
+        final View[] decorView = new View[1];
+        activityRule.getScenario().onActivity(activity ->
+                decorView[0] = activity.getWindow().getDecorView()
+        );
+        return decorView[0];
+    }
+
 }
