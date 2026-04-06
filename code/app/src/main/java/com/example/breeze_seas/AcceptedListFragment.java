@@ -92,8 +92,13 @@ public class AcceptedListFragment extends Fragment {
     public void onStart() {
         super.onStart();
         if (acceptedList != null) {
-            waitingProgress.setVisibility(View.VISIBLE);
+            if (acceptedList.getUserList().isEmpty()) {
+                waitingProgress.setVisibility(View.VISIBLE);
+            }
             acceptedList.startListening(liveListener);
+            if (adapter != null) {
+                adapter.notifyDataSetChanged();
+            }
         }
     }
 

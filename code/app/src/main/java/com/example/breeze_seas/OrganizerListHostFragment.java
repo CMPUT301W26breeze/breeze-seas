@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 public class OrganizerListHostFragment extends Fragment {
@@ -23,10 +22,16 @@ public class OrganizerListHostFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle saved) {
         View view = inflater.inflate(R.layout.fragment_organizer_list_host, container, false);
+
         viewPager = view.findViewById(R.id.organizer_view_pager);
+        OrganizerPagerAdapter adapter = new OrganizerPagerAdapter(this);
+        viewPager.setAdapter(adapter);
+        viewPager.setOffscreenPageLimit(3);
+
         view.findViewById(R.id.organizer_lists_back).setOnClickListener(v ->
                 requireActivity().getSupportFragmentManager().popBackStack()
         );
+
         tabButtons = new TextView[] {
                 view.findViewById(R.id.organizer_tab_waiting),
                 view.findViewById(R.id.organizer_tab_pending),
@@ -34,17 +39,9 @@ public class OrganizerListHostFragment extends Fragment {
                 view.findViewById(R.id.organizer_tab_declined)
         };
 
-        FragmentStateAdapter adapter = new OrganizerPagerAdapter(this);
-        viewPager.setAdapter(adapter);
-
         for (int i = 0; i < tabButtons.length; i++) {
             final int tabIndex = i;
-            tabButtons[i].setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    selectTab(tabIndex, true);
-                }
-            });
+            tabButtons[i].setOnClickListener(v -> selectTab(tabIndex, true));
         }
 
         pageChangeCallback = new ViewPager2.OnPageChangeCallback() {
@@ -56,7 +53,9 @@ public class OrganizerListHostFragment extends Fragment {
         viewPager.registerOnPageChangeCallback(pageChangeCallback);
 
         selectedTabIndex = saved != null ? saved.getInt(STATE_SELECTED_TAB, 0) : 0;
-        selectTab(selectedTabIndex, false);
+        updateTabSelection(selectedTabIndex);
+        viewPager.setCurrentItem(selectedTabIndex, false);
+
         return view;
     }
 
@@ -68,39 +67,31 @@ public class OrganizerListHostFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-        if (viewPager != null && pageChangeCallback != null) {
-            viewPager.unregisterOnPageChangeCallback(pageChangeCallback);
-            pageChangeCallback = null;
-        }
         if (viewPager != null) {
+            if (pageChangeCallback != null) {
+                viewPager.unregisterOnPageChangeCallback(pageChangeCallback);
+            }
             viewPager.setAdapter(null);
             viewPager = null;
         }
+        pageChangeCallback = null;
         tabButtons = null;
         super.onDestroyView();
     }
 
     private void selectTab(int index, boolean smoothScroll) {
-        if (viewPager == null) {
-            return;
-        }
-
-        selectedTabIndex = index;
-        updateTabSelection(index);
-
-        if (viewPager.getCurrentItem() != index) {
+        if (viewPager != null) {
+            selectedTabIndex = index;
             viewPager.setCurrentItem(index, smoothScroll);
         }
     }
 
     private void updateTabSelection(int selectedIndex) {
         selectedTabIndex = selectedIndex;
-        if (tabButtons == null) {
-            return;
-        }
+        if (tabButtons == null) return;
 
         for (int i = 0; i < tabButtons.length; i++) {
-            boolean isSelected = i == selectedIndex;
+            boolean isSelected = (i == selectedIndex);
             tabButtons[i].setActivated(isSelected);
             tabButtons[i].setSelected(isSelected);
         }
