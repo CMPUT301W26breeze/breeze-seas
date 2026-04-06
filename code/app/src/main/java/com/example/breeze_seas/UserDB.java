@@ -36,6 +36,9 @@ public class UserDB {
     // Holds the active Firestore snapshot listener so we can detach it later
     private ListenerRegistration usersListener;
 
+    /**
+     * Reports success or failure for user mutations that need a completion callback.
+     */
     public interface UserMutationCallback {
         void onSuccess();
         void onFailure(Exception e);

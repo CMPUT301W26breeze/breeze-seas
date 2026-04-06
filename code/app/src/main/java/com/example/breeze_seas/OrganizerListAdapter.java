@@ -14,6 +14,9 @@ import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 
+/**
+ * Displays organizer-facing user rows with a secondary detail line and trailing status chip.
+ */
 public class OrganizerListAdapter extends ArrayAdapter<User> {
     private final String statusLabel;
     private final boolean highlightedStatus;

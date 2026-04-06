@@ -6,6 +6,9 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+/**
+ * Unit tests for small organizer and ownership helpers on {@link Event}.
+ */
 public class EventTest {
 
     private Event createTestEvent(User org) {

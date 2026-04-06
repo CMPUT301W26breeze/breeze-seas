@@ -15,6 +15,9 @@ import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Unit tests for defensive branches in {@link ImageDB}.
+ */
 public class ImageDBTest {
 
     @Before

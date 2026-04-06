@@ -16,6 +16,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
+/**
+ * Shows the entrant-facing event details screen, including waitlist actions and comments.
+ */
 public class EventDetailsFragment extends Fragment {
     private ImageView returnButton;
     private TextView eventTitle;

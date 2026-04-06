@@ -32,8 +32,6 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-@RunWith(AndroidJUnit4.class)
-
 /**
  * Integrated tests for the StatusList and Lottery functionality.
  * This class validates the interaction between the UI (Fragments), the ViewModels,
@@ -41,6 +39,7 @@ import java.util.concurrent.TimeUnit;
  * management and the randomized lottery draw.
  *
  */
+@RunWith(AndroidJUnit4.class)
 public class StatusListTest {
 
     private FirebaseFirestore db;

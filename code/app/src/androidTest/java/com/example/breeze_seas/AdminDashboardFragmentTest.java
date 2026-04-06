@@ -24,6 +24,9 @@ import androidx.test.filters.LargeTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+/**
+ * Instrumentation tests covering the admin-auth entry flow from the profile screen.
+ */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class AdminDashboardFragmentTest {

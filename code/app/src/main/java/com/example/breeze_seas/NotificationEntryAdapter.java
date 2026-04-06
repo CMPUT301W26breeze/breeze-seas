@@ -17,9 +17,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-// TODO: (Optional) combine this with other adapter classes
+/**
+ * Renders inbox-style notification rows for the Alerts tab.
+ */
 public class NotificationEntryAdapter extends RecyclerView.Adapter<NotificationEntryAdapter.NotificationViewHolder> {
 
+    /**
+     * Receives taps on one notification row.
+     */
     public interface OnNotificationClickListener {
         void onNotificationClick(Notification notification);
     }
@@ -73,6 +78,9 @@ public class NotificationEntryAdapter extends RecyclerView.Adapter<NotificationE
         return notificationList.size();
     }
 
+    /**
+     * Holds the bound views for one notification row.
+     */
     public static class NotificationViewHolder extends RecyclerView.ViewHolder {
         TextView messageText, timeText, typeChip;
         ImageView icon;

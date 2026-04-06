@@ -21,6 +21,9 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 
+/**
+ * Lets organizers invite one existing entrant to become a co-organizer for the selected event.
+ */
 public class CoOrganizerFragment extends Fragment {
 
     private ListView listView;

@@ -35,6 +35,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+/**
+ * Instrumentation tests for the profile screen's basic visibility and editing affordances.
+ */
 @RunWith(AndroidJUnit4.class)
 public class ProfileFragmentTest {
 

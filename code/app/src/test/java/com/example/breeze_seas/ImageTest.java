@@ -13,6 +13,9 @@ import org.robolectric.RobolectricTestRunner;
 
 import java.io.ByteArrayOutputStream;
 
+/**
+ * Robolectric tests for the {@link Image} model's id and bitmap/base64 helpers.
+ */
 @RunWith(RobolectricTestRunner.class)
 public class ImageTest {
 
