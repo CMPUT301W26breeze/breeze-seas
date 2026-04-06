@@ -50,7 +50,7 @@ public abstract class StatusList {
     public void startListening(ListUpdateListener listener){
         stopListening(); //clear existing listeners
         FirebaseFirestore db = DBConnector.getDb();
-
+        this.userList.clear();
         Query listRef = db.collection("events").document(event.getEventId())
                 .collection("participants").whereEqualTo("status",getStatusName());
 
@@ -102,7 +102,6 @@ public abstract class StatusList {
         if (this.listenerRegistration != null) {
             this.listenerRegistration.remove();
             this.listenerRegistration = null;
-            this.userList.clear();
         }
     }
 

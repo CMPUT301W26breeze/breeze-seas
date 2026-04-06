@@ -16,6 +16,8 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import java.util.List;
+
 /**
  * A fragment that displays the list of users currently on the pending list for an event.
  */
@@ -62,8 +64,13 @@ public class PendingListFragment extends Fragment {
     public void onStart() {
         super.onStart();
         if (pendingList != null) {
-            waitingProgress.setVisibility(View.VISIBLE);
+            if (pendingList.getUserList().isEmpty()) {
+                waitingProgress.setVisibility(View.VISIBLE);
+            }
             pendingList.startListening(liveListener);
+            if (adapter != null) {
+                adapter.notifyDataSetChanged();
+            }
         }
     }
 

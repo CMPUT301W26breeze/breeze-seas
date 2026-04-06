@@ -1,15 +1,17 @@
 package com.example.breeze_seas;
 
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-
 public class OrganizerPagerAdapter extends FragmentStateAdapter {
+
+    private static final int NUM_TABS = 4;
+
     public OrganizerPagerAdapter(@NonNull Fragment fragment) {
         super(fragment);
     }
+
     @NonNull
     @Override
     public Fragment createFragment(int position) {
@@ -24,8 +26,6 @@ public class OrganizerPagerAdapter extends FragmentStateAdapter {
 
     @Override
     public int getItemCount() {
-        return 4;
+        return NUM_TABS;
     }
-
 }
-

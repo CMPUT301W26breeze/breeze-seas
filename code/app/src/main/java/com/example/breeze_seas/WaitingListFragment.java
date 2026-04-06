@@ -80,8 +80,13 @@ public class WaitingListFragment extends Fragment {
     public void onStart() {
         super.onStart();
         if (waitingList != null) {
-            waitingProgress.setVisibility(View.VISIBLE);
+            if (waitingList.getUserList().isEmpty()) {
+                waitingProgress.setVisibility(View.VISIBLE);
+            }
             waitingList.startListening(liveListener);
+            if (adapter != null) {
+                adapter.notifyDataSetChanged();
+            }
         }
     }
 

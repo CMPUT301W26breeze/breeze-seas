@@ -94,7 +94,7 @@ public class SendAnnouncementFragment extends Fragment {
                 userSentList = currentEvent.getWaitingList().getUserList();
             } else if (selectedTabIndex == 1) {
                 type = ANNOUNCEMENT_SELECTED;
-                userSentList = currentEvent.getPendingList().getUserList();
+                userSentList = currentEvent.getAcceptedList().userList;
             } else if (selectedTabIndex == 2) {
                 type = ANNOUNCEMENT_CANCELLED;
                 userSentList = currentEvent.getDeclinedList().getUserList();

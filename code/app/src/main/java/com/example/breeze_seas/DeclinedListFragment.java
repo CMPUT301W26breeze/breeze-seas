@@ -58,8 +58,13 @@ public class DeclinedListFragment extends Fragment {
     public void onStart() {
         super.onStart();
         if (declinedList != null) {
-            waitingProgress.setVisibility(View.VISIBLE);
+            if (declinedList.getUserList().isEmpty()) {
+                waitingProgress.setVisibility(View.VISIBLE);
+            }
             declinedList.startListening(liveListener);
+            if (adapter != null) {
+                adapter.notifyDataSetChanged();
+            }
         }
     }
 
