@@ -48,7 +48,9 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation("org.mockito:mockito-android:5.23.0")
-    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.5.1")
+    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.5.1") {
+        exclude(group = "com.google.protobuf", module = "protobuf-lite")
+    }
     androidTestImplementation("androidx.fragment:fragment-testing:1.7.1")
     debugImplementation("androidx.fragment:fragment-testing-manifest:1.7.1")
     implementation(platform("com.google.firebase:firebase-bom:34.3.0"))

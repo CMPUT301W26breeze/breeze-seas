@@ -177,17 +177,8 @@ public abstract class StatusList {
      * @param user The {@link User} object to be added.
      * @param listener Callback to handle success or failure of the DB operation.
      */
-    public void addUser(User user,ListUpdateListener listener) {
-        if (user == null || user.getDeviceId() == null) {
-            return;
-        }
-
-        if (this.capacity > 0 && getSize() >= this.capacity) {
-            if (listener != null) {
-                listener.onError(new Exception("This list is currently full (" + capacity + ")."));
-            }
-            return;
-        }
+    public void addUser(User user, ListUpdateListener listener) {
+        if (user == null || user.getDeviceId() == null) return;
 
         FirebaseFirestore db = DBConnector.getDb();
         DocumentReference participantRef = db.collection("events")
@@ -195,30 +186,42 @@ public abstract class StatusList {
                 .collection("participants")
                 .document(user.getDeviceId());
 
-        String status = getStatusName();
-        Map<String, Object> update = new HashMap<>();
-        update.put("deviceId",user.getDeviceId());
-        update.put("status", status);
+        db.collection("events").document(event.getEventId())
+                .collection("participants")
+                .whereEqualTo("status", getStatusName())
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    int currentCount = queryDocumentSnapshots.size();
 
-        // Only set the join timestamp and location if the user is entering the "waiting" list
-        if (getStatusName().equals("waiting")) {
-            update.put("timeJoined", FieldValue.serverTimestamp());
-            if (tempLocation != null) {
-                update.put("location", tempLocation);
-            }
-        }
-
-        participantRef.set(update, SetOptions.merge()) //update field if doc exists
-                .addOnSuccessListener(aVoid -> {
-                    this.tempLocation = null; // Clear location after successful save
-                    if (listener != null) {
-                        listener.onUpdate();
+                    if (this.capacity > 0 && currentCount >= this.capacity) {
+                        if (listener != null) {
+                            listener.onError(new Exception("This list is currently full."));
+                        }
+                        return;
                     }
+
+                    Map<String, Object> update = new HashMap<>();
+                    update.put("deviceId", user.getDeviceId());
+                    update.put("status", getStatusName());
+
+                    if (getStatusName().equals("waiting")) {
+                        update.put("timeJoined", FieldValue.serverTimestamp());
+                        if (tempLocation != null) {
+                            update.put("location", tempLocation);
+                        }
+                    }
+
+                    participantRef.set(update, SetOptions.merge())
+                            .addOnSuccessListener(aVoid -> {
+                                this.tempLocation = null;
+                                if (listener != null) listener.onUpdate();
+                            })
+                            .addOnFailureListener(e -> {
+                                if (listener != null) listener.onError(e);
+                            });
                 })
                 .addOnFailureListener(e -> {
-                    if (listener != null) {
-                        listener.onError(e);
-                    }
+                    if (listener != null) listener.onError(e);
                 });
     }
 
