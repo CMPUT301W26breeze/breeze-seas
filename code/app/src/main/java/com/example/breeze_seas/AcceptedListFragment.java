@@ -50,7 +50,9 @@ public class AcceptedListFragment extends Fragment {
         }
     };
 
-
+    /**
+     * Empty constructor.
+     */
     public AcceptedListFragment() {
     }
 
@@ -61,6 +63,10 @@ public class AcceptedListFragment extends Fragment {
                     acceptedList.exportCsv(requireContext(), uri);
                 }
     });
+
+    /**
+     * Export the CSV file on click.
+     */
 
     private void onExportClick(){
         if (acceptedList == null || acceptedList.getUserList().isEmpty()) {

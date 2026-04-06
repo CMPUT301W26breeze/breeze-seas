@@ -48,6 +48,9 @@ public class PendingListFragment extends Fragment {
         }
     };
 
+    /**
+     * Empty constructor.
+     */
     public PendingListFragment() { }
 
     @Override

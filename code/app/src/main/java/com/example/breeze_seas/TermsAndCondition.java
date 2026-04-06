@@ -6,9 +6,18 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+/**
+ * A DialogFragment that displays the Terms and Conditions for joining an event's waiting list.
+ * This dialog dynamically constructs its message based on the specific requirements of the
+ * {@link Event}. If the event enforces geolocation, an additional term regarding location
+ * recording is automatically appended to the list.
+ */
 
 public class TermsAndCondition extends DialogFragment {
 
+    /**
+     * Listener interface to handle the user's interaction with the dialog.
+     */
     public interface TermsListener{
         void onAccept();
     }
@@ -26,11 +35,23 @@ public class TermsAndCondition extends DialogFragment {
     private static final String HEADER = "By signing in to the waiting list, you agree that:\n\n";
     private static final String FOOTER = "\nBy proceeding, you acknowledge and accept these terms.";
 
+    /**
+     * Constructs a new TermsAndCondition dialog.
+     * @param listener  The callback to trigger when terms are accepted.
+     * @param event  The event for which the user is joining the waiting list;
+     * used to check for geolocation requirements.
+     */
     public TermsAndCondition(TermsListener listener,Event event){
         this.listener=listener;
         this.event=event;
     }
 
+    /**
+     * Builds and returns a {@link com.google.android.material.dialog.MaterialAlertDialogBuilder}
+     * containing the formatted terms.
+     * * @param savedInstanceState The last saved instance state of the Fragment, or null.
+     * @return A configured Material Alert Dialog.
+     */
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {

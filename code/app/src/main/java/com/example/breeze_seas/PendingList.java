@@ -18,16 +18,6 @@ public class PendingList extends StatusList {
         super(event, capacity);
     }
 
-    /**
-     * Updates the capacity for the PendingList object
-     * @param newCapacity The new capacity
-     * @return boolean True if the new capacity is greater than zero, False otherwise
-     */
-    public boolean tryUpdateCapacity(int newCapacity) {
-        if (newCapacity < 0) return false;
-        this.capacity = newCapacity;
-        return true;
-    }
 
     /**
      * Defines the unique status identifier for this list type in Firestore.

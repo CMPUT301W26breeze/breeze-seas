@@ -34,10 +34,18 @@ public class Lottery {
         this.waitingList = event.getWaitingList();
     }
 
+    /**
+     * Returns a copy of the winners from the last executed lottery.
+     * @return List of {@link User} objects who were selected.
+     */
     public List<User> getLastRoundWinners() {
         return new ArrayList<>(lastRoundWinners);
     }
 
+    /**
+     * Returns a copy of the losers from the last executed lottery.
+     * @return List of {@link User} objects who were not selected.
+     */
     public List<User> getLastRoundLosers() {
         return new ArrayList<>(lastRoundLosers);
     }
@@ -50,6 +58,7 @@ public class Lottery {
         FirebaseFirestore db = DBConnector.getDb();
         String eventId = event.getEventId();
 
+        //find how many spots are already taken
         db.collection("events").document(eventId)
                 .collection("participants")
                 .whereIn("status", java.util.Arrays.asList("pending", "accepted"))
@@ -57,6 +66,7 @@ public class Lottery {
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     int currentOccupancy = queryDocumentSnapshots.size();
 
+                    // Stop if the event is already full
                     if (currentOccupancy >= capacity) {
                         if (finalListener != null) {
                             finalListener.onError(new Exception("Event is already at full capacity!"));
@@ -67,6 +77,7 @@ public class Lottery {
                     int remainingSpots = capacity - currentOccupancy;
                     List<User> pool = new ArrayList<>(waitingList.getUserList());
 
+                    //exit if the waiting list is empty
                     if (pool == null || pool.isEmpty()) {
                         lastRoundWinners.clear();
                         lastRoundLosers.clear();
@@ -77,7 +88,7 @@ public class Lottery {
                     Collections.shuffle(pool);
                     int totalToSelect = Math.min(remainingSpots, pool.size());
 
-
+                    // Divide the pool into winners and those who stay in the waiting list
                     final List<User> winners = new ArrayList<>(pool.subList(0, totalToSelect));
                     final List<User> losers = new ArrayList<>(pool.subList(totalToSelect, pool.size()));
                     lastRoundWinners.clear();
@@ -120,7 +131,7 @@ public class Lottery {
                             update.put("deviceId", participant.getDeviceId());
                             update.put("status", winnerIds.contains(participant.getDeviceId())
                                     ? "pending"
-                                    : "not_selected");
+                                    : "waiting");
                             batch.set(participantRef, update, SetOptions.merge());
                         }
 
