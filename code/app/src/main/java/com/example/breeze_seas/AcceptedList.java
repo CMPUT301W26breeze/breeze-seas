@@ -40,6 +40,11 @@ public class AcceptedList extends StatusList{
         return "accepted";
     }
 
+    /**
+     * Export CSV files with accepted user's details.
+     * @param context The application or activity context required to access the ContentResolver.
+     * @param uri The destination URI where the CSV data will be written.
+     */
     public void exportCsv(Context context, Uri uri){
         try (OutputStream stream = context.getContentResolver().openOutputStream(uri);
              CSVWriter writer = new CSVWriter(new OutputStreamWriter(stream))) {

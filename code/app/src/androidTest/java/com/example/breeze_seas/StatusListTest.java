@@ -33,12 +33,27 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
+
+/**
+ * Integrated tests for the StatusList and Lottery functionality.
+ * This class validates the interaction between the UI (Fragments), the ViewModels,
+ * and the Firebase Firestore backend, focusing on participant list
+ * management and the randomized lottery draw.
+ *
+ */
 public class StatusListTest {
 
     private FirebaseFirestore db;
     private final String TEST_EVENT_ID = "TEST_EVENT_1";
     private final String[] ALL_DEVICE_IDS = {"device_1" ,"device_2" , "device_3"};
 
+    /**
+     * Initializes the test environment before each test case.
+     * Performs anonymous Firebase authentication and resets the Firestore
+     * database to a clean state. It also creates a base event document
+     * required for participant sub-collections.
+     * @throws InterruptedException if the synchronization latches are interrupted.
+     */
     @Before
     public void setup() throws InterruptedException {
         db = FirebaseFirestore.getInstance();
@@ -60,6 +75,10 @@ public class StatusListTest {
 
     }
 
+    /**
+     * Deletes all test-specific documents from Firestore.
+     * @throws InterruptedException if the cleanup operations exceed the timeout.
+     */
     private void cleanDb() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(ALL_DEVICE_IDS.length * 2);
         for (String id : ALL_DEVICE_IDS) {
@@ -89,6 +108,16 @@ public class StatusListTest {
         Thread.sleep(1000);
     }
 
+
+    /**
+     * Helper method to populate the Firestore users collection with a test profile.
+     * @param deviceId  The unique ID for the user.
+     * @param firstName The user's first name.
+     * @param lastName  The user's last name.
+     * @param userName  The unique username.
+     * @param latch     A latch used to synchronize the asynchronous Firestore write.
+     */
+
     private void writeInUsers(String deviceId, String firstName,
                                              String lastName, String userName, CountDownLatch latch) {
         Map<String, Object> profile = new HashMap<>();
@@ -103,6 +132,12 @@ public class StatusListTest {
                 .addOnCompleteListener(t -> latch.countDown());
 
     }
+
+    /**
+     * Launches the {@link OrganizerListHostFragment} in an isolated container for testing.
+     * @param waitingListCapacity The maximum number of entrants allowed for the test.
+     * @return A {@link FragmentScenario} managing the fragment's lifecycle.
+     */
 
     private FragmentScenario<OrganizerListHostFragment> launchHostFragment(int waitingListCapacity) {
         FragmentScenario<OrganizerListHostFragment> scenario = FragmentScenario.launchInContainer(
@@ -128,6 +163,13 @@ public class StatusListTest {
         scenario.moveToState(Lifecycle.State.RESUMED);
         return scenario;
     }
+
+    /**
+     * Verifies that a user added to the waiting list appears correctly in the UI.
+     * Checks both the existence of the data object in the adapter and the
+     * formatted text in the ListView row.
+     * @throws InterruptedException if the Firestore write or UI sync times out.
+     */
 
     @Test
     public void appearsOnWaitingList() throws InterruptedException {
@@ -165,6 +207,11 @@ public class StatusListTest {
                 .onChildView(withId(R.id.entrant_name_text))
                 .check(matches(withText("FNAME_1 LNAME_1")));
     }
+
+    /**
+     * Tests the enforcement of the waiting list capacity limit.
+     * @throws InterruptedException if synchronization latches time out.
+     */
 
     @Test
     public void testWaitingListCapacity() throws InterruptedException {
@@ -217,6 +264,11 @@ public class StatusListTest {
 
         extraWriteLatch.await(10, TimeUnit.SECONDS);
     }
+
+    /**
+     * Executes an end-to-end test of the event lottery system.
+     * @throws InterruptedException if the lottery processing delay is interrupted.
+     */
 
     @Test
     public void testFullLotteryFlow() throws InterruptedException {
@@ -271,6 +323,11 @@ public class StatusListTest {
                 .check(matches(withText(anyWinner)));
     }
 
+    /**
+     * Final cleanup after each test to ensure no documents remain in the
+     * remote Firestore environment.
+     * @throws InterruptedException if the cleanup latch fails.
+     */
 
     @After
     public void cleanup() throws InterruptedException {
