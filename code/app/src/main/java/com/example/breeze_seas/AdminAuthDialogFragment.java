@@ -22,18 +22,29 @@ import java.util.Map;
  */
 public class AdminAuthDialogFragment extends DialogFragment {
 
-    // Hardcoded password
-    // TODO: Explore other options for admin auth
     private static final String ADMIN_PASSWORD = "flyingfish";
-    private final UserDB userDB = new UserDB();
+    private static final String ARG_CONTAINER_ID = "containerId";
+
+    private UserDB userDB = new UserDB();
 
     /**
-     * Creates dialog with a password input field and handles button clicks.
+     * Creates an instance with the container ID to navigate into after successful auth.
+     * Passing the container ID avoids hardcoding R.id.fragment_container, allowing
+     * this dialog to work inside both MainActivity and FragmentScenario.
      */
+    public static AdminAuthDialogFragment newInstance(int containerId) {
+        Bundle args = new Bundle();
+        args.putInt(ARG_CONTAINER_ID, containerId);
+        AdminAuthDialogFragment fragment = new AdminAuthDialogFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         final EditText input = new EditText(requireContext());
+        input.setId(R.id.admin_password_input);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         input.setHint("Enter Admin Password");
 
@@ -59,12 +70,7 @@ public class AdminAuthDialogFragment extends DialogFragment {
                 .create();
     }
 
-    /**
-     * Updates user information in the DB (isAdmin set to true) based on their device ID,
-     * then shows the admin dashboard screen.
-     */
     private void grantAdminAccess() {
-        // Fetches android/user ID to identify user
         String currentDeviceId = Settings.Secure.getString(
                 requireContext().getContentResolver(),
                 Settings.Secure.ANDROID_ID
@@ -73,14 +79,20 @@ public class AdminAuthDialogFragment extends DialogFragment {
         Map<String, Object> updates = new HashMap<>();
         updates.put("isAdmin", true);
 
-        // Update DB
         userDB.updateUser(currentDeviceId, updates);
         Toast.makeText(getContext(), "Admin rights granted!", Toast.LENGTH_SHORT).show();
 
-        // Route to dashboard
+        int containerId = getArguments() != null
+                ? getArguments().getInt(ARG_CONTAINER_ID, R.id.fragment_container)
+                : R.id.fragment_container;
+
         requireActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new AdminDashboardFragment())
+                .replace(containerId, new AdminDashboardFragment())
                 .addToBackStack(null)
                 .commit();
+    }
+
+    public void setUserDB(UserDB userDB) {
+        this.userDB = userDB;
     }
 }

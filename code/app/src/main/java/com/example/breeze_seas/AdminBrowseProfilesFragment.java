@@ -41,8 +41,9 @@ public class AdminBrowseProfilesFragment extends Fragment {
 
         MaterialToolbar toolbar = view.findViewById(R.id.abp_top_app_bar);
         toolbar.setNavigationOnClickListener(v -> {
+            int containerId = ((View) requireView().getParent()).getId();
             requireActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new AdminDashboardFragment())
+                    .replace(containerId, new AdminDashboardFragment())
                     .commit();
         });
 

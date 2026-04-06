@@ -20,45 +20,43 @@ public class AdminDashboardFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        int containerId = ((View) requireView().getParent()).getId();
+
         MaterialToolbar toolbar = view.findViewById(R.id.ad_topAppBar);
         toolbar.setNavigationOnClickListener(v -> {
             requireActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new ProfileFragment())
+                    .replace(containerId, new ProfileFragment())
                     .commit();
         });
 
         Button btnViewEvents = view.findViewById(R.id.ad_btn_view_events);
-
         btnViewEvents.setOnClickListener(v -> {
             requireActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new AdminBrowseEventsFragment())
+                    .replace(containerId, new AdminBrowseEventsFragment())
                     .addToBackStack(null)
                     .commit();
         });
 
         Button btnViewProfiles = view.findViewById(R.id.ad_btn_view_profiles);
-
-        btnViewProfiles.setOnClickListener(view1 -> {
+        btnViewProfiles.setOnClickListener(v -> {
             requireActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new AdminBrowseProfilesFragment())
+                    .replace(containerId, new AdminBrowseProfilesFragment())
                     .addToBackStack(null)
                     .commit();
         });
 
         Button btnViewImages = view.findViewById(R.id.ad_btn_view_images);
-
-        btnViewImages.setOnClickListener(view1 -> {
+        btnViewImages.setOnClickListener(v -> {
             requireActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new AdminBrowseImagesFragment())
+                    .replace(containerId, new AdminBrowseImagesFragment())
                     .addToBackStack(null)
                     .commit();
         });
 
         Button btnViewLogs = view.findViewById(R.id.ad_btn_view_logs);
-
-        btnViewLogs.setOnClickListener(view1 -> {
+        btnViewLogs.setOnClickListener(v -> {
             requireActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new AdminBrowseLogsFragment())
+                    .replace(containerId, new AdminBrowseLogsFragment())
                     .addToBackStack(null)
                     .commit();
         });

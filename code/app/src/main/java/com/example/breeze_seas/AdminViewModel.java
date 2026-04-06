@@ -41,7 +41,7 @@ public class AdminViewModel extends ViewModel {
             public void onImageAdded(Image image) {
                 List<Image> current = images.getValue();
                 current.add(image);
-                images.setValue(current);
+                images.postValue(current);
             }
 
             @Override
@@ -53,14 +53,14 @@ public class AdminViewModel extends ViewModel {
                         break;
                     }
                 }
-                images.setValue(current);
+                images.postValue(current);
             }
 
             @Override
             public void onImageRemoved(Image image) {
                 List<Image> current = images.getValue();
                 current.removeIf(img -> img.getImageId().equals(image.getImageId()));
-                images.setValue(current);
+                images.postValue(current);
             }
 
             @Override
@@ -97,7 +97,7 @@ public class AdminViewModel extends ViewModel {
             public void onEventAdded(Event event) {
                 List<Event> current = events.getValue();
                 current.add(event);
-                events.setValue(current);
+                events.postValue(current);
             }
 
             @Override
@@ -109,14 +109,14 @@ public class AdminViewModel extends ViewModel {
                         break;
                     }
                 }
-                events.setValue(current);
+                events.postValue(current);
             }
 
             @Override
             public void onEventRemoved(Event event) {
                 List<Event> current = events.getValue();
                 current.removeIf(e -> e.getEventId().equals(event.getEventId()));
-                events.setValue(current);
+                events.postValue(current);
             }
 
             @Override
@@ -156,7 +156,7 @@ public class AdminViewModel extends ViewModel {
             public void onUserAdded(User user) {
                 List<User> current = users.getValue();
                 current.add(user);
-                users.setValue(current);
+                users.postValue(current);
             }
 
             @Override
@@ -168,14 +168,14 @@ public class AdminViewModel extends ViewModel {
                         break;
                     }
                 }
-                users.setValue(current);
+                users.postValue(current);
             }
 
             @Override
             public void onUserRemoved(User user) {
                 List<User> current = users.getValue();
                 current.removeIf(u -> u.getDeviceId().equals(user.getDeviceId()));
-                users.setValue(current);
+                users.postValue(current);
             }
 
             @Override
