@@ -431,7 +431,9 @@ public class ProfileFragment extends Fragment {
                     Toast.makeText(getContext(), "Successfully verified!", Toast.LENGTH_SHORT).show();
                     navigateToAdminDashboard();
                 } else {
-                    new AdminAuthDialogFragment().show(getParentFragmentManager(), "AdminAuth");
+                    int containerId = ((android.view.View) requireView().getParent()).getId();
+                    AdminAuthDialogFragment.newInstance(containerId)
+                            .show(getParentFragmentManager(), "AdminAuth");
                 }
             }
 

@@ -50,8 +50,9 @@ public class AdminBrowseEventsFragment extends Fragment {
 
         MaterialToolbar toolbar = view.findViewById(R.id.abe_topAppBar);
         toolbar.setNavigationOnClickListener(v -> {
+            int containerId = ((View) requireView().getParent()).getId();
             requireActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new AdminDashboardFragment())
+                    .replace(containerId, new AdminDashboardFragment())
                     .commit();
         });
 
@@ -60,8 +61,9 @@ public class AdminBrowseEventsFragment extends Fragment {
 
         adapter = new AdminBrowseEventsAdapter(new ArrayList<>(), event -> {
             sessionViewModel.setEventShown(event);
+            int containerId = ((View) requireView().getParent()).getId();
             requireActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new AdminEventDetailsFragment())
+                    .replace(containerId, new AdminEventDetailsFragment())
                     .addToBackStack(null)
                     .commit();
         }, event -> {

@@ -36,8 +36,9 @@ public class AdminBrowseImagesFragment extends Fragment {
 
         MaterialToolbar toolbar = view.findViewById(R.id.abi_topAppBar);
         toolbar.setNavigationOnClickListener(v -> {
+            int containerId = ((View) requireView().getParent()).getId();
             requireActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new AdminDashboardFragment())
+                    .replace(containerId, new AdminDashboardFragment())
                     .commit();
         });
 
